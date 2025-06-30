@@ -31,6 +31,7 @@ export default defineNuxtConfig({
   css: [
     '@/assets/styles/base.css',
     '@/assets/styles/main.css',
-    '@/assets/styles/common.less'
+    '@/assets/styles/common.less',
+    'element-plus/dist/index.css'
   ]
 })

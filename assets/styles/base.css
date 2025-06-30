@@ -31,6 +31,8 @@
 
 :root {
   --header-height: 54px;
+  --text-color-brown: #654321;
+  --text-color-light-black: #333;
 }
 
 /* light mode */

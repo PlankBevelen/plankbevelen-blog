@@ -85,6 +85,7 @@ const activateNavItem = (index) => {
         item.activate = i === index;
     });
     // 跳转
+    router.push({ name: navItems.value[index].name });
 }
 
 const hoverNavItem = (index) => {
@@ -94,6 +95,21 @@ const hoverNavItem = (index) => {
 const leaveNavItem = (index) => {
     navItems.value[index].hover = false;
 }
+
+watch(route, () => {
+    const name = route.name;
+    navItems.value.forEach((item, index) => {
+        item.activate = item.name === name;
+    });
+});
+
+onMounted(() => {
+    const name = route.name;
+    navItems.value.forEach((item, index) => {
+        item.activate = item.name === name;
+    });
+});
+
 </script>
 
 <style lang="less" src="~/assets/styles/components/header.less" />

@@ -138,6 +138,12 @@ onMounted(() => {
         height: 12%;
         z-index: 10;
     }
+
+    @media (min-height: 780px) {
+        .wave {
+            min-height: 6vh;
+        }
+    }
 }
 
 

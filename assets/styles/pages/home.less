@@ -1,0 +1,174 @@
+.home {
+    position: relative;
+
+    .container {
+        display: flex;
+        justify-content: center;
+
+        .left-side {
+            flex: 7;
+        }
+
+        .right-side {
+            flex: 2;
+
+            .card {
+                padding: 20px;
+                border-radius: 0.5em;
+                margin-bottom: 20px;
+            }
+
+            .profile {
+                .head {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 20px;
+                    .avatar {
+                        width: 64px;
+                        height: 64px;
+                        border-radius: 50%;
+                        object-fit: cover;
+                    }
+                }
+                .decription {
+                    color: var(text-color-light-black);
+                    font-size: 0.9rem;
+                    text-indent: 0.5em;
+                    margin: 12px 0px;
+                    line-height: 1.5;
+                }
+                .statistics {
+                    display: flex;
+                    margin-top: 20px;
+                    .item {
+                        width: 100%;
+                        text-align: center;
+
+                        .title {
+                            display: block;
+                            line-height: 2;
+                            font-size: 0.9rem;
+                            color: var(text-color-brown);
+                            font-weight: 300;
+                        }
+                        .value {
+                            font-size: 1.05rem;
+                            font-weight: 500;
+                        }
+                    }
+                }
+                .social {
+                    display: flex;
+                    margin-top: 20px;
+                    padding: 6px 12px;
+                    border-radius: 4px;
+                    background-color: var(--text-color-brown);
+                    color: white;
+                    justify-content: center;
+                    align-items: center;
+                    gap: 0.5em;
+                    position: relative;
+                    overflow: hidden;
+
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 0;
+                        height: 100%;
+                        background-color: var(--primary-color);
+                        transition: width 0.3s ease-out; 
+                    }
+
+                    &:hover::before {
+                        width: 100%;
+                    }
+
+                    .svg-icon, span{
+                        z-index: 10;
+                    }
+                }
+            }
+
+            .annoucement {
+                .title {
+                    display: inline-flex;
+                    align-items: center;
+                    span {
+                        font-weight: 400;
+                    }
+                }
+                .content {
+                    margin-top: 10px;
+                    p {
+                        line-height: 1.5;
+                        text-indent: 1em;
+                        word-break: break-all;
+                        color: var(--text-color-light-black);
+                        font-weight: 400;
+                        font-size: 0.9rem;
+                    }
+                }
+            }
+
+            .contact {
+                .title {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                    span {
+                        font-weight: 400;
+                    }
+                }
+                .content {
+                    margin-top: 10px;
+                    span {
+                        line-height: 2;
+                        text-indent: 0.5em;
+                        display: block;
+                        color: var(--text-color-light-black);
+                        font-weight: 400;
+                        font-size: 0.9rem;
+                    }
+                    .er-codes {
+                        margin-top: 10px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-around;
+                        padding: 0 30px;
+                    }
+                }
+            }
+            .information {
+                .title {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                    span {
+                        font-weight: 400;
+                    }
+                }
+                .content {
+                    margin-top: 10px;
+                    .item {
+                        line-height: 2;
+                        display: block;
+                        color: var(--text-color-light-black);
+                        font-weight: 400;
+                        font-size: 0.9rem;
+                        margin: 0 0.2em;
+                        position: relative;
+                        width: 100%;
+
+                        span {
+                            font-weight: 600;
+                            position: absolute;
+                            right: 0;
+                        }
+                    } 
+                }
+            }
+        }
+    }
+}
