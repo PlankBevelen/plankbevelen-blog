@@ -29,7 +29,6 @@ const handleScroll = throttle(() => {
         isTransparent.value = true;
     }
     lastScrollPos.value = curScrollPos;
-    console.log(showHeader.value);
 }, 200);
 
 onMounted(()=>{

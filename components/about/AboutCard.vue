@@ -31,7 +31,7 @@
         <span class="stats-item">
             <svg-icon name="comment" size="1rem"/>
             {{ item.comments }}
-        </span>
+        </span> 
       </div>
     </div>
   </div>

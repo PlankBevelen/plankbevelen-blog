@@ -44,9 +44,9 @@ const navItems = ref([
         hover: false
     },
     {
-        name: 'category',
-        name_act: 'category_act',
-        title: '分类',
+        name: 'article',
+        name_act: 'article_act',
+        title: '文章',
         activate: false,
         hover: false
     },
