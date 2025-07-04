@@ -2,23 +2,20 @@
     <TopBanner :imagePath="imagePath" :title="title" height="35vh"/>
     <div class="article">
         <div class="container">
-            <div class="Recent-articles">
-                <div class="Recent-articles-title">
-                    <h2>最近发布</h2>
-                    <div class="controller">
-                        <span class="prev"><</span>
-                        <span class="next">></span>
-                    </div>
+            <!-- 浏览区域 -->
+            <div class="article-browser">
+              <div class="article-browser-header">
+                <h1>{{ curCategory }}</h1>
+              </div>
+              <div class="article-browser-body">
+                <div class="article-browser-body-item" v-for="(article, index) in recentArticles" >
+                  <VerticalArticle :article="article" v-if="!isHorizontal"/>
+                  <HorizontalArticle v-else/>
                 </div>
-                <!-- 仅六个，每次展示两个 -->
-                <div class="Recent-articles-body">
-                    <el-carousel indicator-position="none">
-                        <el-carousel-item v-for="(item, index) in recentArticles" :key="index">
-                          <VerticalArticle :article="item" />
-                          <VerticalArticle :article="item" />
-                        </el-carousel-item>
-                    </el-carousel>
-                </div>
+              </div>
+            </div>
+            <div class="right-sidebar">
+
             </div>
         </div>
     </div>
@@ -29,11 +26,18 @@ import { defineProps, ref} from 'vue';
 import type { ArticleListItem } from '@/types/article';
 import TopBanner from '@/components/TopBanner.vue';
 import VerticalArticle from '@/components/article/VerticalArticle.vue';
-import { ElCarousel } from 'element-plus';
+import HorizontalArticle from '@/components/article/HorizontalArticle.vue';
+
 
 const imagePath = '/img/topBanner/article.jpg';
 const title = '文章';
 const recentArticles= ref<ArticleListItem[]>([]);
+
+const categories = ['全部', '前端开发', '编程语言', 'CSS框架', '构建工具', '前端架构', '性能优化']
+const curCategory = ref('全部')
+
+// 选择横向还是纵向
+const isHorizontal = ref(false)
 
 onMounted(() => {
   recentArticles.value.push(
