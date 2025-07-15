@@ -126,8 +126,10 @@ onMounted(() => {
         left: 50%;
         transform: translate(-50%, -50%);
         color: var(--light-text-color);
-        font-size: 3rem;
-        font-weight: 700;
+        font-size: 2.8rem;
+        font-weight: 400;
+        letter-spacing: 0.1rem;
+        font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
     }
 
     .wave {

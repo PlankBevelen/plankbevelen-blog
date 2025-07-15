@@ -15,7 +15,21 @@
               </div>
             </div>
             <div class="right-sidebar">
-
+              <div class="right-sidebar-item category">
+                <h2>分类</h2>
+                <div class="category-item" 
+                  v-for="category in categories" 
+                  :class="{ active: curCategory === category.name }" 
+                  @click="curCategory = category.name"
+                >
+                    <span>{{ category.name }}</span>
+                    <span>{{ category.num }}</span>
+                </div>
+              </div>
+              <div class="right-sidebar-item popular">
+                <h2>最多点击</h2>
+                <PopularArticle v-for="article in popoluarArticles" :article="article" />
+              </div>
             </div>
         </div>
     </div>
@@ -27,13 +41,23 @@ import type { ArticleListItem } from '@/types/article';
 import TopBanner from '@/components/TopBanner.vue';
 import VerticalArticle from '@/components/article/VerticalArticle.vue';
 import HorizontalArticle from '@/components/article/HorizontalArticle.vue';
+import PopularArticle from '~/components/article/PopularArticle.vue';
 
 
 const imagePath = '/img/topBanner/article.jpg';
 const title = '文章';
 const recentArticles= ref<ArticleListItem[]>([]);
+const popoluarArticles= ref<ArticleListItem[]>([]);
 
-const categories = ['全部', '前端开发', '编程语言', 'CSS框架', '构建工具', '前端架构', '性能优化']
+const categories = [
+  {name: '全部', num: 12}, 
+  {name:'前端开发', num: 10}, 
+  {name:'编程语言', num: 8}, 
+  {name:'CSS框架', num: 6}, 
+  {name:'构建工具', num: 4}, 
+  {name:'前端架构', num: 2},
+  {name:'性能优化', num: 1}
+]
 const curCategory = ref('全部')
 
 // 选择横向还是纵向
@@ -107,6 +131,41 @@ onMounted(() => {
       commentCount: 9,
       score: 4.7
     }
+  )
+  popoluarArticles.value.push(
+    {
+      id: 1,
+      title: "探索Vue3的组合式API",
+      description: "深入理解Vue3带来的组合式API，提升代码组织和复用性",
+      image: "https://picsum.photos/seed/vue3/600/400",
+      date: "2023-05-15",
+      category: "前端开发",
+      viewCount: 1245,
+      commentCount: 32,
+      score: 4.8
+    },
+    {
+      id: 2,
+      title: "TypeScript高级类型技巧",
+      description: "掌握TypeScript中的映射类型、条件类型和工具类型",
+      image: "https://picsum.photos/seed/ts/600/400",
+      date: "2023-05-10",
+      category: "编程语言",
+      viewCount: 987,
+      commentCount: 23,
+      score: 4.7
+    },
+    {
+      id: 3,
+      title: "Tailwind CSS v3实战指南",
+      description: "如何高效使用Tailwind CSS v3构建现代响应式UI",
+      image: "https://picsum.photos/seed/tailwind/600/400",
+      date: "2023-05-05",
+      category: "CSS框架",
+      viewCount: 876,
+      commentCount: 18,
+      score: 4.9
+    },
   )
 })
 
