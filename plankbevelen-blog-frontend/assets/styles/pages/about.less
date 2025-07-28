@@ -1,0 +1,81 @@
+.about {
+    padding: 20px;
+    position: relative;
+    .container {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        .left-side {
+            flex: 1;
+            .statistics-box {
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                border: 1px solid #eaeaea;
+                display: flex;
+                padding: 40px 0;
+                align-items: center;
+                justify-content: space-around;
+
+                > * {
+                    flex: 1;
+                    min-width: 0;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+                .line {
+                    width: 1px;
+                    height: 60px;
+                    background-color: #eaeaea;
+                    flex: 0 0 1px;
+                    
+                    @media (max-width: 768px) {
+                        height: 30px;
+                    }
+                }
+                .box-item {
+                    text-align: center;
+                    padding: 0 10px; 
+                    flex-direction: column;
+                    .value {
+                        display: block;
+                        margin-bottom: 10px;
+                        font-size: 1.6rem;
+                        white-space: nowrap;
+                    }
+                    .name {
+                        font-weight: 300;
+                        font-size: 0.9rem;
+                        white-space: nowrap;
+                        color: var(--text-color-light-black);
+                    }
+                }
+            }
+            .info-box {
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                border: 1px solid #eaeaea;
+                margin-top: 20px;
+
+                .box-header {
+                    padding: 20px;
+                    border-bottom: 1px solid #eaeaea;
+                }
+
+                .box-item {
+                    margin: 0 20px;
+                    padding: 20px 0;
+                    border-bottom: 1px solid #eaeaea;
+
+                    span {
+                        margin-left: 6px;
+                        word-break: break-all;
+                        font-size: 0.9rem;
+                        line-height: 1.5;
+                    }
+                }
+            }
+        }
+        .about-list {
+            flex: 2;
+        }
+    }
+}

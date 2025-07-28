@@ -1,0 +1,96 @@
+.article {
+    margin: 0 auto;
+    .container {
+        display: flex;
+        gap: 32px;
+        
+        .article-browser {
+            flex: 9;
+            flex-shrink: 1;
+            .article-browser-header h1 {
+                color: var(--primary-color);
+                margin-bottom: 32px;
+
+                h1:after {
+                    content: '';
+                    display: block;
+                    height: 1px;
+                    width: 120px;
+                    background-color: var(--primary-color);
+                    position: relative;
+                }
+            }
+            .vertical-article {
+                margin-bottom: 24px;
+            }
+        }
+
+        .right-sidebar {
+            flex: 4;
+            background-color: #f6f6f6;
+            box-sizing: border-box;
+            padding: 40px 32px;
+            height: min-content;
+
+            h2 {
+                margin-bottom: 24px;
+                font-family:;
+                &:after{
+                    content: '';
+                    display: block;
+                    height: 1px;
+                    width: 100%;
+                    background-color: var(--primary-color);
+                    position: relative;
+                    margin-top: 24px;
+                }  
+            }
+
+            .right-sidebar-item{
+                &:not(:last-child) {
+                    margin-bottom: 80px;
+                }
+                
+                &.category {
+                    .category-item {
+                        font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+                        display: flex;
+                        justify-content: space-between;
+                        line-height: 2.4;
+                        font-weight: 300;
+                        &.active {
+                            color: var(--primary-color);
+                            font-weight: bold;
+                        }
+                        &:hover {
+                            color: var(--primary-color);
+                            cursor: pointer;
+                            transform: scale(1.08);
+                            font-weight: bold;
+                        }
+                    }
+                    
+                }
+            }
+            .popular-article {
+                margin-bottom: 32px;
+                
+                &:after {
+                    content: '';
+                    display: block;
+                    height: 1px;
+                    width: 100%;
+                    background-color: var(--primary-color);
+                    position: relative;
+                    margin-top: 24px;
+                }
+            }
+        }
+    }
+}
+
+@media (min-width: 1110px) {
+    .article {
+        max-width: 1110px;
+    }
+}

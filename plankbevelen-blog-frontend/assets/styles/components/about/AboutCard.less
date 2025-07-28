@@ -1,0 +1,68 @@
+.about-card {
+    border: 1px solid var(--border-color-light-white);
+    padding: 16px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 18px;
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+        .box {
+            .nickname {
+                font-weight: 400;
+                font-size: 0.95rem;
+                display: block;
+                margin-bottom: 0.4rem;
+            }
+            .date {
+                font-size: 0.8rem;
+                color: #999;
+            }
+        }
+    }
+    .card-content {
+        p {
+            margin-bottom: 24px;
+            line-height: 1.5;
+            color: var(--text-color-light-black);
+            font-size: 0.95rem;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 8px;
+            margin-bottom: 24px;
+
+            img {
+                width: 100%;
+                border-radius: 2px;
+                cursor: pointer;
+
+                :hover {
+                    transform: scale(1.02);
+                }
+            }
+        }
+    }
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        color: #666;
+
+        .stats {
+            span {
+                margin-right: 18px;
+            }   
+        }
+    }
+}
