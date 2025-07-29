@@ -109,7 +109,7 @@ const fetchTalks = async () => {
         about.value = response.data[0].map((item: any) => {
             return {
                 ...item,
-                imgs: item.images ? JSON.parse(item.images) : [],
+                imgs: item.images,
                 date: new Date(item.created_at).toLocaleDateString('zh-CN'),
                 views: Math.floor(Math.random() * 100) + 1, // 临时随机数据
                 comments: item.comment_count || 0,

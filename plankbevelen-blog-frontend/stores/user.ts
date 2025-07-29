@@ -48,7 +48,18 @@ export const useUserStore = defineStore('user', {
   getters: {
     // 获取用户头像，如果没有则返回默认头像
     userAvatar: (state) => {
-      return state.userInfo?.avatar || '/img/default-avatar.svg'
+      if (!state.userInfo?.avatar) {
+        return '/img/default-avatar.png'
+      }
+      
+      // 检查是否为 JSON 字符串格式
+      try {
+        const parsed = JSON.parse(state.userInfo.avatar)
+        return typeof parsed === 'string' ? parsed : state.userInfo.avatar
+      } catch {
+        // 如果不是 JSON 格式，直接返回原始值
+        return state.userInfo.avatar
+      }
     },
     
     // 获取用户昵称，如果没有则返回默认名称
@@ -197,13 +208,21 @@ export const useUserStore = defineStore('user', {
     },
 
     // 更新用户信息
-    updateUserInfo(newInfo: Partial<UserInfo>): void {
-      if (this.userInfo) {
-        this.userInfo = { ...this.userInfo, ...newInfo }
+    async updateUserInfo(newInfo: Partial<UserInfo>): Promise<void> {
+      try {
+        // 调用后端API更新用户信息
+        const response = await http.put('/user/update', newInfo)
         
-        if (process.client) {
-          localStorage.setItem('userInfo', JSON.stringify(this.userInfo))
+        if (this.userInfo) {
+          this.userInfo = { ...this.userInfo, ...newInfo }
+          
+          if (process.client) {
+            localStorage.setItem('userInfo', JSON.stringify(this.userInfo))
+          }
         }
+      } catch (error) {
+        console.error('更新用户信息失败:', error)
+        throw error
       }
     }
   }

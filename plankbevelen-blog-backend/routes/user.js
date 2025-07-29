@@ -156,9 +156,9 @@ userRouter.post('/refresh-token', async (req, res) => {
 });
 
 // 更新用户信息
-userRouter.put('/profile', authenticateToken, async (req, res) => {
+userRouter.put('/update', authenticateToken, async (req, res) => {
     try {
-        const { nickname, email } = req.body;
+        const { nickname, email, avatar } = req.body;
         const updateData = {};
         
         if (nickname) updateData.nickname = nickname;
@@ -170,6 +170,7 @@ userRouter.put('/profile', authenticateToken, async (req, res) => {
             }
             updateData.email = email;
         }
+        if (avatar) updateData.avatar = avatar;
         
         const user = await userService.updateUser(req.user.id, updateData);
         

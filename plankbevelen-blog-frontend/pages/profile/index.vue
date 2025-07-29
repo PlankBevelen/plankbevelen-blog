@@ -5,11 +5,22 @@
         <div class="profile-header">
           <div class="avatar-section">
             <img :src="userStore.userAvatar" :alt="userStore.userName" class="profile-avatar" />
-            <button class="change-avatar-btn">更换头像</button>
+            <el-upload
+              class="avatar-uploader"
+              :show-file-list="false"
+              :on-change="handleAvatarChange"
+              :auto-upload="false"
+              accept=".jpg,.jpeg,.png,.svg,.ico"
+            >
+              <button class="change-avatar-btn">
+                <el-icon><Upload /></el-icon>
+                更换头像
+              </button>
+            </el-upload>
           </div>
           <div class="user-info">
             <h2>{{ userStore.userName }}</h2>
-            <p>{{ userStore.userInfo.email }}</p>
+            <p>{{ userStore.userInfo?.email || '未设置邮箱' }}</p>
           </div>
         </div>
         
@@ -50,6 +61,8 @@
         </div>
       </div>
     </div>
+    
+
   </div>
 </template>
 
@@ -57,6 +70,8 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '~/stores/user'
+import { ElMessage } from 'element-plus'
+import { Picture, Upload } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -65,6 +80,9 @@ const isLoading = ref(false)
 const profileForm = reactive({
   nickname: '',
   email: ''
+})
+const avatarForm = reactive({
+  url: ''
 })
 
 // 检查登录状态
@@ -78,14 +96,46 @@ const checkAuth = () => {
 
 // 初始化表单数据
 const initForm = () => {
-  profileForm.nickname = userStore.userInfo.nickname
-  profileForm.email = userStore.userInfo.email
+  if (userStore.userInfo) {
+    profileForm.nickname = userStore.userInfo.nickname || ''
+    profileForm.email = userStore.userInfo.email || ''
+  }
+}
+
+// 头像文件选择处理
+const handleAvatarChange = (file: any) => { 
+  console.log("文件选择事件触发", file)
+  const rawFile = file.raw
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/svg+xml', 'image/x-icon', 'image/png']
+  
+  if (!rawFile || !rawFile.type || !allowedTypes.includes(rawFile.type)) {
+    ElMessage.error('只允许上传 JPG、PNG、SVG、ICO 格式的图片')
+    return
+  }
+  
+  if (rawFile.size / 1024 / 1024 > 2) {
+    ElMessage.error('图片大小不能超过 2MB!')
+    return
+  }
+  
+  // 验证通过，处理文件上传
+  const reader = new FileReader()
+  reader.onload = async (e) => {
+    try {
+      const base64 = e.target?.result as string
+      await userStore.updateUserInfo({ avatar: JSON.stringify(base64) })
+      ElMessage.success('头像更新成功！')
+    } catch (error) {
+      ElMessage.error('头像更新失败')
+    }
+  }
+  reader.readAsDataURL(rawFile)
 }
 
 // 更新个人资料
 const handleUpdateProfile = async () => {
   if (!profileForm.nickname || !profileForm.email) {
-    alert('请填写完整信息')
+    ElMessage.warning('请填写完整信息')
     return
   }
   
@@ -97,10 +147,10 @@ const handleUpdateProfile = async () => {
       email: profileForm.email
     })
     
-    alert('个人信息更新成功！')
+    ElMessage.success('个人信息更新成功！')
   } catch (error) {
     console.error('更新失败:', error)
-    alert('更新失败，请稍后重试')
+    ElMessage.error('更新失败，请稍后重试')
   } finally {
     isLoading.value = false
   }
@@ -288,6 +338,34 @@ useHead({
         color: white;
         transform: translateY(-2px);
       }
+    }
+  }
+}
+
+.avatar-preview {
+  .preview-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e1e5e9;
+  }
+  
+  .image-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #f5f5f5;
+    color: #999;
+    font-size: 12px;
+    
+    .el-icon {
+      font-size: 24px;
+      margin-bottom: 4px;
     }
   }
 }

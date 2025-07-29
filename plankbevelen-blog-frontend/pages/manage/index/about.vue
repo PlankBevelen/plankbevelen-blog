@@ -254,12 +254,16 @@ const fetchTalks = async () => {
             talks.value = rawTalks.map((talk: any) => ({
                 id: talk.id,
                 content: talk.content,
-                images: talk.images ? JSON.parse(talk.images) : [],
+                images: talk.images /* ? JSON.parse(talk.images) : [] */,
                 status: talk.status,
                 createTime: talk.created_at,
                 likeCount: talk.like_count,
                 commentCount: talk.comment_count,
+                userId: talk.userId
             }))
+        }).catch((err) => {
+            console.error('获取说说数据失败:', err)
+            ElMessage.error('获取说说失败')
         })
     } catch (error) {
         console.error('获取说说数据失败:', error)
@@ -377,12 +381,16 @@ const saveTalk = async () => {
       talkService.update(editingTalk.value.id, talkForm.value.content, talkForm.value.status, imagesJson).then((res) => {
         fetchTalks()
         ElMessage.success('更新成功')
+      }).catch((err) => {
+        ElMessage.error('更新失败')
       })
     } else {
       // 新增说说
       talkService.publish(talkForm.value.content, talkForm.value.status, imagesJson).then((res) => {
         fetchTalks()
         ElMessage.success('发布成功')
+      }).catch((err) => {
+        ElMessage.error('发布失败')
       })
     }
     

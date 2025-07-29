@@ -9,7 +9,7 @@ var pool = null;
 pool = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || 'SpinQ0827',
+    password: process.env.DB_PASSWORD || '123456',
     database: process.env.DB_NAME || 'plankbevelen-blog',
     waitForConnections: true,
     connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT) || 200,

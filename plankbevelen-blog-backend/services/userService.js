@@ -75,7 +75,7 @@ export const loginUser = async (email, password) => {
 // 根据ID获取用户信息
 export const getUserById = async (userId) => {
     try {
-        const [users] = await pool.promise().query('SELECT id, nickname, email, created_at FROM users WHERE id = ?', [userId]);
+        const [users] = await pool.promise().query('SELECT id, nickname, email, avatar, created_at FROM users WHERE id = ?', [userId]);
         if (users.length === 0) {
             throw new Error('用户不存在');
         }
@@ -88,7 +88,7 @@ export const getUserById = async (userId) => {
 // 更新用户信息
 export const updateUser = async (userId, updateData) => {
     try {
-        const { nickname, email } = updateData;
+        const { nickname, email, avatar } = updateData;
         const updates = [];
         const values = [];
         
@@ -100,6 +100,11 @@ export const updateUser = async (userId, updateData) => {
         if (email) {
             updates.push('email = ?');
             values.push(email);
+        }
+        
+        if (avatar) {
+            updates.push('avatar = ?');
+            values.push(avatar);
         }
         
         if (updates.length === 0) {
@@ -117,4 +122,4 @@ export const updateUser = async (userId, updateData) => {
     } catch (error) {
         throw error;
     }
-};
+}

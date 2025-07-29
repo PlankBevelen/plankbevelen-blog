@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `nickname` varchar(50) NOT NULL COMMENT '用户昵称',
   `email` varchar(100) NOT NULL COMMENT '邮箱',
   `password` varchar(255) NOT NULL COMMENT '密码',
-  `avatar` varchar(255) DEFAULT NULL COMMENT '头像URL',
+  `avatar` TEXT DEFAULT NULL COMMENT '头像数据(base64)',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
