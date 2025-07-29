@@ -9,22 +9,16 @@ const jwtkey = process.env.JWT_SECRET || "jwtkey";
 // JWT中间件验证
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    console.log('后端中间件 - Authorization header:', authHeader);
-    
     const token = authHeader && authHeader.split(' ')[1];
-    console.log('后端中间件 - 提取的token:', token ? '存在' : '不存在');
     
     if (!token) {
-        console.log('后端中间件 - token缺失，返回401');
         return res.status(401).json({ message: '访问令牌缺失' });
     }
     
     jwt.verify(token, jwtkey, (err, user) => {
         if (err) {
-            console.log('后端中间件 - token验证失败:', err.message);
             return res.status(403).json({ message: '令牌无效' });
         }
-        console.log('后端中间件 - token验证成功，用户ID:', user.id);
         req.user = user;
         next();
     });

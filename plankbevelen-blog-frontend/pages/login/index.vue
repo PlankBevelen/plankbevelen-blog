@@ -119,7 +119,11 @@ onMounted(() => {
 
 // 设置页面标题
 useHead({
-  title: '登录 - Plankbevelen Blog'
+  title: '登录 - Plankbevelen Blog',
+  link: [
+    { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+    { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+  ]
 })
 </script>
 

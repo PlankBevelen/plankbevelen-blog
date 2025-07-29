@@ -68,6 +68,10 @@
 import { ref, onMounted, computed } from 'vue';
 import TopBanner from '@/components/TopBanner.vue';
 import AboutCard from '@/components/about/AboutCard.vue';
+import talkService from '~/services/talkService';
+import { useUserStore } from '~/stores/user';
+
+const userStore = useUserStore();
 
 interface AboutItem {
     id: number;
@@ -97,52 +101,24 @@ const paginatedAbout = computed(() => {
     return about.value.slice(start, end);
 });
 
-// 随机生成说说数据
-const generateMockData = (count: number): AboutItem[] => {
-    const result: AboutItem[] = [];
-    const nicknames = ['张三', '李四', '王五', '赵六', '钱七', '孙八', '周九', '吴十'];
-    const contents = [
-        '今天天气真好，适合出去走走！',
-        '分享一张刚拍的照片，感觉还不错～',
-        '终于看完了这本期待已久的书，收获满满！',
-        '周末和朋友一起去爬山，累并快乐着～',
-        '新学了一道菜，味道还不错，分享给大家！',
-        '这个电影真的太好看了，强烈推荐！',
-        '最近在学习Vue3，感觉越来越有意思了～',
-        '今天收到了一份特别的礼物，很开心！'
-    ];
-    
-    for (let i = 0; i < count; i++) {
-        const nickname = nicknames[Math.floor(Math.random() * nicknames.length)];
-        const content = contents[Math.floor(Math.random() * contents.length)];
-        
-        // 随机生成0-3张图片
-        const imgCount = Math.floor(Math.random() * 4);
-        const imgs: string[] = [];
-        for (let j = 0; j < imgCount; j++) {
-            imgs.push(`https://picsum.photos/400/300?random=${i * 10 + j}`);
-        }
-        
-        // 生成随机日期（最近30天内）
-        const date = new Date();
-        date.setDate(date.getDate() - Math.floor(Math.random() * 30));
-        const formattedDate = date.toLocaleDateString() + ' ' + 
-                            date.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' });
-        
-        result.push({
-            id: i + 1,
-            avatar: '/img/avatar/avatar.jpg',
-            nickname,
-            content,
-            imgs,
-            date: formattedDate,
-            views: Math.floor(Math.random() * 1000),
-            comments: Math.floor(Math.random() * 100),
-            likes: Math.floor(Math.random() * 500)
+// 获取所有说说内容
+const fetchTalks = async () => {
+    try {
+        const response = await talkService.getPublishedTalks();
+        console.log(response.data[0])
+        about.value = response.data[0].map((item: any) => {
+            return {
+                ...item,
+                imgs: item.images ? JSON.parse(item.images) : [],
+                date: new Date(item.created_at).toLocaleDateString('zh-CN'),
+                views: Math.floor(Math.random() * 100) + 1, // 临时随机数据
+                comments: item.comment_count || 0,
+                likes: item.like_count || 0,
+            }
         });
+    } catch (error) {
+        console.error('获取说说失败:', error);
     }
-    
-    return result;
 }
 
 const handleSizeChange = (val: number) => {
@@ -156,7 +132,7 @@ const handlePageChange = (val: number) => {
 
 onMounted(() => {
     // 随机生成10条说说数据
-    about.value = generateMockData(30);
+    fetchTalks();
 });
 </script>
 

@@ -37,10 +37,10 @@ http.interceptors.request.use(
       
       // 确保token存在且不为空
       if (token && token.trim() !== '' && config.headers) {
-        console.log('userStore - token存在，添加到请求头', token)
+        //console.log('userStore - token存在，添加到请求头', token)
         config.headers['Authorization'] = `Bearer ${token}`
       } else {
-        console.log('userStore - token不存在或为空，移除请求头中的Authorization')
+        //console.log('userStore - token不存在或为空，移除请求头中的Authorization')
         if (config.headers && config.headers['Authorization']) {
           delete config.headers['Authorization']
         }

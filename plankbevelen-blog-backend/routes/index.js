@@ -1,10 +1,11 @@
 import express from "express";
 import userRouter from "./user.js";
+import talkRouter from "./talk.js";    
 
 const router = express.Router();
 
-// 注册用户相关路由
 router.use('/user', userRouter);
+router.use('/talk', talkRouter);
 
 // 健康检查接口
 router.get('/health', (req, res) => {

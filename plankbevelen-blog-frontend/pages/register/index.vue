@@ -91,7 +91,11 @@ import CryptoJS from 'crypto-js'
 
 // 页面元数据
 useHead({
-  title: '用户注册 - Plankbevelen Blog'
+  title: '用户注册 - Plankbevelen Blog',
+  link: [
+    { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+    { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+  ]
 })
 
 // 响应式数据
@@ -140,10 +144,10 @@ const registerRules: FormRules = {
 
 // 处理注册
 const handleRegister = async () => {
-  console.log('注册页面 - handleRegister 函数被调用')
+  console.log('handleRegister 函数被调用')
   
   if (!registerFormRef.value) {
-    console.log('注册页面 - registerFormRef.value 为空，返回')
+    console.log('registerFormRef.value 为空，返回')
     return
   }
   
@@ -153,33 +157,32 @@ const handleRegister = async () => {
     
     loading.value = true
     
-    console.log('注册页面 - 开始注册流程')
-    
     // 对密码进行SHA256加密
     const hashedPassword = CryptoJS.SHA256(registerForm.password).toString()
-    console.log('注册页面 - 密码已SHA256加密')
     
-    // 使用userStore的register方法
-    const result = await userStore.register({
+    // 调用后端注册API
+    const response = await http.post('/user/register', {
       nickname: registerForm.nickname,
       email: registerForm.email,
       password: hashedPassword
     })
     
-    console.log('注册页面 - userStore.register结果:', result)
-    
-    if (result.message.includes('成功')) {
-      console.log('注册页面 - 注册成功，准备跳转')
-      ElMessage.success(result.message)
+    // 检查HTTP状态码，201表示创建成功
+    if (response.status === 201) {
+      console.log('注册成功，准备跳转')
+      ElMessage.success(response.data?.message || '注册成功！请登录')
       
       // 跳转到登录页面
       await router.push('/login')
     } else {
-      ElMessage.error(result.message)
+      ElMessage.error(response.data?.message || '注册失败')
     }
   } catch (error: any) {
-    console.error('注册页面 - 注册错误:', error)
-    ElMessage.error('注册失败，请稍后重试')
+    if (error.response?.data?.message) {
+      ElMessage.error(error.response.data.message)
+    } else {
+      ElMessage.error('注册失败，请稍后重试')
+    }
   } finally {
     loading.value = false
   }
