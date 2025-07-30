@@ -40,29 +40,88 @@
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 8px;
             margin-bottom: 24px;
+            flex-wrap: wrap;
 
             img {
                 width: 100%;
                 border-radius: 2px;
                 cursor: pointer;
+                transition: transform 0.3s ease;
+                object-fit: cover;
+                height: 160px;
+                width: auto;
 
                 :hover {
                     transform: scale(1.02);
                 }
             }
         }
+
     }
     .card-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
         font-size: 14px;
         color: #666;
 
         .stats {
+            text-align: right;
+            margin-bottom: 20px;
             span {
                 margin-right: 18px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
             }   
         }
+
+        .comment-item, .like-item {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            
+            &:hover {
+                .svg-icon {
+                    color: #409eff !important;
+                }
+                transform: scale(1.05);
+                animation: shake 0.3s ease;
+            }
+            
+            &.liked {
+                color: #409eff;
+                .svg-icon {
+                    animation: likeAnimation 0.3s ease;
+                }
+            }
+
+            &.active {
+                color: #409eff;
+            }
+            
+            &.loading {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+        }
+
+        .comment-editor {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
     }
+}
+
+@keyframes likeAnimation {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shake {
+    0% { transform: rotate(0); }
+    25% { transform: rotate(10deg); }
+    50% { transform: rotate(0); }
+    75% { transform: rotate(-10deg); }
+    100% { transform: rotate(0); }
 }

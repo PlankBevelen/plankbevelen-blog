@@ -32,6 +32,17 @@ CREATE TABLE IF NOT EXISTS `talks` (
   CONSTRAINT `fk_talks_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='说说表';
 
+-- 点赞表
+CREATE TABLE IF NOT EXISTS `talk_likes`(
+	`user_id` int(11) NOT NULL COMMENT '用户ID',
+	`talk_id` int(11) NOT NULL COMMENT '所说ID',
+	`isLike` TINYINT NOT NULL DEFAULT 1 COMMENT '是否点赞' COMMENT '0取消点赞， 1点赞',
+	`created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+	CONSTRAINT `fk_talk_likes_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+	CONSTRAINT `fk_talk_likes_talk_id` FOREIGN KEY (`talk_id`) REFERENCES `talks` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='点赞表';
+
 -- 插入测试用户数据
 INSERT INTO `users` (`nickname`, `email`, `password`, `avatar`, `created_at`) VALUES
 ('管理员', 'admin@example.com', '$2b$10$example.hash.for.testing', '/img/avatar.jpg', NOW()),

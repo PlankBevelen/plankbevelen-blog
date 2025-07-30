@@ -44,15 +44,15 @@
                 
                 <div class="talk-meta">
                     <div class="meta-info">
-                    <span class="publish-time">{{ formatTime(talk.createTime) }}</span>
+                    <span class="publish-time">{{ formatTime(talk.created_at) }}</span>
                     <span class="status" :class="talk.status">{{ getStatusText(talk.status) }}</span>
                     <span class="stats">
                         <svg-icon name="like" class="stat-icon" />
-                        {{ talk.likeCount || 0 }}
+                        {{ talk.like_count || 0 }}
                     </span>
                     <span class="stats">
                         <svg-icon name="comment" class="stat-icon" />
-                        {{ talk.commentCount || 0 }}
+                        {{ talk.comment_count || 0}}
                     </span>
                     </div>
                     
@@ -167,12 +167,13 @@ import { ref, computed, onMounted } from 'vue'
 import { Search, Plus, Delete, ZoomIn } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import talkService from '~/services/talkService'
+import type { Talk } from '~/types/talk'
 
 definePageMeta({
   layout: 'admin'
 })
 
-interface Talk {
+/* interface Talk {
   id: number
   content: string
   images?: string[]
@@ -180,7 +181,7 @@ interface Talk {
   createTime: string
   likeCount?: number
   commentCount?: number
-}
+} */
 
 // 响应式数据
 const talks = ref<Talk[]>([])
@@ -249,18 +250,7 @@ const totalCount = computed(() => {
 const fetchTalks = async () => {
     try {
         talkService.getAllTalks().then( (res) => {
-            const rawTalks = res.data[0]
-            console.log(rawTalks)
-            talks.value = rawTalks.map((talk: any) => ({
-                id: talk.id,
-                content: talk.content,
-                images: talk.images /* ? JSON.parse(talk.images) : [] */,
-                status: talk.status,
-                createTime: talk.created_at,
-                likeCount: talk.like_count,
-                commentCount: talk.comment_count,
-                userId: talk.userId
-            }))
+            talks.value = res
         }).catch((err) => {
             console.error('获取说说数据失败:', err)
             ElMessage.error('获取说说失败')

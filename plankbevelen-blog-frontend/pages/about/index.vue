@@ -5,17 +5,17 @@
             <div class="left-side">
                 <div class="statistics-box">
                     <div class="box-item">
-                        <span class="value">12</span>
+                        <span class="value">{{ totalCount }}</span>
                         <span class="name">说说</span>
                     </div>
                     <div class="line"></div>
                     <div class="box-item">
-                        <span class="value">1000+</span>
+                        <span class="value">{{ totalPhotos }}</span>
                         <span class="name">照片</span>
                     </div>
                     <div class="line"></div>
                     <div class="box-item">
-                        <span class="value">100+</span>
+                        <span class="value">{{ totalComments }}</span>
                         <span class="name">评论</span>
                     </div>
                 </div>
@@ -41,20 +41,18 @@
                     </div>    
                 </div>
             </div>
-            <div class="about-list">
-                <AboutCard 
-                    v-for="item in paginatedAbout" 
+            <div class="talk-list">
+                <TalkCard 
+                    v-for="item in paginatedTalks" 
                     :key="item.id" 
                     :item="item" 
                 />
                 <div class="pagination">
                     <el-pagination
                         v-model:current-page="curPage"
-                        v-model:page-size="pageSize"
+                        :page-size="pageSize"
                         :total="totalCount"
-                        :page-sizes="[5, 10, 20, 50]"
-                        layout="total, sizes, prev, pager, next, jumper"
-                        @size-change="handleSizeChange"
+                        layout="total, prev, pager, next, jumper"
                         @current-change="handlePageChange"
                     >
                     </el-pagination>
@@ -65,69 +63,73 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import TopBanner from '@/components/TopBanner.vue';
-import AboutCard from '@/components/about/AboutCard.vue';
+import TalkCard from '~/components/about/TalkCard.vue';
 import talkService from '~/services/talkService';
 import { useUserStore } from '~/stores/user';
+import { useLikeStore } from '~/stores/like';
+import { smartFormatTime } from '~/utils/timeUtils';
+import type { Talk } from '~/types/talk';
 
 const userStore = useUserStore();
-
-interface AboutItem {
-    id: number;
-    avatar: string;
-    nickname: string;
-    content: string;
-    imgs: string[];
-    date: string;
-    views: number;
-    comments: number;
-    likes: number;
-}
+const likeStore = useLikeStore();
 
 const imagePath = '/img/topBanner/about.jpg';
 const title = '说说';
-const about = ref<AboutItem[]>([]);
+const talks = ref<Talk[]>([]);
 
 // 分页
 const curPage = ref(1);
 const pageSize = ref(10);
 const totalCount = computed(() => {
-    return about.value.length;
+    return talks.value.length;
 });
-const paginatedAbout = computed(() => {
+
+// 统计数据
+const totalPhotos = computed(() => {
+    return talks.value.reduce((total, talk) => {
+        return total + (talk.images ? talk.images.length : 0);
+    }, 0);
+});
+
+const totalComments = computed(() => {
+    return talks.value.reduce((total, talk) => {
+        return total + (talk.comment_count || 0);
+    }, 0);
+});
+
+// 当页说说
+const paginatedTalks = computed(() => {
     const start = (curPage.value - 1) * pageSize.value;
     const end = start + pageSize.value;
-    return about.value.slice(start, end);
+    return talks.value.slice(start, end);
 });
+
+// 获取当页说说的点赞状态
+const fetchCurrentPageLikeStatus = async () => {
+    if (paginatedTalks.value.length > 0) {
+        const talkIds = paginatedTalks.value.map(talk => talk.id);
+        await likeStore.fetchBatchLikeStatus(talkIds);
+    }
+};
 
 // 获取所有说说内容
 const fetchTalks = async () => {
     try {
-        const response = await talkService.getPublishedTalks();
-        console.log(response.data[0])
-        about.value = response.data[0].map((item: any) => {
-            return {
-                ...item,
-                imgs: item.images,
-                date: new Date(item.created_at).toLocaleDateString('zh-CN'),
-                views: Math.floor(Math.random() * 100) + 1, // 临时随机数据
-                comments: item.comment_count || 0,
-                likes: item.like_count || 0,
-            }
-        });
+        const res = await talkService.getPublishedTalks();
+        talks.value = res;
+        // 获取第一页的点赞状态
+        await fetchCurrentPageLikeStatus();
     } catch (error) {
         console.error('获取说说失败:', error);
     }
 }
 
-const handleSizeChange = (val: number) => {
-    pageSize.value = val;
-    curPage.value = 1; 
-}
-
 const handlePageChange = (val: number) => {
     curPage.value = val;
+    // 获取新页面的点赞状态
+    fetchCurrentPageLikeStatus();
 }
 
 onMounted(() => {

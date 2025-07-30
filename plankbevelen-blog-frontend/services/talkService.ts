@@ -1,12 +1,14 @@
 import http from '@/utils/http-common'
+import type { Talk } from '~/types/talk'
 
 // 说说服务类
 class TalkService {
     // 获取全部说说
-    async getAllTalks(): Promise<any> {
+    async getAllTalks(): Promise<Talk[]> {
         try {
             const response = await http.post('/talk/all')
-            return response.data as any
+            console.log(response.data.data[0])
+            return response.data.data[0] as Talk[]
         } catch (error) {
             console.error('获取说说列表失败:', error)
             throw error
@@ -14,10 +16,11 @@ class TalkService {
     }
 
     // 获取全部已发布说说
-    async getPublishedTalks(): Promise<any> {
+    async getPublishedTalks(): Promise<Talk[]> {
         try {
             const response = await http.get('/talk/published')
-            return response.data as any
+            console.log(response.data.data)
+            return response.data.data[0] as Talk[]
         } catch (error) {
             console.error('获取已发布说说列表失败:', error)
             throw error
