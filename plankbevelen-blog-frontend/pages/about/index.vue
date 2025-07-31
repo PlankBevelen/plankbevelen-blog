@@ -69,11 +69,13 @@ import TalkCard from '~/components/about/TalkCard.vue';
 import talkService from '~/services/talkService';
 import { useUserStore } from '~/stores/user';
 import { useLikeStore } from '~/stores/like';
+import { useCommentStore } from '~/stores/comment';
 import { smartFormatTime } from '~/utils/timeUtils';
 import type { Talk } from '~/types/talk';
 
 const userStore = useUserStore();
 const likeStore = useLikeStore();
+const commentStore = useCommentStore();
 
 const imagePath = '/img/topBanner/about.jpg';
 const title = '说说';
@@ -114,6 +116,13 @@ const fetchCurrentPageLikeStatus = async () => {
     }
 };
 
+// 初始化当页说说的评论数量
+const fetchCurrentPageCommentCounts = async () => {
+    paginatedTalks.value.forEach(talk => {
+        commentStore.setCommentState(talk.id, { count: talk.comment_count || 0 });
+    });
+};
+
 // 获取所有说说内容
 const fetchTalks = async () => {
     try {
@@ -121,6 +130,8 @@ const fetchTalks = async () => {
         talks.value = res;
         // 获取第一页的点赞状态
         await fetchCurrentPageLikeStatus();
+        // 初始化第一页的评论数量
+        await fetchCurrentPageCommentCounts();
     } catch (error) {
         console.error('获取说说失败:', error);
     }
@@ -130,6 +141,8 @@ const handlePageChange = (val: number) => {
     curPage.value = val;
     // 获取新页面的点赞状态
     fetchCurrentPageLikeStatus();
+    // 初始化新页面的评论数量
+    fetchCurrentPageCommentCounts();
 }
 
 onMounted(() => {

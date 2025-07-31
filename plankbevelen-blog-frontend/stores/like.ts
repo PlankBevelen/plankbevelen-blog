@@ -51,12 +51,22 @@ export const useLikeStore = defineStore('like', {
         return false
       }
       
+      if (!talkId) {
+        ElMessage.error('说说ID不能为空')
+        return false
+      }
+      
+      // 防止重复点击
+      const currentState = this.getLikeState(talkId)
+      if (currentState.loading) {
+        return false
+      }
+      
       // 设置加载状态
       this.setLikeState(talkId, { loading: true })
       
       try {
         const result = await likeService.toggleLike(userStore.userInfo.id, talkId)
-        console.log("切换点赞", result);
         
         // 更新状态
         this.setLikeState(talkId, {
@@ -68,10 +78,10 @@ export const useLikeStore = defineStore('like', {
         ElMessage.success(result.isLiked ? '点赞成功' : '取消点赞成功')
         return true
         
-      } catch (error) {
+      } catch (error: any) {
         console.error('点赞操作失败:', error)
         this.setLikeState(talkId, { loading: false })
-        ElMessage.error('操作失败，请重试')
+        ElMessage.error(error.message || '操作失败，请重试')
         return false
       }
     },
@@ -80,7 +90,7 @@ export const useLikeStore = defineStore('like', {
     async fetchLikeStatus(talkId: number): Promise<void> {
       const userStore = useUserStore()
       
-      if (!userStore.isLoggedIn) {
+      if (!userStore.isLoggedIn || !talkId) {
         return
       }
       
@@ -92,8 +102,9 @@ export const useLikeStore = defineStore('like', {
           count: result.count
         })
         
-      } catch (error) {
+      } catch (error: any) {
         console.error('获取点赞状态失败:', error)
+        // 静默失败，不显示错误消息
       }
     },
     
@@ -101,12 +112,18 @@ export const useLikeStore = defineStore('like', {
     async fetchBatchLikeStatus(talkIds: number[]): Promise<void> {
       const userStore = useUserStore()
       
-      if (!userStore.isLoggedIn || talkIds.length === 0) {
+      if (!userStore.isLoggedIn || !talkIds || talkIds.length === 0) {
+        return
+      }
+      
+      // 过滤掉无效的ID
+      const validTalkIds = talkIds.filter(id => id && typeof id === 'number')
+      if (validTalkIds.length === 0) {
         return
       }
       
       try {
-        const result = await likeService.getBatchLikeStatus(userStore.userInfo.id, talkIds)
+        const result = await likeService.getBatchLikeStatus(userStore.userInfo.id, validTalkIds)
         
         // 更新所有状态
         Object.entries(result).forEach(([talkId, likeData]) => {
@@ -116,8 +133,9 @@ export const useLikeStore = defineStore('like', {
           })
         })
         
-      } catch (error) {
+      } catch (error: any) {
         console.error('批量获取点赞状态失败:', error)
+        // 静默失败，不显示错误消息
       }
     },
     

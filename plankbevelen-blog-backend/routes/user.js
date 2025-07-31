@@ -1,5 +1,4 @@
 import express from 'express';
-import { pool } from '../pool/index.js';
 import jwt from 'jsonwebtoken';
 import * as userService from '../services/userService.js';
 

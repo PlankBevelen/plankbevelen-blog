@@ -1,5 +1,5 @@
 import express from 'express';
-import commentService from '../services/commentService.js';
+import CommentService from '../services/commentService.js';
 
 const commentRouter = express.Router();
 
@@ -42,10 +42,13 @@ commentRouter.post('/:talkId', async (req, res) => {
     }
 
     try {
-        const comment = await commentService.addComment(userId, talkId, content);
+        const result = await CommentService.addComment(userId, talkId, content);
         res.status(201).json({
             success: true,
-            data: comment,
+            data: {
+                commentId: result.commentId,
+                commentCount: result.commentCount
+            },
             message: '评论成功'
         });
     } catch (error) {
