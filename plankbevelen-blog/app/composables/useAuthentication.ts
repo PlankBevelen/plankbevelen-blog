@@ -1,4 +1,3 @@
-// app/utils/authentication.util.ts
 import Cookies from 'js-cookie'
 import { sha256 } from 'js-sha256'
 
@@ -10,7 +9,7 @@ export const useAuthentication = () => {
   const themeKey = computed(() => config.public.cookiePrefix + 'theme')
   const expirationTime = computed(() => Number(config.public.expirationTime))
   const keepAliveTime = computed(() => Number(config.public.keepAliveTime))
-  const baseUrl = computed(() => config.public.baseURL || '/')
+  const baseUrl = computed(() => config.public.baseUrl || '/')
 
   const getToken = () => {
     return Cookies.get(tokenKey.value) || ''
@@ -19,19 +18,20 @@ export const useAuthentication = () => {
   const setToken = (token: string, keepAlive?: boolean) => {
     const cookieConfig: any = { path: baseUrl.value || '/' }
     if (keepAlive) {
-      cookieConfig.expires = keepAliveTime.value / (24 * 60 * 60)
-    } else {
       cookieConfig.expires = expirationTime.value / (24 * 60 * 60)
+    } else {
+      cookieConfig.expires = keepAliveTime.value / (24 * 60 * 60)
     }
+    console.log("设置成功，过期时间：", cookieConfig.expires)
     return Cookies.set(tokenKey.value, token, cookieConfig)
   }
 
   const removeToken = () => {
-    return Cookies.remove(tokenKey.value, { path: baseUrl || '/' })
+    return Cookies.remove(tokenKey.value, { path: baseUrl.value || '/' })
   }
 
   const setI18n = (locale: string) => {
-    return Cookies.set(i18nKey.value, locale, { path: baseUrl || '/' })
+    return Cookies.set(i18nKey.value, locale, { path: baseUrl.value || '/' })
   }
 
   const getI18n = () => {
@@ -39,7 +39,7 @@ export const useAuthentication = () => {
   }
 
   const setTheme = (theme: string) => {
-    return Cookies.set(themeKey.value, theme, { path: baseUrl || '/' })
+    return Cookies.set(themeKey.value, theme, { path: baseUrl.value || '/' })
   }
 
   const getTheme = () => {
@@ -48,10 +48,6 @@ export const useAuthentication = () => {
 
   const hashPassword = (password: string) => {
     return sha256(password)
-  }
-
-  const isAuthenticated = () => {
-    return !!getToken()
   }
 
   const clearUp = () => {
@@ -69,12 +65,6 @@ export const useAuthentication = () => {
     setTheme,
     getTheme,
     hashPassword,
-    isAuthenticated,
     clearUp,
-    tokenKey,
-    i18nKey,
-    themeKey,
-    expirationTime,
-    keepAliveTime,
   }
 }

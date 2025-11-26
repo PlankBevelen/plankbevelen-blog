@@ -8,8 +8,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-
 const props = defineProps({
     type: {
         type: String,
@@ -20,7 +18,6 @@ const props = defineProps({
         default: false
     }
 })
-
 </script>
 
 <style scoped lang="less">
@@ -32,6 +29,11 @@ const props = defineProps({
     transition: all 0.3s ease-in-out;
     padding: 20px;
     position: relative;
+    .card-content {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+    }
     &:hover {
         transform: translateY(-3px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.125);

@@ -7,8 +7,7 @@ export default defineEventHandler((event) => {
 
   // 拦截需要 admin 权限的 API
   const isProtectedAPI = path.startsWith('/api/admin') && 
-                         path !== '/api/admin/login' && 
-                         path !== '/api/admin/session'
+                         path !== '/api/admin/login'
 
   if (!isProtectedAPI) {
     return

@@ -1,0 +1,15 @@
+import http from "~/utils/http-common"
+
+class CategoryService {
+    async getCategories() {
+        return await http('/api/category')
+    }
+    async createCategory(name: string) {
+        return await http.post('/api/category', { name })
+    }
+    async updateCategory(id: number | string, name: string) {
+        return await http.put(`/api/category/${id}`, { name })
+    }
+}
+
+export default new CategoryService()

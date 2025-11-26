@@ -19,8 +19,8 @@
               <h2 class="title">欢迎回来</h2>
               <p class="subtitle">登录您的账户</p>
               <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="form">
-                <el-form-item prop="username" class="form-item">
-                    <el-input v-model="form.username" placeholder="请输入账号" clearable />
+                <el-form-item prop="account" class="form-item">
+                    <el-input v-model="form.account" placeholder="请输入账号" clearable />
                 </el-form-item>
                 <el-form-item prop="password" class="form-item">
                     <el-input v-model="form.password" type="password" placeholder="请输入密码" show-password />
@@ -42,15 +42,14 @@ definePageMeta({ layout: 'admin' })
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { ElMessage } from 'element-plus'
 import Card from '@/components/cards/card.vue'
-import adminService from '@/services/admin.service'
-import { useAuthentication } from '@/composables/useAuthentication'
-const { hashPassword, setToken } = useAuthentication()
+import { useAdminStore } from '@/stores/admin.store'
+import { navigateTo } from 'nuxt/app'
 
 const formRef = ref()
 const loading = ref(false)
-const form = ref({ username: '', password: '', remember: true })
+const form = ref({ account: '', password: '', remember: true })
 const rules = {
-  username: [{ required: true, message: '请输入账号', trigger: 'blur' }],
+  account: [{ required: true, message: '请输入账号', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
 }
 
@@ -59,12 +58,11 @@ const onSubmit = async () => {
     if (!valid) return
     loading.value = true
     try {      
-      const res = await adminService.login(form.value.username, hashPassword(form.value.password), form.value.remember)
-      if(res.status === 200 && res.data?.status === 200 ) {
-        setToken(res.data.token, form.value.remember)
-        navigateTo('/admin')
+      const success = await useAdminStore().login(form.value.account, form.value.password, form.value.remember)
+      if(success) {
+        navigateTo('/admin', { replace: true })
       } else {
-        ElMessage.error(res.data?.message || '登录失败，请检查账号或密码')
+        ElMessage.error('登录失败，请检查账号或密码')
       }      
     } catch (e: any) {
       const msg = e?.data?.message || '登录失败，请检查账号或密码'

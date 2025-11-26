@@ -4,11 +4,8 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   css: ['element-plus/dist/index.css', '@/assets/css/global.less', '@/assets/css/theme.less', '@/assets/css/variables.less'],
-  modules: ['nuxt-icons'],
+  modules: ['nuxt-icons', '@pinia/nuxt'],
   runtimeConfig: {
-    adminAccount: process.env.NUXT_ADMIN_ACCOUNT || 'dev-account',
-    adminPassword: process.env.NUXT_ADMIN_PASSWORD || 'dev-password',
-    authSecret: process.env.NUXT_AUTH_SECRET || 'dev-secret',    
     public: {
       baseUrl: process.env.NUXT_BASE_URL || '/',
       cookiePrefix: process.env.NUXT_PUBLIC_COOKIE_PREFIX || '',
