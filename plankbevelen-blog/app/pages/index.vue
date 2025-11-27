@@ -3,18 +3,15 @@
         <div class="container">
             <ThreeColumnLayout>
                 <template #left class="left">
-                    <BloggerCard />
+                    <BloggerCard :articleCount="stats?.articles || 0" :categoryCount="stats?.categories || 0" :tagCount="stats?.tags || 0" />
                     <RecordLinkCard />
                 </template>
                 <template #middle>
-                    <div class="middle">
-                        <h2>Middle</h2>
-                    </div>
+                    <ArticleList single :articleList="articles"/>
                 </template>
                 <template #right>
-                    <div class="right">
-                        <h2>Right</h2>
-                    </div>
+                    <CategoryCard :categories="categories" />
+                    <TagCard :tags="tags" />
                 </template>
             </ThreeColumnLayout>
         </div>        
@@ -25,16 +22,35 @@
 import ThreeColumnLayout from '@/components/layouts/ThreeColumnLayout.vue'
 import BloggerCard from '@/components/cards/blogger.vue'
 import RecordLinkCard from '@/components/cards/recordLink.vue'
+import ArticleList from '@/components/article/articleList.vue'
+import CategoryCard from '@/components/cards/category.vue'
+import TagCard from '@/components/cards/tag.vue'
+import { ref, onMounted } from 'vue'
+
+const articles = ref<any[]>([])
+const categories = ref<any[]>([])
+const tags = ref<any[]>([])
+const stats = ref<{ articles: number; categories: number; tags: number } | null>(null)
+
+onMounted(async () => {
+  try {
+    const res = await $fetch('/api/home.data') as any
+    if (res && res.status === 200) {
+      articles.value = res.data?.articles || []
+      categories.value = res.data?.categories || []
+      tags.value = res.data?.tags || []
+      stats.value = res.data?.stats || null
+    }
+  } catch (error) { console.log(error) }
+})
 
 </script>
 
 <style lang="less" scoped>
 .home {
     min-height: 100vh;
-    height: 100vh;
     padding-top: @header-height;
     .container {
-        height: 100%;
         padding: 40px 0;
     }
 }

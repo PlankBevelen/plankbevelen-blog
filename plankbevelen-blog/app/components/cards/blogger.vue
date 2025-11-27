@@ -1,32 +1,30 @@
 <template>    
     <Card type="blogger" animation>
-        <template #content>
-            <div class="blogger-avatar">
-                <img :src="avatar" alt="">
-            </div>
-            <div class="blogger-name">
-                {{ name }}
-            </div>
-            <div class="blogger-profession">
-                <nuxt-icon name="blogger/profession" />{{ t('cards.blogger.profession') }}
-            </div>
-            <div class="blogger-location">
-                <nuxt-icon name="blogger/location" />{{ t('cards.blogger.location') }}
-            </div>
-            <div class="blogger-article">
-                <el-row :gutter="20">
-                    <el-col :span="8">
-                        <el-statistic :title="t('cards.blogger.stats.articles')" :value="articleCountOutput"></el-statistic>
-                    </el-col>
-                    <el-col :span="8">
-                        <el-statistic :title="t('cards.blogger.stats.categories')" :value="followCountOutput"></el-statistic>
-                    </el-col>
-                    <el-col :span="8">
-                        <el-statistic :title="t('cards.blogger.stats.tags')" :value="tagCountOutput"></el-statistic>
-                    </el-col>
-                </el-row>
-            </div>
-        </template>
+        <div class="blogger-avatar">
+            <img :src="avatar" alt="">
+        </div>
+        <div class="blogger-name">
+            {{ name }}
+        </div>
+        <div class="blogger-profession">
+            <nuxt-icon name="blogger/profession" />{{ t('cards.blogger.profession') }}
+        </div>
+        <div class="blogger-location">
+            <nuxt-icon name="blogger/location" />{{ t('cards.blogger.location') }}
+        </div>
+        <div class="blogger-article">
+            <el-row :gutter="20">
+                <el-col :span="8">
+                    <el-statistic :title="t('cards.blogger.stats.articles')" :value="articleCountOutput"></el-statistic>
+                </el-col>
+                <el-col :span="8">
+                    <el-statistic :title="t('cards.blogger.stats.categories')" :value="followCountOutput"></el-statistic>
+                </el-col>
+                <el-col :span="8">
+                    <el-statistic :title="t('cards.blogger.stats.tags')" :value="tagCountOutput"></el-statistic>
+                </el-col>
+            </el-row>
+        </div>
     </Card>    
 </template>
 
@@ -42,16 +40,17 @@ const avatar = '/img/avatar.jpg'
 
 const { t } = useI18n({ useScope: 'local', messages: cardsLang as any })
 
-const articleCount = ref(0)
-const followCount = ref(0)
-const tagCount = ref(0)
+const props = defineProps<{ articleCount?: number; categoryCount?: number; tagCount?: number }>()
+const articleCount = ref(props.articleCount || 0)
+const followCount = ref(props.categoryCount || 0)
+const tagCount = ref(props.tagCount || 0)
 const articleCountOutput = useTransition(articleCount, { duration: 1000 })
 const followCountOutput = useTransition(followCount, { duration: 1000 })
 const tagCountOutput = useTransition(tagCount, { duration: 1000 })
 onMounted(() => {
-    articleCount.value = 1000
-    followCount.value = 100
-    tagCount.value = 100
+    articleCount.value = props.articleCount || 0
+    followCount.value = props.categoryCount || 0
+    tagCount.value = props.tagCount || 0
 })
 
 </script>

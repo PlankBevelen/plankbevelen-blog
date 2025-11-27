@@ -3,7 +3,7 @@
         <div class="sideBarWrapper">
             <el-menu
                 :collapse="isCollapsed"
-                default-active="1"
+                :default-active=activeIndex
                 class="sideBarMenu"
             >
                 <el-menu-item index="1" @click="navigateTo('/admim')">
@@ -30,6 +30,18 @@
 
 <script setup lang="ts">
 defineProps<{ isCollapsed: boolean }>()
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+// 根据路由判断 activeIndex
+const activeIndex = computed(() => {
+    const currentRoute = router.currentRoute.value
+    if (currentRoute.path === '/admin') return '1'
+    if (currentRoute.path === '/admin/content/article' || currentRoute.path.includes('/admin/content/article/')) return '2-1'
+    if (currentRoute.path === '/admin/content/category') return '2-2'
+    if (currentRoute.path === '/admin/statistics') return '3'
+    return '1'
+})
 </script>
 
 <style scoped lang="less">

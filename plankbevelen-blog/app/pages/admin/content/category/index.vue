@@ -11,12 +11,13 @@
         <div class="category-content">
             <el-table :data="filteredCategoryList" style="width: 100%" stripe>
                 <el-table-column prop="name" label="分类名称"></el-table-column>
+                <el-table-column prop="count" label="文章数" width="120"></el-table-column>
                 <el-table-column prop="created_at" label="创建时间" width="180"></el-table-column>
                 <el-table-column prop="updated_at" label="更新时间" width="180"></el-table-column>
                 <el-table-column label="操作" width="300" class-name="operation-column">
                     <template #default="scope">
                         <el-button type="primary"  @click="handleEdit('update', scope.row.id)">编辑</el-button>
-                        <el-button type="danger"  disabled>删除</el-button>
+                        <el-button type="danger" @click="handleDelete(scope.row.id)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -41,8 +42,10 @@
 <script lang="ts" setup>
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 import { ref, computed, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import categoryService from '@/services/category.service'
+import { formatDateTime } from '@/utils/format'
+import appCache from '@/utils/cache'
 
 const searchText = ref('')
 const categoryList = ref<any[]>([])
@@ -56,7 +59,7 @@ const rules = { name: [{ required: true, message: '请输入分类名称', trigg
 const dialogTitle = computed(() => (mode.value === 'add' ? '新增分类' : '编辑分类'))
 const filteredCategoryList = computed(() => {
     const text = (searchText.value || '').trim()
-    if (!text) return categoryList.value
+    if (!text) return categoryList.value.map((c) => ({ ...c, created_at: formatDateTime(c.created_at), updated_at: formatDateTime(c.updated_at) }))
     return categoryList.value.filter((c) => String(c.name).includes(text))
 })
 
@@ -65,6 +68,7 @@ const getCategoryList = async () => {
         const res = await categoryService.getCategories()
         if (res.status === 200 && res.data.status === 200) {
             categoryList.value = res.data.data
+            appCache.setCategories(res.data.data)
         }
     } catch (error: any) {
         ElMessage.error(error.msg || '分类查询错误')
@@ -87,8 +91,21 @@ const handleEdit = (m: 'add' | 'update', id?: number) => {
     openDialog()
 }
 
+const handleDelete = async (id: number) => {
+    try {
+        await ElMessageBox.confirm('确认删除该分类吗？', '提示', { type: 'warning' })
+        const res = await categoryService.deleteCategory(id)
+        if (res.status === 200 && res.data.status === 200) {
+            ElMessage.success('删除成功')
+            await getCategoryList()
+        }
+    } catch (error: any) {
+        ElMessage.error(error.msg || '删除失败')
+    }
+}
+
 const onSubmit = async () => {
-    ;(formRef.value as any)?.validate(async (valid: boolean) => {
+    (formRef.value as any)?.validate(async (valid: boolean) => {
         if (!valid) return
         try {
             if (mode.value === 'add') {
@@ -110,7 +127,14 @@ const onSubmit = async () => {
     })
 }
 
-onMounted(() => { getCategoryList() })
+onMounted(() => { 
+    const categories = appCache.getCategories()
+    if (categories) {
+        categoryList.value = categories.map((c) => ({ ...c, created_at: formatDateTime(c.created_at), updated_at: formatDateTime(c.updated_at) }))
+    } else {
+        getCategoryList() 
+    }
+})
 </script>
 
 <style lang="less" scoped>

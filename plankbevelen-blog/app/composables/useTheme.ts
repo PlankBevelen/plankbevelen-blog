@@ -13,10 +13,6 @@ export function useTheme() {
     }
   }
 
-  const toggleTheme = () => {
-    currentTheme.value = currentTheme.value === 'light' ? 'dark' : 'light'
-  }
-
   const applyTheme = (theme: Theme) => {
     if (typeof document === 'undefined') return
     const root = document.documentElement
@@ -30,15 +26,8 @@ export function useTheme() {
     }
   }
 
-  onMounted(() => {
-    applyTheme(currentTheme.value)
-    watch(currentTheme, (newTheme) => {
-      applyTheme(newTheme)
-    })
-  })
-
   return {
     currentTheme,
-    toggleTheme
+    applyTheme,
   }
 }

@@ -1,16 +1,16 @@
 <template>
     <Card type="record-link">
-        <template #content>
-            <div class="header">链接</div>
-            <ul class="links">
-                <li v-for="item in recordLink" :key="item.link" class="link-item">
-                    <a :href="item.link" target="_blank" rel="noopener noreferrer" class="link">
-                        <span class="title">{{ item.title }}</span>
-                        <span class="target">{{ item.target }}</span>
-                    </a>                    
-                </li>
-            </ul>
+        <template #header>
+            链接
         </template>
+        <ul class="links">
+            <li v-for="item in recordLink" :key="item.link" class="link-item">
+                <a :href="item.link" target="_blank" rel="noopener noreferrer" class="link">
+                    <span class="title">{{ item.title }}</span>
+                    <span class="target">{{ item.target }}</span>
+                </a>                    
+            </li>
+        </ul>
     </Card>
 </template>
 
@@ -32,11 +32,6 @@ const recordLink = ref([
 
 <style lang="less" scoped>
 .record-link {
-    .header {
-        font-size: 14px;
-        font-weight: bold;
-        margin-bottom: @base-gap;
-    }
     .links {
         display: flex;
         flex-direction: column;

@@ -22,7 +22,6 @@ export const useAuthentication = () => {
     } else {
       cookieConfig.expires = keepAliveTime.value / (24 * 60 * 60)
     }
-    console.log("设置成功，过期时间：", cookieConfig.expires)
     return Cookies.set(tokenKey.value, token, cookieConfig)
   }
 

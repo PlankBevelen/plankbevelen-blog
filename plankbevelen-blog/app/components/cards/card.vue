@@ -1,8 +1,10 @@
 <template>
     <div :class="['card', type, { animation }]">
+        <div class="card-header" v-if="$slots.header">
+            <slot name="header"></slot>
+        </div>
         <div class="card-content">
             <slot></slot>
-            <slot name="content"></slot>
         </div>
     </div>
 </template>
@@ -29,6 +31,11 @@ const props = defineProps({
     transition: all 0.3s ease-in-out;
     padding: 20px;
     position: relative;
+    .card-header {
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: @base-gap;
+    }
     .card-content {
         position: relative;
         z-index: 2;

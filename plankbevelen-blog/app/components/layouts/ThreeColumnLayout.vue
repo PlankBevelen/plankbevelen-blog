@@ -20,12 +20,13 @@
 
 <style lang="less" scoped>
 .three-column-layout {
-    height: 100%;
+    height: auto;
 }
 .content {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;
     grid-gap: 20px;
+    height: auto;
 }
 .left > * {
     animation: fly-in-from-top-left 0.3s ease-in-out;    

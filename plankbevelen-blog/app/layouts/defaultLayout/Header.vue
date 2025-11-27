@@ -25,8 +25,8 @@
         <span class="lang">
           <nuxt-icon name="header/language" />
           <div class="lang-choose">
-            <span class="lang-item" @click="locale = 'en'" :class="{'active': locale === 'en'}">{{ t('lang.en') }}</span>
-            <span class="lang-item" @click="locale = 'cn'" :class="{'active': locale === 'cn'}">{{ t('lang.cn') }}</span>
+            <span class="lang-item" @click="admin.setLocale('en')" :class="{'active': currentLocale === 'en'}">{{ t('lang.en') }}</span>
+            <span class="lang-item" @click="admin.setLocale('cn')" :class="{'active': currentLocale === 'cn'}">{{ t('lang.cn') }}</span>
           </div>
         </span>
       </div>
@@ -35,17 +35,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed, watch } from 'vue'
-
-import { useTheme } from '@/composables/useTheme'
-const { currentTheme } = useTheme()
-const themeSwitch = computed({ get(){ return currentTheme.value === 'dark' }, set(v){ currentTheme.value = v ? 'dark' : 'light' } })
-
+import { onMounted, computed } from 'vue'
+import { useAdminStore } from '@/stores/admin.store'
+const admin = useAdminStore()
+const themeSwitch = computed({ get(){ return admin.getTheme === 'dark' }, set(v){ admin.setTheme(v ? 'dark' : 'light') } })
+const currentLocale = computed(() => admin.getLocale)
 import { useI18n } from 'vue-i18n'
-const { t, locale } = useI18n()
-import { useAuthentication } from '@/composables/useAuthentication'
-const { setI18n } = useAuthentication()
-watch(locale, (n) => { setI18n(n as string) })
+const { t } = useI18n()
 
 const navList = [
   { key: 'nav.home', path: '/' },
@@ -55,6 +51,7 @@ const navList = [
 ]
 
 onMounted(()=>{
+  admin.initPreferences()
   let lastScrollY = 0;
   window.addEventListener('scroll', () => {
     const header = document.querySelector('.header');
