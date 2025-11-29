@@ -37,8 +37,6 @@ export async function initDB() {
     }, 60000);
   } catch (error) {
     console.error('❌ 数据库连接初始化失败:', (error as Error).message);
-    // 可选：连接失败时退出进程（生产环境建议保留，避免服务假活）
-    // process.exit(1);
   }
 }
 

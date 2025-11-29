@@ -35,6 +35,7 @@ const stats = ref<{ articles: number; categories: number; tags: number } | null>
 onMounted(async () => {
   try {
     const res = await $fetch('/api/home.data') as any
+    console.log(res)
     if (res && res.status === 200) {
       articles.value = res.data?.articles || []
       categories.value = res.data?.categories || []

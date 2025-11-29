@@ -9,7 +9,7 @@ export default defineNuxtConfig({
     public: {
       baseUrl: process.env.NUXT_BASE_URL || '/',
       cookiePrefix: process.env.NUXT_PUBLIC_COOKIE_PREFIX || '',
-      expirationTime: process.env.NUXT_EXPIRATION_TIME || '2592000',
+      expirationTime: process.env.NUXT_EXPIRATION_TIME || '432000',
       keepAliveTime: process.env.NUXT_KEEP_ALIVE_TIME || '432000',
     },
   },
