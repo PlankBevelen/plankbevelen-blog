@@ -4,7 +4,7 @@
         <div class="login-wrapper">
           <div class="left">
             <div class="left-wrapper">
-              <img src="/logo.jpg" alt="logo" class="logo">
+              <img src="/img/logo.jpg" alt="logo" class="logo">
               <h1 class="title">PlankBevelen Blog Admin</h1>
               <p class="subtitle">后台管理系统</p>
               <ul class="feature-list">

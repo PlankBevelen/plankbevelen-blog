@@ -1,4 +1,4 @@
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, setResponseStatus } from 'h3'
 import { execute } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {

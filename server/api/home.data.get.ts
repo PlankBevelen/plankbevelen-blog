@@ -1,5 +1,5 @@
 import { query } from '../utils/db'
-import { setResponseStatus } from 'h3'
+import { setResponseStatus, defineEventHandler } from 'h3'
 
 export default defineEventHandler(async (event) => {
   try {

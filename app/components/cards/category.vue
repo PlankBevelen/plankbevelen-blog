@@ -16,6 +16,7 @@
 import type { Category } from '@/types/category'
 import categoryService from '~/services/category.service'
 import Card from './card.vue'
+import { ref, computed, onMounted } from 'vue'
 
 const props = defineProps({
     categories: {
@@ -24,17 +25,20 @@ const props = defineProps({
     }
 })
 
-const categoryList = ref<Category[]>([])
+const fallback = ref<Category[]>([])
+const categoryList = computed(() => {
+    if (props.categories && props.categories.length > 0) return props.categories
+    return fallback.value
+})
+
 onMounted(async () => {
-    if(!props.categories || props.categories.length === 0) {        
+    if (!props.categories || props.categories.length === 0) {
         try {
             const res = await categoryService.getCategories()
-            if(res.status === 200 && res.data.status === 200) {
-                categoryList.value = res.data.data
+            if (res.status === 200 && res.data.status === 200) {
+                fallback.value = res.data.data || []
             }
-        } catch (error) {            
-            console.log(error)
-            return
+        } catch (e) {
         }
     }
 })

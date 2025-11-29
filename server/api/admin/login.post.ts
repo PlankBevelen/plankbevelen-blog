@@ -1,4 +1,4 @@
-import { defineEventHandler, readBody, setResponseStatus } from 'h3'
+import { defineEventHandler, readBody, setResponseStatus, setCookie } from 'h3'
 import { sha256 } from 'js-sha256'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'

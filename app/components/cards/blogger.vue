@@ -30,10 +30,13 @@
 
 <script setup lang="ts">
 import Card from './card.vue'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useTransition } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import cardsLang from './cardsLang.json'
+import articleService from '@/services/article.service'
+import categoryService from '@/services/category.service'
+import tagService from '@/services/tag.service'
 
 const name = 'PlankBevelen'
 const avatar = '/img/avatar.jpg'
@@ -41,10 +44,50 @@ const avatar = '/img/avatar.jpg'
 const { t } = useI18n({ useScope: 'local', messages: cardsLang as any })
 
 const props = defineProps<{ articleCount?: number; categoryCount?: number; tagCount?: number }>()
-const articleCountOutput = computed(() => props.articleCount || 0)
-const followCountOutput = computed(() => props.categoryCount || 0)
-const tagCountOutput = computed(() => props.tagCount || 0)
+const articleCount = ref(0)
+const followCount = ref(0)
+const tagCount = ref(0)
+watch(() => props.articleCount, (v) => { articleCount.value = v || 0 }, { immediate: true })
+watch(() => props.categoryCount, (v) => { followCount.value = v || 0 }, { immediate: true })
+watch(() => props.tagCount, (v) => { tagCount.value = v || 0 }, { immediate: true })
+const articleCountOutput = useTransition(articleCount, { duration: 1000 })
+const followCountOutput = useTransition(followCount, { duration: 1000 })
+const tagCountOutput = useTransition(tagCount, { duration: 1000 })
 
+onMounted(async () => {
+  const needArticle = !props.articleCount || props.articleCount === 0
+  const needCategory = !props.categoryCount || props.categoryCount === 0
+  const needTag = !props.tagCount || props.tagCount === 0
+  if (needArticle || needCategory || needTag) {
+    try {
+      const tasks: Promise<any>[] = []
+      if (needArticle) tasks.push(articleService.getArticles(1, 10))
+      if (needCategory) tasks.push(categoryService.getCategories())
+      if (needTag) tasks.push(tagService.getTags())
+      const results = await Promise.all(tasks)
+      let ai = 0
+      if (needArticle) {
+        const res = results[ai++]
+        if (res.status === 200 && res.data.status === 200) {
+          articleCount.value = Number(res.data.total || 0)
+        }
+      }
+      if (needCategory) {
+        const res = results[ai++]
+        if (res.status === 200 && res.data.status === 200) {
+          followCount.value = Number((res.data.data || []).length)
+        }
+      }
+      if (needTag) {
+        const res = results[ai++]
+        if (res.status === 200 && res.data.status === 200) {
+          tagCount.value = Number((res.data.data || []).length)
+        }
+      }
+    } catch (e) {
+    }
+  }
+})
 </script>
 
 <style scoped lang="less">
