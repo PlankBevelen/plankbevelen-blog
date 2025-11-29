@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import Card from './card.vue'
-import { ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useTransition } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import cardsLang from './cardsLang.json'
@@ -41,15 +41,9 @@ const avatar = '/img/avatar.jpg'
 const { t } = useI18n({ useScope: 'local', messages: cardsLang as any })
 
 const props = defineProps<{ articleCount?: number; categoryCount?: number; tagCount?: number }>()
-const articleCount = ref(0)
-const followCount = ref(0)
-const tagCount = ref(0)
-watch(() => props.articleCount, (v) => { articleCount.value = v || 0 }, { immediate: true })
-watch(() => props.categoryCount, (v) => { followCount.value = v || 0 }, { immediate: true })
-watch(() => props.tagCount, (v) => { tagCount.value = v || 0 }, { immediate: true })
-const articleCountOutput = useTransition(articleCount, { duration: 1000 })
-const followCountOutput = useTransition(followCount, { duration: 1000 })
-const tagCountOutput = useTransition(tagCount, { duration: 1000 })
+const articleCountOutput = computed(() => props.articleCount || 0)
+const followCountOutput = computed(() => props.categoryCount || 0)
+const tagCountOutput = computed(() => props.tagCount || 0)
 
 </script>
 

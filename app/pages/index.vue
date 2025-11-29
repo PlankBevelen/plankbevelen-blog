@@ -25,25 +25,27 @@ import RecordLinkCard from '@/components/cards/recordLink.vue'
 import ArticleList from '@/components/article/articleList.vue'
 import CategoryCard from '@/components/cards/category.vue'
 import TagCard from '@/components/cards/tag.vue'
-import { ref, onMounted } from 'vue'
+import { computed } from 'vue'
+import { useAsyncData } from 'nuxt/app'
+import http from '~/utils/http-common'
 
-const articles = ref<any[]>([])
-const categories = ref<any[]>([])
-const tags = ref<any[]>([])
-const stats = ref<{ articles: number; categories: number; tags: number } | null>(null)
-
-onMounted(async () => {
-  try {
-    const res = await $fetch('/api/home.data') as any
-    console.log(res)
-    if (res && res.status === 200) {
-      articles.value = res.data?.articles || []
-      categories.value = res.data?.categories || []
-      tags.value = res.data?.tags || []
-      stats.value = res.data?.stats || null
+const { data } = await useAsyncData('home-data', async () => { 
+    try {
+        const res = await http.get('/api/home.data') as any 
+        if(res.status === 200 && res.data.status === 200) {
+            return res.data.data
+        }else {
+            throw Error(res.data.message || '获取首页数据失败')
+        }
+    } catch (err) {
+        throw Error(err.message || '获取首页数据失败')
     }
-  } catch (error) { console.log(error) }
 })
+
+const articles = computed(() => data.value?.articles || [])
+const categories = computed(() => data.value?.categories || [])
+const tags = computed(() => data.value?.tags || [])
+const stats = computed(() => data.value?.stats || null)
 
 </script>
 

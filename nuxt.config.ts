@@ -56,4 +56,11 @@ export default defineNuxtConfig({
       xxl: 1536
     }
   },
+  nitro: {
+    externals: {
+      inline: ['element-plus']
+    },
+    // 压缩静态资源
+    compressPublicAssets: true,
+  }
 })
