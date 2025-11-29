@@ -5,9 +5,6 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['element-plus/dist/index.css', '@/assets/css/global.less', '@/assets/css/theme.less', '@/assets/css/variables.less'],
   modules: ['nuxt-icons', '@pinia/nuxt', '@nuxt/image'],
-  build: {
-    transpile: ['element-plus'],
-  },
   runtimeConfig: {
     public: {
       baseUrl: process.env.NUXT_BASE_URL || '/',
@@ -45,29 +42,6 @@ export default defineNuxtConfig({
           javascriptEnabled: true,
         }
       }
-    },
-    ssr: {
-      noExternal: ['element-plus'],
-    },
-    build: {
-      rollupOptions: {
-        output: {
-          manualChunks(id) {
-            if (id.includes('node_modules')) {
-              if (id.includes('element-plus')) {
-                return 'element-plus'
-              }
-              if (id.includes('vue') || id.includes('pinia')) {
-                return 'vue-vendor'
-              }
-              return 'vendor'
-            }
-          }
-        }
-      },
-      cssCodeSplit: true,
-      chunkSizeWarningLimit: 1500,
-      sourcemap: false
     }
   },
   image: {
@@ -84,7 +58,7 @@ export default defineNuxtConfig({
   },
   nitro: {
     externals: {
-      inline: ['element-plus']
+      inline: ['element-plus', '@popperjs/core']
     },
     // 压缩静态资源
     compressPublicAssets: true,
