@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   css: ['element-plus/dist/index.css', '@/assets/css/global.less', '@/assets/css/theme.less', '@/assets/css/variables.less'],
-  modules: ['nuxt-icons', '@pinia/nuxt'],
+  modules: ['nuxt-icons', '@pinia/nuxt', '@nuxt/image'],
   runtimeConfig: {
     public: {
       baseUrl: process.env.NUXT_BASE_URL || '/',
@@ -13,6 +13,7 @@ export default defineNuxtConfig({
       keepAliveTime: process.env.NUXT_KEEP_ALIVE_TIME || '432000',
     },
   },
+  ssr: true,
   postcss: {
     plugins: {
       'postcss-preset-env': {
@@ -42,5 +43,17 @@ export default defineNuxtConfig({
         }
       }
     }
-  }
+  },
+  image: {
+    quality: 80,
+    format: ['webp', 'jpg'],
+    screens: {
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      xxl: 1536
+    }
+  },
 })

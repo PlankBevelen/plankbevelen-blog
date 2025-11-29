@@ -2,7 +2,16 @@
   <header class="header" >
     <div class="headerWrapper container">
       <div class="logo">
-        <img src="/logo.jpg" alt="logo" class="logo-img" />
+        <NuxtImg
+          src="/img/logo.jpg"
+          alt="logo"
+          quality="70"
+          loading="eager"
+          fetchpriority="high"
+          class="logo-img"
+          :width="40"
+          :height="40"
+        />
         <span class="logo-text">{{ t('common.title') }}</span>
       </div>
       <ul class="nav-menu">

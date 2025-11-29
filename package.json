@@ -11,7 +11,9 @@
     "serve": "vite"
   },
   "dependencies": {
+    "@nuxt/image": "^2.0.0",
     "@pinia/nuxt": "^0.11.3",
+    "@popperjs/core": "^2.11.8",
     "@vavt/md-editor-extension": "^3.0.0",
     "@vueuse/core": "^14.0.0",
     "axios": "^1.13.2",
