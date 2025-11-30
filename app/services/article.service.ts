@@ -5,8 +5,8 @@ class ArticleService {
   async createArticle(article: NewArticle) {
     return await http.post('/api/article', article)
   }
-  async getArticles(page: number = 1, limit: number = 10, q?: string) {
-    return await http.get('/api/article', { params: { page, limit, q } })
+  async getArticles(page: number = 1, limit: number = 10, q?: string, sort?: string) {
+    return await http.get('/api/article', { params: { page, limit, q, sort } })
   }
   async getArticle(id: number | string) {
     return await http.get(`/api/article/${id}`)

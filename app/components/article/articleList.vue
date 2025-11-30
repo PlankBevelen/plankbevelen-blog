@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import type { Article } from '@/types/article'
 import articleService from '@/services/article.service'
 import articleDesc from './articleDesc.vue'
@@ -33,6 +33,10 @@ const props = defineProps(
         articleList: {
             type: Array as () => Article[],
             default: () => []
+        },
+        q: {
+            type: String,
+            default: ''
         }
     }
 )
@@ -44,7 +48,7 @@ const limit = ref(10)
 const total = ref(0)
 
 const loadData = async () => {
-    const res = await articleService.getArticles(page.value, limit.value)
+    const res = await articleService.getArticles(page.value, limit.value, props.q || undefined)
     if (res.status === 200 && res.data.status === 200) {
         articleList.value = res.data.data || []
         total.value = Number(res.data.total || 0)
@@ -60,6 +64,8 @@ onMounted(async () => {
     else
         articleList.value = props.articleList
 })
+
+watch(() => props.q, async () => { page.value = 1; await loadData() })
 </script>
 
 <style scoped lang="less">

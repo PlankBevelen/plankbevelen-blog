@@ -36,8 +36,8 @@ const props = defineProps({
     }
 })
 
-const atLeastLines = ref(30)
-const maxLines = ref(80)
+const atLeastLines = ref(20)
+const maxLines = ref(60)
 const isExpand = ref(false)
 const displayContent = computed(() => {
     if (isExpand.value) {

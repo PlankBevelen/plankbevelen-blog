@@ -6,7 +6,7 @@
         <ul class="categoryList">
             <li v-for="item in categoryList" :key="item.id" class="category-item">
                 <span class="name">{{ item.name }}</span>
-                <span class="count">{{ item.count }}</span>
+                <span class="count">{{ item.count }}</span>       
             </li>
         </ul>
     </Card>

@@ -4,7 +4,16 @@
         <div class="login-wrapper">
           <div class="left">
             <div class="left-wrapper">
-              <img src="/img/logo.jpg" alt="logo" class="logo">
+              <NuxtImg
+                src="/img/logo.webp"
+                alt="logo"
+                quality="70"
+                loading="eager"
+                fetchpriority="high"
+                class="logo"
+                :width="40"
+                :height="40"
+              />
               <h1 class="title">PlankBevelen Blog Admin</h1>
               <p class="subtitle">后台管理系统</p>
               <ul class="feature-list">

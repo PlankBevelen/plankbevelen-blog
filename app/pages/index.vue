@@ -3,15 +3,16 @@
         <div class="container">
             <ThreeColumnLayout :loading="pending">
                 <template #left class="left">
-                    <BloggerCard :articleCount="stats?.articles || 0" :categoryCount="stats?.categories || 0" :tagCount="stats?.tags || 0" />
+                    <BloggerCard :articleCount="homeData.stats?.articles " :categoryCount="homeData.stats?.categories" :tagCount="homeData.stats?.tags" />
                     <RecordLinkCard />
                 </template>
                 <template #middle>
-                    <ArticleList single :articleList="articles"/>
+                    <ArticleList single :articleList="homeData.articles"/>
                 </template>
                 <template #right>
-                    <CategoryCard :categories="categories" />
-                    <TagCard :tags="tags" />
+                    <LatestArticlesCard :articles="homeData.latestArticles" />
+                    <CategoryCard :categories="homeData.categories" />
+                    <TagCard :tags="homeData.tags" />
                 </template>
             </ThreeColumnLayout>
         </div>        
@@ -25,9 +26,18 @@ import RecordLinkCard from '@/components/cards/recordLink.vue'
 import ArticleList from '@/components/article/articleList.vue'
 import CategoryCard from '@/components/cards/category.vue'
 import TagCard from '@/components/cards/tag.vue'
+import LatestArticlesCard from '@/components/cards/latest.vue'
 import { computed } from 'vue'
 import { useAsyncData } from 'nuxt/app'
 import http from '~/utils/http-common'
+
+const homeData = reactive({
+    articles: [],
+    latestArticles: [],
+    categories: [],
+    tags: [],
+    stats: null
+})
 
 const { data, pending } = await useAsyncData('home-data', async () => { 
     try {
@@ -43,10 +53,16 @@ const { data, pending } = await useAsyncData('home-data', async () => {
     }
 })
 
-const articles = computed(() => data.value?.articles || [])
-const categories = computed(() => data.value?.categories || [])
-const tags = computed(() => data.value?.tags || [])
-const stats = computed(() => data.value?.stats || null)
+watch(data, (newData) => {
+    if (newData) {
+        console.log('📊 更新 homeData:', newData)
+        homeData.articles = newData.articles || []
+        homeData.latestArticles = newData.latestArticles || []
+        homeData.categories = newData.categories || []
+        homeData.tags = newData.tags || []
+        homeData.stats = newData.stats || null
+    }
+}, { immediate: true, deep: true })
 
 // SEO 优化
 useHead({

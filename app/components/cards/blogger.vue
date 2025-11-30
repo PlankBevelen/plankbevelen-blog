@@ -1,7 +1,16 @@
 <template>    
     <Card type="blogger" animation>
         <div class="blogger-avatar">
-            <img :src="avatar" alt="">
+            <NuxtImg
+                src="/img/avatar.jpg"
+                alt="avatar"
+                class="avatar"
+                loading="eager"
+                fetchpriority="high"
+                quality="100"
+                :width="140"
+                :height="140"
+            />
         </div>
         <div class="blogger-name">
             {{ name }}
@@ -39,7 +48,6 @@ import categoryService from '@/services/category.service'
 import tagService from '@/services/tag.service'
 
 const name = 'PlankBevelen'
-const avatar = '/img/avatar.jpg'
 
 const { t } = useI18n({ useScope: 'local', messages: cardsLang as any })
 
@@ -94,8 +102,8 @@ onMounted(async () => {
 .blogger {
     text-align: center;
     .blogger-avatar {
-        width: 60%;
-        height: auto;
+        width: 140px;
+        height: 140px;
         margin: 0 auto;
         margin-bottom: 12px;
         overflow: hidden;

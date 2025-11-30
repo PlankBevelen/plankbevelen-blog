@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
     const pageNum = Math.max(1, Number(q.page || 1))
     const pageSize = Math.max(1, Number(q.limit || 10))
     const keyword = String(q.q || '').trim()  // 搜索关键词，根据标题、标签、分类名称进行搜索
+    const sort = String(q.sort || 'created').toLowerCase() // 排序方式：updated|created
     const offset = (pageNum - 1) * pageSize
 
     const params: any[] = []
@@ -16,12 +17,16 @@ export default defineEventHandler(async (event) => {
       params.push(`%${keyword}%`, `%${keyword}%`, `%${keyword}%`)
     }
 
+    const orderBy = sort === 'created'
+      ? 'ORDER BY a.created_at DESC, a.id DESC'
+      : 'ORDER BY a.updated_at DESC, a.created_at DESC, a.id DESC'
+
     const listSql = `
       SELECT a.id, a.title, a.tags, a.content, a.created_at, a.updated_at, a.category_id, c.name AS category_name
       FROM articles a
       LEFT JOIN categories c ON a.category_id = c.id
       ${where}
-      ORDER BY a.created_at DESC
+      ${orderBy}
       LIMIT ? OFFSET ?
     `
     const countSql = `

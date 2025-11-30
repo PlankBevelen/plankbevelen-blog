@@ -3,7 +3,7 @@
     <div class="headerWrapper">
       <div class="logo">
         <NuxtImg
-          src="/img/logo.jpg"
+          src="/img/logo.webp"
           alt="logo"
           quality="70"
           loading="eager"
