@@ -2,7 +2,7 @@
     <Card type="blogger" animation>
         <div class="blogger-avatar">
             <NuxtImg
-                src="/img/avatar.jpg"
+                src="/img/avatar.webp"
                 alt="avatar"
                 class="avatar"
                 loading="eager"
@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import Card from './card.vue'
-import { computed, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useTransition } from '@vueuse/core'
 import articleService from '@/services/article.service'
 import categoryService from '@/services/category.service'
