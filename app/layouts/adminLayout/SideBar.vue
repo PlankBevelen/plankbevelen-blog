@@ -90,7 +90,7 @@ const activeIndex = computed(() => {
                 &:hover {
                     background-color: var(--shallow-hover-bg-color);
                     transform: translateX(4px);
-                    color: var(--primary-color);
+                    color: var(--primary-hover-color);
                 }
                 &:not(:last-child) {
                     margin-bottom: 12px;
@@ -108,7 +108,7 @@ const activeIndex = computed(() => {
                         transition: all 0.3s ease-in-out;
                         background-color: var(--shallow-hover-bg-color);
                         transform: translateX(3px);
-                        color: var(--primary-color);
+                        color: var(--primary-hover-color);
                     }
                 }
                 .el-menu-item {
@@ -119,7 +119,7 @@ const activeIndex = computed(() => {
                         transition: all 0.3s ease-in-out;
                         background-color: var(--deep-hover-bg-color);
                         transform: translateX(3px);
-                        color: var(--primary-color);
+                        color: var(--primary-hover-color);
                         &::before {
                             content: '▸';
                             position: absolute;
@@ -127,7 +127,7 @@ const activeIndex = computed(() => {
                             left: 10%;
                             transform: translate(-50%, -50%);
                             font-size: 24px;
-                            color: var(--primary-color);
+                            color: var(--primary-hover-color);
                         }
                     }
                     &.is-active {

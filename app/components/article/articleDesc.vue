@@ -4,11 +4,16 @@
         <div class="meta">
             <span class="category">{{ article.category }}</span>
             <span class="dot">·</span>
-            <span class="time">{{ formatDateTime(article.updateTime || article.createTime) }}</span>
+            <span class="create-time"><nuxt-icon name="article/create-time" /> {{ formatDateTime(article.createTime) }}</span>
+            <span class="update-time"><nuxt-icon name="article/update-time" /> {{ formatDateTime(article.updateTime) }}</span>
+            <div class="tags">
+                <nuxt-icon name="article/tag" />
+                <span v-for="tag in article.tags" :key="tag">{{ tag }}</span>
+            </div>
         </div>
         <div class="content">
             <div class="md-wrapper" :class="{ 'is-collapsed': !isExpand }">
-                <MdPreview :modelValue="displayContent" :theme="currentTheme" />
+                <MdPreview :modelValue="displayContent" :theme="currentTheme" :noMermaid="true" :noKatex="true" previewOnly/>
             </div>
             <div class="ops">
                 <el-button type="primary" link size="small" @click="isExpand = !isExpand">{{ isExpand ? '收起' : '展开更多' }}</el-button>
@@ -60,13 +65,21 @@ const displayContent = computed(() => {
         text-decoration: none;
         line-height: normal;
         display: block;
-        &:hover { color: var(--active-color); }
+        &:hover { color: var(--primary-hover-color); }
     }
     .meta {
         color: var(--tertiary-color);
         font-size: 12px;
-        .dot { margin: 0 6px; }
+        display: flex;
+        gap: 8px;
+        text-wrap: auto;
+        .tags {
+            display: flex;
+            gap: 4px;
+            font-size: 12px;
+        }
     }
+    
     .content {
         display: flex;
         flex-direction: column;

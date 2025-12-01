@@ -33,6 +33,7 @@ import http from '~/utils/http-common'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { useAdminStore } from '@/stores/admin.store'
+import { t } from '@/components/i18n/index'
 
 const { data, pending } = await useAsyncData('about-home-data', async () => {
     const res = await http.get('/api/home.data') as any
@@ -46,15 +47,18 @@ const stats = computed(() => data.value?.stats || null)
 const admin = useAdminStore()
 const currentTheme = computed(() => admin.getTheme)
 
+import { useI18n } from 'vue-i18n'
+const { locale } = useI18n()
+const mdPath = computed(() => locale.value === 'en' ? '/md/about-en.md' : '/md/about.md')
 const { data: aboutData } = await useAsyncData('about-md', async () => {
-    return await $fetch('/md/about.md', { responseType: 'text' })
-})
+    return await $fetch(mdPath.value, { responseType: 'text' })
+}, { watch: [mdPath] })
 const aboutMd = computed(() => aboutData.value || '')
 
 useHead({
-    title: '关于我',
+    title: t('pages.about.title'),
     meta: [
-        { name: 'description', content: '关于本站与作者的介绍' }
+        { name: 'description', content: t('pages.about.meta.description') }
     ]
 })
 </script>

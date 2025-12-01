@@ -9,15 +9,15 @@
                 <template #middle>
                     <Card class="navBar">
                         <div class="breadcrumb">
-                            <NuxtLink to="/article">文章</NuxtLink>
+                            <NuxtLink to="/article">{{ $t('pages.article.title') }}</NuxtLink>
                             <template v-if="breadcrumbSuffix">
                                 <span> / </span>
                                 <span>{{ breadcrumbSuffix }}</span>
                             </template>
                         </div>
                         <div class="searchArea">
-                            <el-input v-model="keyword" placeholder="搜索" clearable />
-                            <el-button type="primary" @click="onSearch">搜索</el-button>
+                            <el-input v-model="keyword" :placeholder="$t('pages.article.search.placeholder')" clearable />
+                            <el-button type="primary" @click="onSearch">{{ $t('pages.article.search.btn') }}</el-button>
                         </div>
                     </Card>
                     <ArticleList :q="currentQuery" />                    
@@ -35,6 +35,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { navigateTo, useAsyncData, useHead } from 'nuxt/app'
+import { t } from '@/components/i18n/index'
 import Card from '@/components/cards/card.vue'
 import ArticleList from '@/components/article/articleList.vue'
 import CategoryCard from '@/components/cards/category.vue'
@@ -55,9 +56,10 @@ const currentQuery = computed(() => {
     if (cat) return cat
     return String(route.query.q || '')
 })
+
 const breadcrumbSuffix = computed(() => {
     const cat = String(route.query.category || '')
-    if (cat) return `${cat}分类`
+    if (cat) return `${cat}${t('pages.article.categorySuffix')}`
     const q = String(route.query.q || '').trim()
     if (q) return q
     return ''
@@ -84,9 +86,9 @@ const onSelectCategory = async (item: any) => {
 watch(() => route.query.q, (val) => { keyword.value = String(val || '') })
 
 useHead({
-    title: '文章列表',
+    title: t('pages.article.meta.title'),
     meta: [
-        { name: 'description', content: '文章列表与搜索' }
+        { name: 'description', content: t('pages.article.meta.description') }
     ]
 })
 
@@ -110,7 +112,7 @@ useHead({
         font-size: 14px;
         font-weight: bold;
         line-height: normal;
-        a { text-decoration: none; color: var(--text-color); &:hover { color: var(--primary-color); } }
+        a { text-decoration: none; color: var(--text-color); &:hover { color: var(--primary-hover-color); } }
     }
     .searchArea {
         display: flex;

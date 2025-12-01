@@ -16,21 +16,21 @@
             {{ name }}
         </div>
         <div class="blogger-profession">
-            <nuxt-icon name="blogger/profession" />{{ t('cards.blogger.profession') }}
+            <nuxt-icon name="blogger/profession" />{{ $t('cards.blogger.profession') }}
         </div>
         <div class="blogger-location">
-            <nuxt-icon name="blogger/location" />{{ t('cards.blogger.location') }}
+            <nuxt-icon name="blogger/location" />{{ $t('cards.blogger.location') }}
         </div>
         <div class="blogger-article">
             <el-row :gutter="20">
                 <el-col :span="8">
-                    <el-statistic :title="t('cards.blogger.stats.articles')" :value="articleCountOutput"></el-statistic>
+                    <el-statistic :title="$t('cards.blogger.stats.articles')" :value="articleCountOutput"></el-statistic>
                 </el-col>
                 <el-col :span="8">
-                    <el-statistic :title="t('cards.blogger.stats.categories')" :value="followCountOutput"></el-statistic>
+                    <el-statistic :title="$t('cards.blogger.stats.categories')" :value="followCountOutput"></el-statistic>
                 </el-col>
                 <el-col :span="8">
-                    <el-statistic :title="t('cards.blogger.stats.tags')" :value="tagCountOutput"></el-statistic>
+                    <el-statistic :title="$t('cards.blogger.stats.tags')" :value="tagCountOutput"></el-statistic>
                 </el-col>
             </el-row>
         </div>
@@ -41,15 +41,11 @@
 import Card from './card.vue'
 import { computed, onMounted } from 'vue'
 import { useTransition } from '@vueuse/core'
-import { useI18n } from 'vue-i18n'
-import cardsLang from './cardsLang.json'
 import articleService from '@/services/article.service'
 import categoryService from '@/services/category.service'
 import tagService from '@/services/tag.service'
 
 const name = 'PlankBevelen'
-
-const { t } = useI18n({ useScope: 'local', messages: cardsLang as any })
 
 const props = defineProps<{ articleCount?: number; categoryCount?: number; tagCount?: number }>()
 const articleCount = ref(0)

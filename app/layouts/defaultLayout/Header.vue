@@ -12,11 +12,11 @@
           :width="40"
           :height="40"
         />
-        <span class="logo-text">{{ t('common.title') }}</span>
+        <span class="logo-text">{{ $t('common.title') }}</span>
       </div>
       <ul class="nav-menu">
         <li v-for="item in navList" :key="item.path" class="nav-item">
-          <NuxtLink :to="item.path" class="nav-link">{{ t(item.key) }}</NuxtLink>
+          <NuxtLink :to="item.path" class="nav-link">{{ $t(item.key) }}</NuxtLink>
         </li>
       </ul>
       <div class="controls">
@@ -34,8 +34,8 @@
         <span class="lang">
           <nuxt-icon name="header/language" />
           <div class="lang-choose">
-            <span class="lang-item" @click="admin.setLocale('en')" :class="{'active': currentLocale === 'en'}">{{ t('lang.en') }}</span>
-            <span class="lang-item" @click="admin.setLocale('cn')" :class="{'active': currentLocale === 'cn'}">{{ t('lang.cn') }}</span>
+            <span class="lang-item" @click="admin.setLocale('en')" :class="{'active': currentLocale === 'en'}">{{ $t('lang.en') }}</span>
+            <span class="lang-item" @click="admin.setLocale('cn')" :class="{'active': currentLocale === 'cn'}">{{ $t('lang.cn') }}</span>
           </div>
         </span>
       </div>
@@ -49,14 +49,12 @@ import { useAdminStore } from '@/stores/admin.store'
 const admin = useAdminStore()
 const themeSwitch = computed({ get(){ return admin.getTheme === 'dark' }, set(v){ admin.setTheme(v ? 'dark' : 'light') } })
 const currentLocale = computed(() => admin.getLocale)
-import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
 
 const navList = [
-  { key: 'nav.home', path: '/' },
-  { key: 'nav.article', path: '/article' },
-  { key: 'nav.about', path: '/about' },
-  { key: 'nav.project', path: '/project' },
+  { key: 'header.nav.home', path: '/' },
+  { key: 'header.nav.article', path: '/article' },
+  { key: 'header.nav.about', path: '/about' },
+  { key: 'header.nav.project', path: '/project' },
 ]
 
 onMounted(()=>{
@@ -140,7 +138,7 @@ onMounted(()=>{
         }
         &:hover {
           &::after { transform: scaleX(1); }
-          color: var(--active-color);
+          color: var(--primary-hover-color);
         }
       }
     }

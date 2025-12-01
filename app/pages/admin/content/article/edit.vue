@@ -1,5 +1,5 @@
 <template>
-    <div class="article-edit container">
+    <div class="article-edit">
         <div class="header">
             <div class="left">
               <el-button @click="navigateTo('/admin/content/article')">返回</el-button>
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
+definePageMeta({ middleware: 'auth-middleware', layout: false })
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { ref, computed, onMounted } from 'vue'
@@ -147,10 +147,12 @@ const onSubmit = async () => {
 
 <style scoped lang="less">
 .article-edit {
-    height: 100%;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     gap: 40px;
+    padding: 20px 40px; 
+    overflow: hidden;
     .header {
       position: sticky;
       top: 0;
@@ -171,22 +173,23 @@ const onSubmit = async () => {
       }
     }
     .editor-layout {
-        display: grid;
-        grid-template-columns: 1fr 2fr;
-        grid-gap: 20px;
-        flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 3.5fr;
+      grid-gap: 20px;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
     }
     .panel {
         height: 100%;
+        min-height: 0;
+        overflow: auto;
+        .md-editor {
+          height: 100% !important;
+        }
     }
     .form-panel :deep(.el-form-item) {
         margin-bottom: 16px;
-    }
-    .editor-panel .md-wrapper {
-        height: 650px;
-    }
-    .editor-panel :deep(.md-editor) {
-        height: 100% !important;
     }
 }
 </style>

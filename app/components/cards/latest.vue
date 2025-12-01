@@ -1,7 +1,7 @@
 <template>
   <Card type="latest">
     <template #header>
-      最新文章
+      {{ $t('cards.latest.title') }}
     </template>
     <ul class="latestList">
       <li v-for="item in latestList" :key="item.id" class="latest-item">  
@@ -58,6 +58,8 @@ onMounted(async () => {
     display: block;    
     line-height: 20px;
     cursor: pointer;
+    border-radius: @small-border-radius;
+    padding: 6px 8px;
     &:hover { background-color: var(--shallow-hover-bg-color); }
     &:not(:last-child) {
       margin-bottom: @base-gap;

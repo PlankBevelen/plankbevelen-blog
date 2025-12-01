@@ -11,7 +11,7 @@
                 </template>
                 <template #right>
                     <LatestArticlesCard :articles="homeData.latestArticles" />
-                    <CategoryCard :categories="homeData.categories" />
+                    <CategoryCard :categories="homeData.categories" @select="onSelectCategory"/>
                     <TagCard :tags="homeData.tags" />
                 </template>
             </ThreeColumnLayout>
@@ -29,6 +29,7 @@ import TagCard from '@/components/cards/tag.vue'
 import LatestArticlesCard from '@/components/cards/latest.vue'
 import { useAsyncData } from 'nuxt/app'
 import http from '~/utils/http-common'
+import { t } from '@/components/i18n/index'
 
 const homeData = reactive({
     articles: [],
@@ -51,6 +52,10 @@ const { data, pending } = await useAsyncData('home-data', async () => {
     }
 })
 
+const onSelectCategory = async (item: any) => {
+    await navigateTo({ path: '/article', query: { category: item.name } })
+}
+
 watch(data, (newData) => {
     if (newData) {
         homeData.articles = newData.articles || []
@@ -62,12 +67,13 @@ watch(data, (newData) => {
 }, { immediate: true, deep: true })
 
 useHead({
-    title: 'PlankBevelen 的博客',
+    title: t('pages.home.title'),
     meta: [
-        { name: 'description', content: '个人技术博客，分享编程经验和技术文章' },
-        { name: 'keywords', content: '博客,技术,编程,开发' }
+        { name: 'description', content: t('pages.home.meta.description') },
+        { name: 'keywords', content: t('pages.home.meta.keywords') }
     ]
 })
+
 </script>
 
 <style lang="less" scoped>

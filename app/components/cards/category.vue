@@ -1,7 +1,7 @@
 <template>
     <Card type="category">
         <template #header>
-            分类
+            {{ $t('cards.category.title') }}
         </template>
         <ul class="categoryList">
             <li v-for="item in categoryList" :key="item.id" class="category-item" @click="onSelect(item)">
@@ -17,6 +17,7 @@ import type { Category } from '@/types/category'
 import categoryService from '~/services/category.service'
 import Card from './card.vue'
 import { ref, computed, onMounted } from 'vue'
+
 const emit = defineEmits(['select'])
 
 const props = defineProps({

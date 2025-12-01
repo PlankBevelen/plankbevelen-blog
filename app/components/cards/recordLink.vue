@@ -1,7 +1,7 @@
 <template>
     <Card type="record-link">
         <template #header>
-            链接
+            {{ $t('cards.recordLink.title') }}
         </template>
         <ul class="links">
             <li v-for="item in recordLink" :key="item.link" class="link-item">

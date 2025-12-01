@@ -66,6 +66,13 @@ body {
     font-size: 14px;
 }
 
+/* 全局滚动条样式 */
+* { scrollbar-width: thin; scrollbar-color: var(--tertiary-color) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background-color: var(--tertiary-color); border-radius: @small-border-radius; }
+*::-webkit-scrollbar-thumb:hover { background-color: var(--primary-color); }
+*::-webkit-scrollbar-track { background: transparent; }
+
 /* 左上角飞入 */
 @keyframes  fly-in-from-top-left {
     0% {

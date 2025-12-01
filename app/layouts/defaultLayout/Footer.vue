@@ -2,12 +2,12 @@
   <footer class="footer">
     <div class="footer-content container">      
       <div class="site-info"> 
-        <h3 class="site-title">Plankbevelen's Blog</h3>
-        <p class="site-description">记录生活，分享技术，追求美好</p>
+        <h3 class="site-title"> {{ $t('header.title') }} </h3>
+        <p class="site-description"> {{ $t('footer.description') }} </p>
       </div>
       <div class="footer-bottom">
-        <p class="copy">© {{ year }} PlankBevelen. All Rights Reserved.</p>
-        <a href="https://beian.miit.gov.cn/" target="_blank"> 蜀ICP备2024114585号 </a>
+        <p class="copy">© {{ year }} {{ $t('footer.copyright') }}</p>
+        <a href="https://beian.miit.gov.cn/" target="_blank"> {{ $t('footer.beian') }} </a>
       </div>
     </div>
   </footer>
@@ -51,7 +51,7 @@ const year = new Date().getFullYear()
         color: var(--mute-color);
         text-decoration: none;
         &:hover {
-          color: var(--primary-color);
+          color: var(--primary-hover-color);
         }
       }
       width: 100%;

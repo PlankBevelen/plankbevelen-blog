@@ -1,7 +1,7 @@
 <template>
     <Card type="tag">
         <template #header>
-            标签
+            {{ $t('cards.tag.title') }}
         </template>
         <div class="cloud">
             <span v-for="w in cloudItems" :key="w.name" class="word" :style="{ fontSize: w.size + 'px', opacity: w.opacity, transform: 'rotate(' + w.rotate + 'deg)', color: w.color }">{{ w.name }}</span>

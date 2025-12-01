@@ -46,11 +46,18 @@ function onJump(item: TocItem) {
 .toc-card { 
   position: sticky; 
   top: calc(@header-height + 20px); 
+  max-height: calc((100vh - @header-height) / 2);
+}
+.toc-card :deep(.card-content) {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
 }
 .toc-list { 
   display: flex; 
   flex-direction: column; 
   gap: @base-gap; 
+  margin-bottom: 20px;
   .toc-item { 
     cursor: pointer; 
     border-radius: @small-border-radius; 

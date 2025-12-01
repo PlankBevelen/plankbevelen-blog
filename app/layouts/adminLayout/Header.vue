@@ -12,7 +12,7 @@
           :width="40"
           :height="40"
         />
-        <span class="logo-text">{{ t('common.title') }}</span>
+        <span class="logo-text">{{ $t('common.title') }}</span>
       </div>
       <div class="navbar">
         <div class="close" @click="$emit('toggle')"><nuxt-icon name="admin/close"></nuxt-icon></div>
@@ -23,9 +23,6 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
-
 defineProps<{ collapsed: boolean; navTitle: string }>()
 defineEmits<{ (e: 'toggle'): void }>()
 </script>

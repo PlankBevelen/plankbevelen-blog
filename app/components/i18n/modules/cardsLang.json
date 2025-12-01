@@ -12,6 +12,15 @@
       },
       "recordLink": {
         "title": "常用进阶资源"
+      },
+      "category": {
+        "title": "分类"
+      },
+      "latest": {
+        "title": "最新文章"
+      },
+      "tag": {
+        "title": "标签"
       }
     }
   },
@@ -28,6 +37,15 @@
       },
       "recordLink": {
         "title": "Advanced Resources"
+      },
+      "category": {
+        "title": "Categories"
+      },
+      "latest": {
+        "title": "Latest Articles"
+      },
+      "tag": {
+        "title": "Tags"
       }
     }
   }
