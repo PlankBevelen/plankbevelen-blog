@@ -3,14 +3,15 @@
     <div class="headerWrapper container">
       <div class="logo">
         <NuxtImg
+          provider="ipx"
           src="/img/logo.webp"
           alt="logo"
           quality="70"
           loading="eager"
           fetchpriority="high"
           class="logo-img"
-          :width="40"
-          :height="40"
+          width="40"
+          height="40"
         />
         <span class="logo-text">{{ $t('common.title') }}</span>
       </div>

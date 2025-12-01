@@ -13,13 +13,16 @@ export default defineEventHandler(async (event) => {
   const adminAccount = process.env.NUXT_ADMIN_ACCOUNT 
   const secret = process.env.NUXT_AUTH_SECRET 
   const adminPassword = process.env.NUXT_ADMIN_PASSWORD 
-  const hash = sha256(adminPassword)
-
-  if (!account || !adminAccount || !hash) {
+  if (!adminAccount || !secret || !adminPassword) {
     setResponseStatus(event, 500)
     return { code: 'MISSING_CONFIG', message: 'Admin credentials not configured' }
   }
-  console.log('Login request:', { adminAccount, secret, adminPassword })
+  const hash = sha256(String(adminPassword))
+
+  if (!account || !password) {
+    setResponseStatus(event, 400)
+    return { code: 'BAD_REQUEST', message: 'Missing account or password' }
+  }
   if (account !== adminAccount || password !== hash) {
     setResponseStatus(event, 401)
     return { code: 'INVALID_CREDENTIALS', message: 'Invalid account or password' }
@@ -35,8 +38,8 @@ export default defineEventHandler(async (event) => {
   if (remember) {
     opts.maxAge = expiresIn
   }
-  console.log('Setting cookie with token:', token)
-  setCookie(event, token, opts)
+  const cookieName = (process.env.NUXT_PUBLIC_COOKIE_PREFIX || '') + 'user_token'
+  setCookie(event, cookieName, token, opts)
   setResponseStatus(event, 200)
   return { message: 'Login successful', status: 200, token }
 })

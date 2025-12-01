@@ -2,6 +2,7 @@
     <Card type="blogger" animation>
         <div class="blogger-avatar">
             <NuxtImg
+                provider="ipx"
                 src="/img/avatar.webp"
                 alt="avatar"
                 class="avatar"

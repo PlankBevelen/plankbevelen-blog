@@ -3,7 +3,6 @@ import { useAuthentication } from '~/composables/useAuthentication'
 import adminService from '@/services/admin.service'
 import { useTheme } from '@/composables/useTheme'
 import { i18n } from '@/components/i18n/index'
-import { useI18n } from 'vue-i18n'
 
 export const useAdminStore = defineStore('admin', {
     state: () => ({
@@ -12,7 +11,7 @@ export const useAdminStore = defineStore('admin', {
         locale: 'cn' as 'en' | 'cn',
     }),
     getters: {
-        isAuthenticated: (state) => { return useAuthentication().getToken() !== undefined },
+        isAuthenticated: (state) => { return !!useAuthentication().getToken() },
         getTheme: (state) => state.theme,
         getLocale: (state) => state.locale,
     },

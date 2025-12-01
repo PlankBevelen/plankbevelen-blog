@@ -59,7 +59,7 @@ const currentQuery = computed(() => {
 
 const breadcrumbSuffix = computed(() => {
     const cat = String(route.query.category || '')
-    if (cat) return `${cat}${t('pages.article.categorySuffix')}`
+    if (cat) return `${cat}`
     const q = String(route.query.q || '').trim()
     if (q) return q
     return ''

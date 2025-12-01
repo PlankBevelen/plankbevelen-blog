@@ -3,6 +3,7 @@
     <div class="headerWrapper">
       <div class="logo">
         <NuxtImg
+          provider="ipx"
           src="/img/logo.webp"
           alt="logo"
           quality="70"

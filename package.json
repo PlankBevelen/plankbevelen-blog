@@ -20,6 +20,7 @@
     "dayjs": "^1.11.19",
     "dotenv": "^17.2.3",
     "element-plus": "^2.11.8",
+    "ipx": "3.0.0",
     "js-cookie": "^3.0.5",
     "js-sha256": "^0.11.1",
     "jsonwebtoken": "^9.0.2",
@@ -30,6 +31,7 @@
     "nuxt": "^4.2.1",
     "nuxt-icon": "1.0.0-beta.7",
     "pinia": "^3.0.4",
+    "sharp": "^0.34.5",
     "vue": "^3.5.24",
     "vue-i18n": "^11.1.12",
     "vue-router": "^4.6.3"
@@ -39,5 +41,16 @@
     "nuxt-icons": "^4.0.0",
     "postcss-preset-env": "^10.4.0",
     "postcss-pxtorem": "^6.1.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "ipx": "^3.0.0"
+    },
+    "onlyBuiltDependencies": ["sharp"],
+    "supportedArchitectures": {
+      "os": ["linux", "win32"],
+      "cpu": ["x64", "arm64"],
+      "libc": ["glibc", "musl"]
+    }
   }
 }

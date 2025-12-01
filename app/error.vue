@@ -2,6 +2,7 @@
     <div class="error">
         <div class="error-wrapper">
             <NuxtImg 
+                provider="ipx"
                 src="/img/404.webp"
                 format="webp"
                 alt="404"

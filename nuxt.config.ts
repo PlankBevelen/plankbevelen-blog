@@ -11,7 +11,7 @@ export default defineNuxtConfig({
       cookiePrefix: process.env.NUXT_PUBLIC_COOKIE_PREFIX || '',
       expirationTime: process.env.NUXT_EXPIRATION_TIME || '432000',
       keepAliveTime: process.env.NUXT_KEEP_ALIVE_TIME || '432000',
-    },
+    }
   },
   ssr: true,
   postcss: {
@@ -45,8 +45,16 @@ export default defineNuxtConfig({
     }
   },
   image: {
-    quality: 80,
-    format: ['webp', 'jpg'],
+    provider: 'ipx',
+    ipx: {
+      baseURL: '/_ipx',
+      maxAge: 60 * 60 * 24 * 365,
+      format: ['webp', 'avif', 'png', 'jpg'],
+      modifiers: {
+        quality: 80
+      },
+    },
+    domains: ['plankbevelen.cn', 'localhost', '127.0.0.1'],
     screens: {
       xs: 320,
       sm: 640,
@@ -61,6 +69,7 @@ export default defineNuxtConfig({
       inline: ['element-plus', '@popperjs/core']
     },
     // 压缩静态资源
+    serveStatic: true,
     compressPublicAssets: true,
   }
 })
