@@ -4,7 +4,7 @@
             分类
         </template>
         <ul class="categoryList">
-            <li v-for="item in categoryList" :key="item.id" class="category-item">
+            <li v-for="item in categoryList" :key="item.id" class="category-item" @click="onSelect(item)">
                 <span class="name">{{ item.name }}</span>
                 <span class="count">{{ item.count }}</span>       
             </li>
@@ -17,6 +17,7 @@ import type { Category } from '@/types/category'
 import categoryService from '~/services/category.service'
 import Card from './card.vue'
 import { ref, computed, onMounted } from 'vue'
+const emit = defineEmits(['select'])
 
 const props = defineProps({
     categories: {
@@ -43,6 +44,10 @@ onMounted(async () => {
     }
 })
 
+function onSelect(item: Category) {
+    emit('select', item)
+}
+
 </script>
 
 <style scoped lang="less">
@@ -57,6 +62,8 @@ onMounted(async () => {
         text-decoration: none;
         border-radius: @small-border-radius;
         padding: 6px 8px;
+        cursor: pointer;
+        &:hover { background-color: var(--shallow-hover-bg-color); }
         .name {
             font-size: 14px;
         }

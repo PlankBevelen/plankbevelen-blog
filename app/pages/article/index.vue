@@ -9,18 +9,21 @@
                 <template #middle>
                     <Card class="navBar">
                         <div class="breadcrumb">
-                            <NuxtLink to="/">首页</NuxtLink>
-                            <span> / </span>
                             <NuxtLink to="/article">文章</NuxtLink>
+                            <template v-if="breadcrumbSuffix">
+                                <span> / </span>
+                                <span>{{ breadcrumbSuffix }}</span>
+                            </template>
                         </div>
                         <div class="searchArea">
-                            <el-input v-model="keyword" placeholder="搜索" clearable prefix-icon="el-icon-search" />
+                            <el-input v-model="keyword" placeholder="搜索" clearable />
+                            <el-button type="primary" @click="onSearch">搜索</el-button>
                         </div>
                     </Card>
-                    <ArticleList :q="keyword" />                    
+                    <ArticleList :q="currentQuery" />                    
                 </template>
                 <template #right>
-                    <CategoryCard />
+                    <CategoryCard @select="onSelectCategory" />
                     <TagCard />
                 </template>
             </ThreeColumnLayout>
@@ -29,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { navigateTo, useAsyncData, useHead } from 'nuxt/app'
 import Card from '@/components/cards/card.vue'
@@ -46,6 +49,20 @@ const keyword = ref('')
 const route = useRoute()
 keyword.value = String(route.query.q || '')
 
+const currentQuery = computed(() => {
+    const cat = String(route.query.category || '')
+    console.log(cat, 'cat')
+    if (cat) return cat
+    return String(route.query.q || '')
+})
+const breadcrumbSuffix = computed(() => {
+    const cat = String(route.query.category || '')
+    if (cat) return `${cat}分类`
+    const q = String(route.query.q || '').trim()
+    if (q) return q
+    return ''
+})
+
 const { data: homeData, pending: homePending } = await useAsyncData('article-page-home-data', async () => { 
     const res = await http.get('/api/home.data') as any 
     if(res.status === 200 && res.data.status === 200) {
@@ -59,6 +76,12 @@ const stats = computed(() => homeData.value?.stats || null)
 const onSearch = async () => {
     await navigateTo({ path: '/article', query: { q: keyword.value || undefined } })
 }
+
+const onSelectCategory = async (item: any) => {
+    await navigateTo({ path: '/article', query: { category: item.name } })
+}
+
+watch(() => route.query.q, (val) => { keyword.value = String(val || '') })
 
 useHead({
     title: '文章列表',
@@ -77,4 +100,23 @@ useHead({
         padding: 40px 0;
     }
 }
+:deep(.navBar) { 
+    .card-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .breadcrumb {
+        font-size: 14px;
+        font-weight: bold;
+        line-height: normal;
+        a { text-decoration: none; color: var(--text-color); &:hover { color: var(--primary-color); } }
+    }
+    .searchArea {
+        display: flex;
+        align-items: center;
+        gap: @base-gap;
+    }
+}
+.searchArea { display: flex; align-items: center; gap: 8px; }
 </style>

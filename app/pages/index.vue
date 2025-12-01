@@ -27,7 +27,6 @@ import ArticleList from '@/components/article/articleList.vue'
 import CategoryCard from '@/components/cards/category.vue'
 import TagCard from '@/components/cards/tag.vue'
 import LatestArticlesCard from '@/components/cards/latest.vue'
-import { computed } from 'vue'
 import { useAsyncData } from 'nuxt/app'
 import http from '~/utils/http-common'
 
@@ -43,7 +42,6 @@ const { data, pending } = await useAsyncData('home-data', async () => {
     try {
         const res = await http.get('/api/home.data') as any 
         if(res.status === 200 && res.data.status === 200) {
-            console.log('res.data.data', res.data.data)
             return res.data.data
         }else {
             throw Error(res.data.message || '获取首页数据失败')
@@ -55,7 +53,6 @@ const { data, pending } = await useAsyncData('home-data', async () => {
 
 watch(data, (newData) => {
     if (newData) {
-        console.log('📊 更新 homeData:', newData)
         homeData.articles = newData.articles || []
         homeData.latestArticles = newData.latestArticles || []
         homeData.categories = newData.categories || []
@@ -64,9 +61,8 @@ watch(data, (newData) => {
     }
 }, { immediate: true, deep: true })
 
-// SEO 优化
 useHead({
-    title: 'PlankBevelen 的博客 - 首页',
+    title: 'PlankBevelen 的博客',
     meta: [
         { name: 'description', content: '个人技术博客，分享编程经验和技术文章' },
         { name: 'keywords', content: '博客,技术,编程,开发' }

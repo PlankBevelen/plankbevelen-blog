@@ -53,6 +53,11 @@ defineProps({
         grid-template-columns: 1fr 1fr;
     }
 }
+.left, .right {
+    display: flex;
+    flex-direction: column;
+    gap: @base-gap;
+}
 .left > * {
     animation: fly-in-from-left-top 0.3s ease-in-out;
 }

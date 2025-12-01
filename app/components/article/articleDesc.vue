@@ -1,6 +1,6 @@
 <template>
     <Card class="article-desc">
-        <div class="title">{{ article.title }}</div>
+        <NuxtLink :to="{ path: '/article/detail', query: { id: article.id } }" class="title">{{ article.title }}</NuxtLink>
         <div class="meta">
             <span class="category">{{ article.category }}</span>
             <span class="dot">·</span>
@@ -56,7 +56,10 @@ const displayContent = computed(() => {
         font-weight: 500;
         color: var(--primary-color);
         cursor: pointer;
-        margin-bottom: 20px;
+        margin-bottom: 12px;
+        text-decoration: none;
+        line-height: normal;
+        display: block;
         &:hover { color: var(--active-color); }
     }
     .meta {

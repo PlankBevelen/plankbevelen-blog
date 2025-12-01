@@ -17,6 +17,7 @@ export default defineEventHandler(async (event) => {
       title: r.title,
       category: r.category,
       createTime: r.createTime,
+      id: r.id
     }))
 
     setResponseStatus(event, 200)

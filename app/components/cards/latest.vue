@@ -4,14 +4,12 @@
       最新文章
     </template>
     <ul class="latestList">
-      <li v-for="item in latestList" :key="item.title + item.createTime" class="latest-item">
-        <div class="left">
+      <li v-for="item in latestList" :key="item.id" class="latest-item">  
+        <NuxtLink :to="{path: '/article/detail', query: { id: item.id }}">
+          <div class="time">{{ formatDateTime(item.createTime) }}</div>
           <div class="title">{{ item.title }}</div>
           <div class="category">{{ item.category }}</div>
-        </div>
-        <div class="right">
-          <span class="time">{{ formatDateTime(item.createTime) }}</span>
-        </div>
+        </NuxtLink>      
       </li>
     </ul>
   </Card>
@@ -32,11 +30,11 @@ const props = defineProps({
   }
 })
 
-type LatestItem = Pick<Article, 'title' | 'category' | 'createTime'>
+type LatestItem = Pick<Article, 'id' | 'title' | 'category' | 'createTime'>
 const fallback = ref<LatestItem[]>([])
 const latestList = computed<LatestItem[]>(() => {
   if (props.articles && props.articles.length > 0) {
-    return props.articles.map((a) => ({ title: a.title, category: a.category, createTime: a.createTime }))
+    return props.articles.map((a) => ({ id: a.id, title: a.title, category: a.category, createTime: a.createTime }))
   }
   return fallback.value
 })
@@ -46,7 +44,7 @@ onMounted(async () => {
     const res = await articleService.getArticles(1, 5, undefined, 'created')
     if (res.status === 200 && res.data.status === 200) {
       const list: Article[] = res.data.data || []
-      fallback.value = list.slice(0, 5).map((a) => ({ title: a.title, category: a.category, createTime: a.createTime }))
+      fallback.value = list.slice(0, 5).map((a) => ({ id: a.id, title: a.title, category: a.category, createTime: a.createTime }))
     }
   }
 })
@@ -54,14 +52,31 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="less">
-.latestList { display: flex; flex-direction: column; gap: @base-gap; }
-.latest-item { 
-  display: grid; grid-template-columns: 1fr auto; align-items: center; 
-  border-radius: @small-border-radius; padding: 6px 8px; 
+.latestList { 
+  position: relative;  
+  .latest-item {
+    display: block;    
+    line-height: 20px;
+    cursor: pointer;
+    &:hover { background-color: var(--shallow-hover-bg-color); }
+    &:not(:last-child) {
+      margin-bottom: @base-gap;
+    }
+    a { text-decoration: none; }
+    .title {
+      font-size: 14px;
+      color: var(--text-color);
+      line-height: normal;
+    }
+    .category {
+      font-size: 12px;
+      color: var(--tertiary-color);
+    }
+    .time {
+      font-size: 12px;
+      color: var(--tertiary-color);
+    }
+  }
 }
-.left { display: flex; flex-direction: column; gap: 4px; }
-.title { font-size: 14px; color: var(--primary-color); }
-.category { font-size: 12px; color: var(--tertiary-color); }
-.right .time { font-size: 12px; color: var(--tertiary-color); }
-</style>
 
+</style>

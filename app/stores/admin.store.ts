@@ -80,7 +80,6 @@ export const useAdminStore = defineStore('admin', {
             const { currentTheme } = useTheme()
             const next = currentTheme.value === 'light' ? 'dark' : 'light'
             this.setTheme(next)
-        }
-        
+        }        
     }
 })

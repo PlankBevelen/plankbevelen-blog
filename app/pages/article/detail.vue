@@ -1,38 +1,23 @@
 <template>
     <div class="article-detail">
         <div class="container">
-            <ThreeColumnLayout :loading="pending">
-                <template #left>
-                    <BloggerCard :articleCount="stats?.articles || 0" :categoryCount="stats?.categories || 0" :tagCount="stats?.tags || 0" />
-                    <RecordLinkCard />
-                </template>
-                <template #middle>
-                    <Card class="navBar">
-                        <div class="breadcrumb">
-                            <NuxtLink to="/">首页</NuxtLink>
-                            <span> / </span>
-                            <NuxtLink to="/article">文章</NuxtLink>
-                            <span> / </span>
-                            <span>{{ article?.title || '详情' }}</span>
-                        </div>
-                    </Card>
-                    <Card class="detailCard">
-                        <div class="title">{{ article?.title }}</div>
-                        <div class="meta">
-                            <span class="category">{{ displayCategory }}</span>
-                            <span class="dot">·</span>
-                            <span class="time">{{ formatDateTime(article?.updateTime || article?.createTime || '') }}</span>
-                        </div>
-                        <div class="content">
-                            <MdPreview v-if="article" :modelValue="article.content" :theme="currentTheme" />
-                        </div>
-                    </Card>
-                </template>
-                <template #right>
-                    <CategoryCard :categories="categories" />
-                    <TagCard :tags="tags" />
-                </template>
-            </ThreeColumnLayout>
+          <TwoColumnLayout :loading="pending" type="rightbigger">
+            <template #left>
+              <BloggerCard :articleCount="stats?.articles || 0" :categoryCount="stats?.categories || 0" :tagCount="stats?.tags || 0" />
+              <Toc :content="article?.content || ''" />
+            </template>
+            <template #right>
+              <Card class="detailCard">
+                <div class="title">{{ article?.title }}</div>
+                <div class="meta">
+                    <span class="category">{{ articleCategory }}</span>
+                    <span class="dot">·</span>
+                    <span class="time">{{ formatDateTime(article?.updateTime || article?.createTime || '') }}</span>
+                </div>
+                <MdPreview v-if="article" :modelValue="article.content" :theme="currentTheme" />
+              </Card>
+            </template>
+          </TwoColumnLayout>
         </div>
     </div>
 </template>
@@ -43,7 +28,7 @@ import { useRoute } from 'vue-router'
 import { useAsyncData, useHead } from 'nuxt/app'
 import http from '~/utils/http-common'
 import Card from '@/components/cards/card.vue'
-import ThreeColumnLayout from '@/components/layouts/ThreeColumnLayout.vue'
+import TwoColumnLayout from '@/components/layouts/TwoColumnLayout.vue'
 import BloggerCard from '@/components/cards/blogger.vue'
 import RecordLinkCard from '@/components/cards/recordLink.vue'
 import CategoryCard from '@/components/cards/category.vue'
@@ -52,12 +37,13 @@ import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { formatDateTime } from '@/utils/format'
 import { useAdminStore } from '@/stores/admin.store'
+import Toc from '@/components/article/toc.vue'
 
 const admin = useAdminStore()
 const currentTheme = computed(() => admin.getTheme)
 
 const route = useRoute()
-const id = computed(() => String(route.params.id || ''))
+const id = computed(() => String(route.query.id || ''))
 
 const { data: detailData, pending } = await useAsyncData('article-detail', async () => {
   const res = await http.get(`/api/article/${id.value}`)
@@ -73,11 +59,9 @@ const { data: homeData } = await useAsyncData('article-detail-home-data', async 
   return null
 })
 
-const categories = computed(() => homeData.value?.categories || [])
-const tags = computed(() => homeData.value?.tags || [])
 const stats = computed(() => homeData.value?.stats || null)
-
-const displayCategory = computed(() => {
+const categories = computed(() => homeData.value?.categories || [])
+const articleCategory = computed(() => {
   const cid = String(article.value?.category || '')
   const c = (categories.value || []).find((x: any) => String(x.id) === cid)
   return c ? c.name : ''
@@ -107,9 +91,13 @@ useHead({
     font-size: 28px;
     font-weight: 500;
     color: var(--primary-color);
+    cursor: pointer;
+    margin-bottom: 12px;
+    text-decoration: none;
+    line-height: normal;
+    display: block;
   }
   .meta { color: var(--tertiary-color); font-size: 12px; .dot { margin: 0 6px; } }
   :deep(.md-editor-preview) { font-size: 14px !important; }
 }
 </style>
-

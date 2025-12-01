@@ -50,7 +50,7 @@ q:before, q:after {
 }
 
 body {
-  color: var(--text-color);
+  color: var(--text-color);  
 }
 
 .container {
@@ -60,6 +60,11 @@ body {
 
 /* element-plus 全局样式 */
 :deep(.el-button) { padding: 8px 16px; }
+
+/* md 预览样式 */
+:deep(.md-editor-preview) {
+    font-size: 14px;
+}
 
 /* 左上角飞入 */
 @keyframes  fly-in-from-top-left {
