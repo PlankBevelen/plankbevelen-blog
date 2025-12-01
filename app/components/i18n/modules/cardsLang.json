@@ -21,6 +21,10 @@
       },
       "tag": {
         "title": "标签"
+      },
+      "toc": {
+        "title": "目录",
+        "empty": "暂无目录"
       }
     }
   },
@@ -46,6 +50,10 @@
       },
       "tag": {
         "title": "Tags"
+      },
+      "toc": {
+        "title": "Table of Contents",
+        "empty": "No contents"
       }
     }
   }

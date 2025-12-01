@@ -6,7 +6,7 @@
                 :default-active=activeIndex
                 class="sideBarMenu"
             >
-                <el-menu-item index="1" @click="navigateTo('/admim')">
+                <el-menu-item index="1" @click="navigateTo('/admin')">
                     <nuxt-icon name="admin/sidebar/dashboard"></nuxt-icon>仪表盘
                 </el-menu-item>
                 <el-sub-menu index="2">

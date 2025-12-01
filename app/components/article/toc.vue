@@ -1,6 +1,6 @@
 <template>
   <Card class="toc-card" type="toc">
-    <template #header>目录</template>
+    <template #header>{{ tocItems.length > 0 ? $t('cards.toc.title') : $t('cards.toc.empty') }}</template>
     <ul class="toc-list">
       <li v-for="(item, i) in tocItems" :key="i" :class="['toc-item', 'lvl-' + item.level]" @click="onJump(item)">
         <span class="text">{{ item.title }}</span>

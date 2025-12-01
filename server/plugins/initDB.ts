@@ -5,12 +5,10 @@ export default defineNitroPlugin(async (nuxtApp) => {
 
   const ok = await initDB()
   if (!ok) {
-    console.warn('❌ 数据库初始化失败，开始每分钟重试连接')
     retryTimer = setInterval(async () => {
       try {
         const success = await initDB()
         if (success) {
-          console.log('✅ 数据库重连成功，停止重试')
           if (retryTimer) { clearInterval(retryTimer); retryTimer = null }
         }
       } catch (e: any) {
@@ -22,7 +20,6 @@ export default defineNitroPlugin(async (nuxtApp) => {
   }
 
   nuxtApp.hooks.hook('close', async () => {
-    console.log('🔄 正在关闭数据库连接...')
     if (retryTimer) { clearInterval(retryTimer); retryTimer = null }
     await closeDB()
   })

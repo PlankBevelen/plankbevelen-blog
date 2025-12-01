@@ -35,7 +35,7 @@ const en = {
     },
     article: {
       title: "Articles",
-      meta: {
+      meta: {        
         description: "Personal tech blog sharing coding experience and articles",
         keywords: "blog,tech,coding,development"
       },

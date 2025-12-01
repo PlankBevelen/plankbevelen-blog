@@ -52,7 +52,6 @@ keyword.value = String(route.query.q || '')
 
 const currentQuery = computed(() => {
     const cat = String(route.query.category || '')
-    console.log(cat, 'cat')
     if (cat) return cat
     return String(route.query.q || '')
 })
@@ -86,7 +85,7 @@ const onSelectCategory = async (item: any) => {
 watch(() => route.query.q, (val) => { keyword.value = String(val || '') })
 
 useHead({
-    title: t('pages.article.meta.title'),
+    title: t('pages.article.title'),
     meta: [
         { name: 'description', content: t('pages.article.meta.description') }
     ]

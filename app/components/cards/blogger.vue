@@ -135,6 +135,7 @@ onMounted(async () => {
     .blogger-article {
         :deep(.el-statistic__content) {
             font-size: 18px;
+            color: var(--text-color);
         }
         :deep(.el-statistic__head) {
             color: var(--secondary-color) ;

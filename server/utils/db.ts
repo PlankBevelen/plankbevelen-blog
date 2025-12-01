@@ -39,7 +39,6 @@ let keepAliveTimer: NodeJS.Timeout | null = null
 export function getPool(): Pool {
   if (!pool) {
     pool = mysql.createPool(config)
-    console.log('📦 数据库连接池已创建')
   }
   return pool
 }
@@ -49,7 +48,6 @@ export async function closeDB() {
     stopKeepAlive()
     await pool.end()
     pool = null
-    console.log('🔒 数据库连接池已关闭')
   }
 }
 
