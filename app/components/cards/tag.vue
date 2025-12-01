@@ -33,13 +33,20 @@ function hash(s: string) {
     for (let i = 0; i < s.length; i++) h = Math.imul(31, h) + s.charCodeAt(i) | 0
     return Math.abs(h)
 }
+
+import { useAdminStore } from '@/stores/admin.store'
+const admin = useAdminStore()
 function palette() {
-    if (typeof window === 'undefined') return ['#409EFF', '#606266', '#67C23A']
-    const style = getComputedStyle(document.documentElement)
-    const base = style.getPropertyValue('--primary-color').trim() || '#409EFF'
-    const sec = style.getPropertyValue('--secondary-color').trim() || '#606266'
-    const act = style.getPropertyValue('--active-color').trim() || '#67C23A'
-    return [base, sec, act]
+    if(admin.getTheme === 'light') {
+        if (typeof window === 'undefined') return ['#409EFF', '#606266', '#67C23A']
+        const style = getComputedStyle(document.documentElement)
+        const base = style.getPropertyValue('--primary-color').trim() || '#409EFF'
+        const sec = style.getPropertyValue('--secondary-color').trim() || '#606266'
+        const act = style.getPropertyValue('--active-color').trim() || '#67C23A'
+        return [base, sec, act]
+    } else {
+        return ['#409EFF', '#606266', '#67C23A']
+    }
 }
 const cloudItems = computed(() => {
     const colors = palette()
