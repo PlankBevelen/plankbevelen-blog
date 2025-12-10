@@ -75,6 +75,10 @@ watch(() => props.q, async () => { page.value = 1; await loadData() })
     flex-direction: column;
     gap: 40px;
 }
-.list { display: flex; flex-direction: column; gap: 20px; }
+.list { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 20px; 
+}
 .pager { display: flex; justify-content: flex-end; }
 </style>

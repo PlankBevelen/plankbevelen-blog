@@ -9,6 +9,7 @@
 import { setRem } from '@/utils/rem'
 import { onMounted } from 'vue'
 
+
 /* onMounted(() => {
   setRem()
   window.addEventListener('resize', setRem)

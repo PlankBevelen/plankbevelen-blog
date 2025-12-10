@@ -58,6 +58,7 @@ defineProps({
     display: flex;
     flex-direction: column;
     gap: @base-gap;
+    min-width: 0;
 }
 
 /* Slot wrapper 用于保持插槽内容的布局结构 */
