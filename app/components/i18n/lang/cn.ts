@@ -48,7 +48,9 @@ const cn = {
         fallback: "文章详情",
         meta: {
           description: "文章详情"
-        }
+        },
+        prev: "上一篇",
+        next: "下一篇"
       }
     }
   }

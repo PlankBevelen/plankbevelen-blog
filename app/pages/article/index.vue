@@ -43,7 +43,7 @@ import TagCard from '@/components/cards/tag.vue'
 import ThreeColumnLayout from '~/components/layouts/ThreeColumnLayout.vue'
 import BloggerCard from '@/components/cards/blogger.vue'
 import RecordLinkCard from '@/components/cards/recordLink.vue'
-import http from '~/utils/http-common'
+import http from '~/utils/http'
 
 const keyword = ref('')
 

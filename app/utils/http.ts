@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useAuthentication } from "@/composables/useAuthentication"
 
-const baseUrl = import.meta.env.BASE_URL || "/"
+const baseUrl = import.meta.env.baseUrl || "/"
 const http = axios.create({ baseURL: baseUrl, withCredentials: true })
 
 http.defaults.timeout = 120000

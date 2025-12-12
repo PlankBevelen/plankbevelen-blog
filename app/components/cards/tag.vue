@@ -1,19 +1,37 @@
 <template>
-    <Card type="tag">
+    <Card type="tag" class="tag-cloud-card">
         <template #header>
-            {{ $t('cards.tag.title') }}
+            <div class="header-content">
+                <i class="el-icon-collection-tag"></i>
+                {{ $t('cards.tag.title') }}
+            </div>
         </template>
-        <div class="cloud">
-            <span v-for="w in cloudItems" :key="w.name" class="word" :style="{ fontSize: w.size + 'px', opacity: w.opacity, transform: 'rotate(' + w.rotate + 'deg)', color: w.color }">{{ w.name }}</span>
+        <div class="cloud-container">
+            <div class="cloud-wrapper">
+                <span 
+                    v-for="w in cloudItems" 
+                    :key="w.name" 
+                    class="cloud-word" 
+                    :style="{ 
+                        fontSize: w.size + 'px', 
+                        color: w.color,
+                        transform: `rotate(${w.rotate}deg)`,
+                        opacity: w.opacity
+                    }"
+                >
+                    {{ w.name }}
+                </span>
+            </div>
         </div>
     </Card>
 </template>
 
-<script setup lang="ts"> 
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
 import type { Tag } from '@/types/tag'
 import tagService from '~/services/tag.service'
 import Card from './card.vue'
-import { ref, computed, onMounted } from 'vue'
+import { useAdminStore } from '@/stores/admin.store'
 
 const props = defineProps({
     tags: {
@@ -23,10 +41,19 @@ const props = defineProps({
 })
 
 const tagList = ref<Tag[]>([])
-const words = computed(() => {
-    if (props.tags && props.tags.length > 0) return Array.from(new Set(props.tags.map((t: any) => String((t as any).name || t).trim()).filter(Boolean)))
-    return Array.from(new Set(tagList.value.map((t) => String(t.name).trim()).filter(Boolean)))
+const admin = useAdminStore()
+
+const rawTags = computed(() => {
+    return props.tags.length > 0 ? props.tags : tagList.value
 })
+
+const getThemeColors = () => {
+    const isLight = admin.getTheme === 'light'
+    // 提供更丰富的配色方案
+    return isLight 
+        ? ['#409EFF', '#67C23A', '#E6A23C', '#F56C6C', '#909399', '#722ed1', '#13c2c2']
+        : ['#58a6ff', '#7ee787', '#d29922', '#f78166', '#8b949e', '#bc8cff', '#39c5bb']
+}
 
 function hash(s: string) {
     let h = 0
@@ -34,47 +61,80 @@ function hash(s: string) {
     return Math.abs(h)
 }
 
-import { useAdminStore } from '@/stores/admin.store'
-const admin = useAdminStore()
-function palette() {
-    if(admin.getTheme === 'light') {
-        if (typeof window === 'undefined') return ['#409EFF', '#606266', '#67C23A']
-        const style = getComputedStyle(document.documentElement)
-        const base = style.getPropertyValue('--primary-color').trim() || '#409EFF'
-        const sec = style.getPropertyValue('--secondary-color').trim() || '#606266'
-        const act = style.getPropertyValue('--active-color').trim() || '#67C23A'
-        return [base, sec, act]
-    } else {
-        return ['#409EFF', '#606266', '#67C23A']
-    }
-}
 const cloudItems = computed(() => {
-    const colors = palette()
-    return words.value.map((name) => {
+    const colors = getThemeColors()
+    
+    return rawTags.value.map((t: any) => {
+        const name = typeof t === 'string' ? t : (t.name || '')
+        const count = t.count || 1 
         const h = hash(name)
-        const size = 12 + (h % 18)
-        const rotate = ((h >> 5) % 9) - 4
-        const color = colors[h % colors.length]
-        const opacity = 0.9
-        return { name, size, rotate, color, opacity }
+        
+        const baseSize = 14
+        const weightBonus = Math.min(count * 2, 12) 
+        const randomBonus = h % 6
+        
+        return {
+            name,
+            size: baseSize + weightBonus + randomBonus,
+            rotate: (h % 3) * 11 - 11, 
+            color: colors[h % colors.length],
+            opacity: 0.8 + (h % 3) * 0.1
+        }
     })
 })
 
 onMounted(async () => {
-    if(!props.tags || props.tags.length === 0) {        
+    if (props.tags.length === 0) {
         try {
             const res = await tagService.getTags()
-            if(res.status === 200 && res.data.status === 200) {
-                tagList.value = res.data.data
-            }
-        } catch (error) {            
-            console.log(error)
+            if (res.data?.data) tagList.value = res.data.data
+        } catch (e) {
+            console.error('Fetch tags failed:', e)
         }
     }
 })
 </script>
 
 <style scoped lang="less">
-.cloud { display: flex; flex-wrap: wrap; gap: 8px; height: 160px; }
-.word { line-height: 1; }
+
+.cloud-container {
+    height: auto; 
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cloud-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px 16px; /* 适当的间距 */
+    padding: 10px;
+}
+
+.cloud-word {
+    display: inline-block;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-weight: 500;
+    user-select: none;
+
+    &:hover {
+        transform: scale(1.2) rotate(0deg) !important;
+        opacity: 1 !important;
+        text-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10;
+    }
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+}
 </style>

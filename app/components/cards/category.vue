@@ -1,3 +1,4 @@
+<!-- 分类卡片 -->
 <template>
     <Card type="category">
         <template #header>

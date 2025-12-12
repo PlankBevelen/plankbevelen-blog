@@ -61,14 +61,12 @@ defineProps({
     min-width: 0;
 }
 
-/* Slot wrapper 用于保持插槽内容的布局结构 */
 .slot-wrapper {
     display: flex;
     flex-direction: column;
     gap: @base-gap;
 }
 
-/* 动画效果应用到 slot-wrapper 的直接子元素 */
 .left .slot-wrapper > * {
     animation: fly-in-from-top-left 0.3s ease-in-out;    
 }
@@ -81,7 +79,6 @@ defineProps({
     animation: fly-in-from-top-right 0.3s ease-in-out;
 }
 
-/* 骨架屏样式 */
 .skeleton-group {
     display: flex;
     flex-direction: column;

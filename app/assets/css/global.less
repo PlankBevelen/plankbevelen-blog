@@ -45,12 +45,12 @@ q:before, q:after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  // transition: all 0.3s ease;
   font-family: "Open Sans", sans-serif, "Microsoft YaHei", "微软雅黑", "宋体", "Arial", "Helvetica", "sans-serif";
 }
 
 body {
   color: var(--text-color);  
+  background-color: var(--bg-color);
 }
 
 .container {
@@ -59,11 +59,26 @@ body {
 }
 
 /* element-plus 全局样式 */
-:deep(.el-button) { padding: 8px 16px; }
+:deep(.el-button) { 
+    padding: 8px 16px; 
+}
 
 /* md 预览样式 */
 :deep(.md-editor-preview) {
-    font-size: 14px;
+    font-size: 16px;
+    > *:first-child {
+        margin-top: 12px;
+    }
+    code {        
+        & > * {
+            font-size: 14px;
+        }
+        &:not(pre code) {
+            font-size: 14px;
+            line-height: normal;
+            margin: 0 4px;
+        }
+    }
 }
 
 /* 全局滚动条样式 */

@@ -24,7 +24,8 @@
       },
       "toc": {
         "title": "目录",
-        "empty": "暂无目录"
+        "empty": "暂无目录",
+        "toTop": "点击我回到顶部 (O.o?)"
       }
     }
   },
@@ -53,7 +54,8 @@
       },
       "toc": {
         "title": "Table of Contents",
-        "empty": "No contents"
+        "empty": "No contents",
+        "toTop": "Click to back to top (O.o?)"
       }
     }
   }

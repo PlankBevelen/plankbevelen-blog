@@ -1,11 +1,18 @@
 <template>
   <Card class="toc-card" type="toc">
-    <template #header>{{ tocItems.length > 0 ? $t('cards.toc.title') : $t('cards.toc.empty') }}</template>
-    <ul class="toc-list">
-      <li v-for="(item, i) in tocItems" :key="i" :class="['toc-item', 'lvl-' + item.level]" @click="onJump(item)">
-        <span class="text">{{ item.title }}</span>
-      </li>
-    </ul>
+    <template #header>{{ $t('cards.toc.title') }}</template>
+    <template v-if="tocItems.length > 0">
+      <ul class="toc-list" >
+        <li v-for="(item, i) in tocItems" :key="i" :class="['toc-item', 'lvl-' + item.level]" @click="onJump(item)">
+          <span class="text">{{ item.title }}</span>
+        </li>
+      </ul>
+    </template>
+    <template v-else>
+      <a class="toTop" href="#">
+        {{ $t('cards.toc.toTop') }}
+      </a>
+    </template>
   </Card>
 </template>
 
@@ -47,17 +54,24 @@ function onJump(item: TocItem) {
   position: sticky; 
   top: calc(@header-height + 20px); 
   max-height: calc((100vh - @header-height) / 2);
+  display: flex;
+  flex-direction: column;
+  padding: 0 !important;
+}
+.toc-card :deep(.card-header) {
+  padding: 20px 20px 0 20px;
+  flex-shrink: 0;
 }
 .toc-card :deep(.card-content) {
   flex: 1 1 auto;
   min-height: 0;
-  overflow: auto;
+  overflow-y: auto;
+  padding: 0 20px 20px 20px;
 }
 .toc-list { 
   display: flex; 
   flex-direction: column; 
   gap: @base-gap; 
-  margin-bottom: 20px;
   .toc-item { 
     cursor: pointer; 
     border-radius: @small-border-radius; 
@@ -88,6 +102,17 @@ function onJump(item: TocItem) {
     &.lvl-6 {
       padding-left: 40px;
     }
+  }
+}
+.toTop {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--text-color);
+  text-decoration: none;
+  cursor: pointer; 
+  &:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
   }
 }
 </style>

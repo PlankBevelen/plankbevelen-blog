@@ -16,6 +16,12 @@ export default defineEventHandler(async (event) => {
       return { status: 404, msg: '未找到文章', data: null }
     }
 
+    // 获取上一条和下一条
+    const prevRows: any = await query('SELECT id, title FROM articles WHERE id < ? ORDER BY id DESC LIMIT 1', [id])
+    const nextRows: any = await query('SELECT id, title FROM articles WHERE id > ? ORDER BY id ASC LIMIT 1', [id])
+    const prev = prevRows?.[0] ? { id: String(prevRows[0].id), title: prevRows[0].title } : null
+    const next = nextRows?.[0] ? { id: String(nextRows[0].id), title: nextRows[0].title } : null
+
     const data = {
       id: String(r.id),
       title: r.title,
@@ -27,6 +33,8 @@ export default defineEventHandler(async (event) => {
       content: r.content,
       createTime: r.created_at,
       updateTime: r.updated_at,
+      prev,
+      next
     }
 
     setResponseStatus(event, 200)

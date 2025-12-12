@@ -26,9 +26,9 @@ import RecordLinkCard from '@/components/cards/recordLink.vue'
 import ArticleList from '@/components/article/articleList.vue'
 import CategoryCard from '@/components/cards/category.vue'
 import TagCard from '@/components/cards/tag.vue'
-import LatestArticlesCard from '@/components/cards/latest.vue'
+import LatestArticlesCard from '@/components/article/latest.vue'
 import { useAsyncData } from 'nuxt/app'
-import http from '~/utils/http-common'
+import http from '~/utils/http'
 import { t } from '@/components/i18n/index'
 
 const homeData = reactive({

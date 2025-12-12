@@ -1,3 +1,4 @@
+<!-- 博主信息卡片 -->
 <template>    
     <Card type="blogger" animation>
         <div class="blogger-avatar">

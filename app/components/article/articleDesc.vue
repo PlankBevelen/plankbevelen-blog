@@ -56,6 +56,7 @@ const displayContent = computed(() => {
 <style scoped lang="less">
 .article-desc {
     line-height: normal;
+    height: auto;
     .title {
         font-size: 28px;
         font-weight: 500;

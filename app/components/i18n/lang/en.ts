@@ -48,7 +48,9 @@ const en = {
         fallback: "Article Detail",
         meta: {
           description: "Article Detail"
-        }
+        },
+        prev: "Previous Article",
+        next: "Next Article"
       }
     }
   }

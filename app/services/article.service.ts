@@ -1,5 +1,5 @@
 import type { Article, NewArticle } from "@/types/article"
-import http from "@/utils/http-common"
+import http from "~/utils/http"
 
 class ArticleService {
   async createArticle(article: NewArticle) {

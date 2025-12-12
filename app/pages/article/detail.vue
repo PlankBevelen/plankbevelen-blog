@@ -19,10 +19,15 @@
                     </div>
                 </div>
                 <MdPreview :modelValue="displayContent" :theme="currentTheme" :noMermaid="true" :noKatex="true" />
+                <div class="prev-next">
+                  <div class="item prev" v-if="article?.prev" >
+                    <NuxtLink :to="{ path: '/article/detail', query: { id: article.prev.id } }" class="link">{{ $t('pages.article.articleDetail.prev') }}：{{ article.prev.title }}</NuxtLink>
+                  </div>
+                  <div class="item next" v-if="article?.next">
+                    <NuxtLink :to="{ path: '/article/detail', query: { id: article.next.id } }" class="link">{{ $t('pages.article.articleDetail.next') }}：{{ article.next.title }}</NuxtLink>
+                  </div>
+                </div>
               </Card>
-              <!-- <Card v-else class="detailCard">
-                <div class="title">{{ t('pages.article.articleDetail.fallback') }}</div>
-              </Card> -->
             </template>
           </TwoColumnLayout>
         </div>
@@ -33,7 +38,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAsyncData, useHead, navigateTo, createError } from 'nuxt/app'
-import http from '~/utils/http-common'
+import http from '~/utils/http'
 import Card from '@/components/cards/card.vue'
 import TwoColumnLayout from '@/components/layouts/TwoColumnLayout.vue'
 import BloggerCard from '@/components/cards/blogger.vue'
@@ -57,7 +62,7 @@ if (!id.value) {
 }
 
 const { data: detailData, pending } = await useAsyncData(
-  `article-detail-${id.value}`,
+  'article-detail',
   async () => {
     const rid = id.value
     if (!rid) {
@@ -74,15 +79,15 @@ const { data: detailData, pending } = await useAsyncData(
       }
       return null
     }
+  },
+  {
+    watch: [id]
   }
 )
 
 const article = computed(() => detailData.value || null)
 const timeText = computed(() => formatDateTime(article.value?.updateTime || article.value?.createTime || ''))
-const displayContent = computed(() => {
-  const src = String(article.value?.content || '')
-  return src.replace(/</g, '&lt;').replace(/>/g, '&gt;')
-})
+const displayContent = computed(() =>  String(article.value?.content || '') )
 
 const { data: homeData } = await useAsyncData('article-detail-home-data', async () => {
   if (process.server) {
@@ -113,40 +118,73 @@ useHead({
 
 </script>
 
-<style scoped lang="less">
+<style lang="less" scoped>
 .article-detail {
-  min-height: 100vh;
-  padding-top: @header-height;
-  .container { padding: 40px 0; }
+    min-height: 100vh;
+    padding-top: @header-height;
+    .container {
+        padding: 40px 0;
+    }
 }
 .detailCard {
-  line-height: normal;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-height: auto; 
-  .title {
-    font-size: 28px;
-    font-weight: 500;
-    color: var(--primary-color);
-    cursor: pointer;
-    margin-bottom: 12px;
-    text-decoration: none;
-    line-height: normal;
-    display: block;
+  :deep(.card-content) {
+    padding: 40px 40px 20px 40px;
   }
-  .meta {
-        color: var(--tertiary-color);
-        font-size: 12px;
+}
+.title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 20px;
+    text-align: center;
+}
+.meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--secondary-color);
+    font-size: 14px;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    .category {
+        color: var(--primary-color);
+    }
+    .dot {
+        font-weight: bold;
+    }
+    .tags {
         display: flex;
-        gap: 8px;
-        text-wrap: auto;
-        .tags {
-            display: flex;
-            gap: 4px;
-            font-size: 12px;
+        align-items: center;
+        gap: 4px;
+        margin-left: 12px;
+        :deep(.nuxt-icon) {
+            font-size: 16px;
         }
     }
-  :deep(.md-editor-preview) { font-size: 14px !important; max-height: auto; }
+}
+.prev-next {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  
+  .item {
+    font-size: 14px;
+    color: var(--secondary-color);
+    
+    .link {
+      color: var(--text-color);
+      text-decoration: none;
+      transition: color 0.3s;
+      
+      &:hover {
+        color: var(--primary-color);
+      }
+    }
+  }
 }
 </style>

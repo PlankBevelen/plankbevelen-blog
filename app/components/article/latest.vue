@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import Card from './card.vue'
+import Card from '@/components/cards/card.vue'
 import { ref, computed, onMounted } from 'vue'
 import { formatDateTime } from '@/utils/format'
 import articleService from '@/services/article.service'

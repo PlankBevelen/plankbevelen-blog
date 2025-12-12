@@ -1,4 +1,4 @@
-import http from "@/utils/http-common"
+import http from "~/utils/http"
 
 class AdminService {
   async login( account: string, password: string, keepAlive?: boolean ) {
