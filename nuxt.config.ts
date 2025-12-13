@@ -24,7 +24,7 @@ export default defineNuxtConfig({
       },
       autoprefixer: {},
       'postcss-pxtorem': {
-        rootValue: 16,
+        rootValue: 32,
         propList: ['*'],
         selectorBlackList: ['.norem'],
         unitPrecision: 5, // 转换后的精度，即小数点位数

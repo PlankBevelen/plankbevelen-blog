@@ -13,7 +13,9 @@ import Footer from './defaultLayout/Footer.vue'
 </script>
 
 <style lang="less">
-html {
-    background-color: var(--bg-color);
+@media (max-width: @max-content-width) {
+    #main {
+        padding: 0 20px;
+    }
 }
 </style>

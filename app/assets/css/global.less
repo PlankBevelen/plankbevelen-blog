@@ -40,7 +40,6 @@ q:before, q:after {
     content: none;
 }
 
-
 * {
   margin: 0;
   padding: 0;
@@ -56,6 +55,11 @@ body {
 .container {
     max-width: @max-content-width;
     margin: 0 auto;
+}
+@media screen and (max-width: @max-content-width) {
+    .container {
+        padding: 0 20px;
+    }
 }
 
 /* element-plus 全局样式 */

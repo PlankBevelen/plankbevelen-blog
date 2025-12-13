@@ -1,20 +1,33 @@
 export function setRem() {
-  const defalutWidth = 1920 // 默认宽度
-  const defalueScale = 1 // 默认比例关系
-  let defalutFontSize = 16 // 默认字体大小
-  const getWidth = window.innerWidth // 获取屏幕的宽度
-  let currentScale = getWidth / defalutWidth // 计算当前的屏幕大小和默认宽度之间的比例
-  // 防止缩放太小
-  if (currentScale < 0.85 && getWidth > 1024) {
-    currentScale = 0.855
+  const DESIGN_WIDTH_PC = 1920;
+  const BASE_FONT_SIZE_PC = 16;
+  const MIN_SCALE_PC = 0.85;
+  const MAX_SCALE_PC = 1.2;
+  
+  const BREAKPOINT_TABLET = 1024;
+  const BREAKPOINT_MOBILE = 768;
+  const MIN_WIDTH_MOBILE = 320;
+  const MAX_WIDTH_MOBILE = 768;
+
+  const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+  let currentScale = 1;
+  let baseFontSize = BASE_FONT_SIZE_PC;
+
+  if (viewportWidth <= BREAKPOINT_MOBILE) {
+    const adaptWidth = Math.max(MIN_WIDTH_MOBILE, Math.min(viewportWidth, MAX_WIDTH_MOBILE));
+    currentScale = adaptWidth / 750;
+    baseFontSize = 20;
+    currentScale = Math.min(Math.max(currentScale, 0.8), 1.5);
+  } else if (viewportWidth <= BREAKPOINT_TABLET) {
+    currentScale = viewportWidth / 1024;
+    baseFontSize = BASE_FONT_SIZE_PC * 1.5;
+    currentScale = Math.min(Math.max(currentScale, 0.9), 1.1);
+  } else {
+    currentScale = viewportWidth / DESIGN_WIDTH_PC;
+    baseFontSize = BASE_FONT_SIZE_PC * 1.2;
+    currentScale = Math.min(Math.max(currentScale, MIN_SCALE_PC), MAX_SCALE_PC);
   }
- 
-  // 当前为平板时
-  if (getWidth <= 1024) {
-    defalutFontSize = defalutFontSize * 2
-  }
- 
-  // 计算的宽度比例关系 再 * 默认的字体大小,获取计算的字体大小
-  const currentFontSize = (currentScale / defalueScale) * defalutFontSize
-  document.documentElement.style.fontSize = currentFontSize + 'px'
+
+  const finalFontSize = currentScale * baseFontSize;
+  document.documentElement.style.fontSize = `${finalFontSize}px`;
 }

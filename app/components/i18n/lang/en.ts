@@ -14,7 +14,7 @@ const en = {
   footer: {
     title: "PlankBevelen's Blog",
     description: "Personal tech blog sharing coding experience and articles",
-    copyright: "Copyright © 2025 PlankBevelen. All Rights Reserved.",
+    copyright: "PlankBevelen. All Rights Reserved.",
     beian: "蜀ICP备2024114585号"
   },
   theme: {

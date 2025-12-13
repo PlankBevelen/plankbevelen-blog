@@ -115,14 +115,15 @@ defineProps({
 
 @media (max-width: 1024px) {
     .content {
-        grid-template-columns: 1fr;
-        
-        .left, .right {
+        grid-template-columns: 1fr;    
+        .left  {
+            order: 1;
+        }
+        .middle {
             order: 2;
         }
-        
-        .middle {
-            order: 1;
+        .right {
+            order: 3;
         }
     }
 }

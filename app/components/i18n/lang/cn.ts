@@ -14,7 +14,7 @@ const cn = {
   footer: {
     title: "PlankBevelen的博客",
     description: "记录生活，分享技术，追求美好",
-    copyright: "版权所有 © 2025 PlankBevelen. 保留所有权利。",
+    copyright: "PlankBevelen. 保留所有权利",
     beian: "蜀ICP备2024114585号"
   },
   theme: {
