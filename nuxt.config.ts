@@ -26,7 +26,7 @@ export default defineNuxtConfig({
       'postcss-pxtorem': {
         rootValue: 24,
         propList: ['*'],
-        selectorBlackList: ['.norem'],
+        selectorBlackList: ['.norem', 'html'],
         unitPrecision: 5, // 转换后的精度，即小数点位数
         replace: true,  // 是否直接更换属性值而不添加备份属性
         mediaQuery: false,  // 是否在媒体查询中也转换px为rem

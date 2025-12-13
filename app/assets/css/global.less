@@ -46,7 +46,22 @@ q:before, q:after {
   box-sizing: border-box;
   font-family: "Open Sans", sans-serif, "Microsoft YaHei", "微软雅黑", "宋体", "Arial", "Helvetica", "sans-serif";
 }
-
+html {
+    font-size: 24px;
+    @media screen and (min-width: 768px) and (max-width: 1024px) {
+        font-size: 20px; /* 稍微调小一点，适应平板屏幕 */
+    }
+    @media screen and (max-width: 768px) {
+        /* 
+           移动端适配：
+           375px 设计稿基准 -> 20px (1rem)
+           计算公式: 20px / 375px = 0.053333333333333336
+           0.053333333333333336 * 100vw = 5.333333333333334vw
+           限制范围: 16.8px (0.8x) ~ 24px (1.2x)
+        */
+        font-size: clamp(16.8px, 5.333333333333334vw, 24px);
+    }
+}
 body {
   color: var(--text-color);  
   background-color: var(--bg-color);  
@@ -62,7 +77,6 @@ body {
         padding: 0 20px;
     }
 }
-
 /* element-plus 全局样式 */
 :deep(.el-button) { 
     padding: 8px 16px; 
