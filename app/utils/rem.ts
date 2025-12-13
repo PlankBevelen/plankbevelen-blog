@@ -1,33 +1,22 @@
 export function setRem() {
-  const DESIGN_WIDTH_PC = 1920;
-  const BASE_FONT_SIZE_PC = 16;
-  const MIN_SCALE_PC = 0.85;
-  const MAX_SCALE_PC = 1.2;
+  // 基准大小，与 nuxt.config.ts 中的 rootValue 保持一致
+  const baseSize = 24
+  const baseWidth = 1920 // 设计稿宽度
+
+  // 获取视口宽度
+  const width = Math.min(document.documentElement.clientWidth, window.innerWidth || 0)
   
-  const BREAKPOINT_TABLET = 1024;
-  const BREAKPOINT_MOBILE = 768;
-  const MIN_WIDTH_MOBILE = 320;
-  const MAX_WIDTH_MOBILE = 768;
-
-  const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-  let currentScale = 1;
-  let baseFontSize = BASE_FONT_SIZE_PC;
-
-  if (viewportWidth <= BREAKPOINT_MOBILE) {
-    const adaptWidth = Math.max(MIN_WIDTH_MOBILE, Math.min(viewportWidth, MAX_WIDTH_MOBILE));
-    currentScale = adaptWidth / 750;
-    baseFontSize = 20;
-    currentScale = Math.min(Math.max(currentScale, 0.8), 1.5);
-  } else if (viewportWidth <= BREAKPOINT_TABLET) {
-    currentScale = viewportWidth / 1024;
-    baseFontSize = BASE_FONT_SIZE_PC * 1.5;
-    currentScale = Math.min(Math.max(currentScale, 0.9), 1.1);
+  // 移动端适配 (768px以下)
+  if (width < 768) {
+    // 移动端按比例缩放，假设移动端设计稿为 375 或 750
+    // 这里保持一定的最小值，防止字体过小
+    const scale = width / 375
+    // 限制缩放范围，避免过大或过小
+    const finalSize = baseSize * Math.min(Math.max(scale, 0.8), 1.2)
+    document.documentElement.style.fontSize = `${finalSize}px`
   } else {
-    currentScale = viewportWidth / DESIGN_WIDTH_PC;
-    baseFontSize = BASE_FONT_SIZE_PC * 1.2;
-    currentScale = Math.min(Math.max(currentScale, MIN_SCALE_PC), MAX_SCALE_PC);
+    // PC 端/平板端固定为 20px，确保 1rem = 20px
+    // 这样 1280px (64rem) 的容器就会准确显示为 1280px
+    document.documentElement.style.fontSize = `${baseSize}px`
   }
-
-  const finalFontSize = currentScale * baseFontSize;
-  document.documentElement.style.fontSize = `${finalFontSize}px`;
 }

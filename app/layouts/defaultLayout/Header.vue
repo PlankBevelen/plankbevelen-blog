@@ -171,15 +171,18 @@ onMounted(()=>{
         object-fit: cover;        
         border-radius: @small-border-radius;
       }
+      .logo-text {
+        font-size: @base-title-size;
+        font-weight: bold;
+      }
     }
     .nav-menu {
       display: flex;
       justify-content: space-between;
       align-items: center;
       list-style: none;
-      font-size: 16px;
       .nav-item {
-        margin-left: 20px;
+        margin-left: 20px;        
       }
       .nav-link {
         color: var(--text-color);
@@ -215,15 +218,15 @@ onMounted(()=>{
       gap: 12px;
       align-items: center;
       .lang { 
-        font-size: 24px; 
         position: relative;
         cursor: pointer;
+        font-size: 24px;
         &:hover {
           .lang-choose { opacity: 1; transform: translateX(-50%) scaleY(1); pointer-events: auto; }
         }
         .lang-choose {
           display: flex;
-          font-size: 0.8rem;
+          font-size: var(--el-menu-item-font-size);
           position: absolute;
           top: 100%;
           left: 50%;
@@ -323,6 +326,7 @@ onMounted(()=>{
             cursor: pointer;
             padding: 2px 6px;
             border-radius: 4px;
+            font-size: var(--el-menu-item-font-size);
             &.active {
               background-color: var(--active-color);
               color: #fff;
