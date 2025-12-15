@@ -1,11 +1,33 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
+import viteCompression from 'vite-plugin-compression'
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  css: ['element-plus/dist/index.css', '@/assets/css/global.less', '@/assets/css/theme.less', '@/assets/css/variables.less'],
-  modules: ['nuxt-icons', '@pinia/nuxt', '@nuxt/image'],
-  runtimeConfig: {
+  css: ['@/assets/css/global.less', '@/assets/css/theme.less', '@/assets/css/variables.less'],
+  modules: ['nuxt-icons', '@pinia/nuxt', '@nuxt/image', '@nuxtjs/seo', '@element-plus/nuxt'],
+  site: {
+    url: 'https://plankbevelen.cn',
+    name: 'PlankBevelen Blog',
+    description: 'PlankBevelen的个人博客，分享前端开发经验和文章',
+    defaultLocale: 'zh',
+  },
+  sitemap: {
+    sources: [
+      '/api/sitemap-urls'
+    ],
+    exclude: ['/admin/**'],
+  },
+  app: {
+    head: {
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      ],
+      script: []
+    }
+  },
+  runtimeConfig: {  
     public: {
       baseUrl: process.env.NUXT_BASE_URL || '/',
       cookiePrefix: process.env.NUXT_PUBLIC_COOKIE_PREFIX || '',
@@ -35,6 +57,15 @@ export default defineNuxtConfig({
     }
   },
   vite: {
+    plugins: [
+      viteCompression({
+        verbose: true,
+        disable: false,
+        threshold: 10240,
+        algorithm: 'gzip',
+        ext: '.gz',
+      })
+    ],
     css: {
       preprocessorOptions: {
         less: {

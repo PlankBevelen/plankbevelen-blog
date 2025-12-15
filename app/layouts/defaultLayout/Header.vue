@@ -226,7 +226,7 @@ onMounted(()=>{
         }
         .lang-choose {
           display: flex;
-          font-size: var(--el-menu-item-font-size);
+          font-size: var(--el-font-size-small);
           position: absolute;
           top: 100%;
           left: 50%;
@@ -326,7 +326,7 @@ onMounted(()=>{
             cursor: pointer;
             padding: 2px 6px;
             border-radius: 4px;
-            font-size: var(--el-menu-item-font-size);
+            font-size: var(--el-font-size-small);
             &.active {
               background-color: var(--active-color);
               color: #fff;
