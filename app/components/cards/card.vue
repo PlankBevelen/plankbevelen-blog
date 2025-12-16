@@ -1,12 +1,12 @@
 <template>
-    <div :class="['card', type, { animation }]">
+    <component :is="tag" :class="['card', type, { animation }]">
         <div class="card-header" v-if="$slots.header">
             <slot name="header"></slot>
         </div>
         <div class="card-content">
             <slot></slot>
         </div>
-    </div>
+    </component>
 </template>
 
 <script setup lang="ts">
@@ -18,6 +18,10 @@ const props = defineProps({
     animation: {
         type: Boolean,
         default: false
+    },
+    tag: {
+        type: String,
+        default: 'div'
     }
 })
 </script>

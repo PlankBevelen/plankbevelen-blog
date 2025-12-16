@@ -1,6 +1,8 @@
 <template>
-    <Card class="article-desc">
-        <NuxtLink :to="{ path: '/article/detail', query: { id: article.id } }" class="title">{{ article.title }}</NuxtLink>
+    <Card class="article-desc" tag="article">
+        <h2 class="title-wrapper">
+            <NuxtLink :to="{ path: '/article/detail', query: { id: article.id } }" class="title">{{ article.title }}</NuxtLink>
+        </h2>
         <div class="meta">
             <span class="category">{{ article.category }}</span>
             <span class="dot">·</span>
@@ -57,12 +59,16 @@ const displayContent = computed(() => {
 .article-desc {
     line-height: normal;
     height: auto;
+    .title-wrapper {
+        margin: 0;
+        margin-bottom: 12px;
+        line-height: normal;
+    }
     .title {
         font-size: 28px;
         font-weight: 500;
         color: var(--primary-color);
         cursor: pointer;
-        margin-bottom: 12px;
         text-decoration: none;
         line-height: normal;
         display: block;

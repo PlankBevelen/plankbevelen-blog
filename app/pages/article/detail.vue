@@ -7,8 +7,8 @@
               <Toc :content="article?.content || ''" />
             </template>
             <template #right>
-              <Card class="detailCard">
-                <div class="title">{{ article?.title }}</div>
+              <Card class="detailCard" tag="article">
+                <h1 class="title">{{ article?.title }}</h1>
                 <div class="meta">
                     <span class="category">{{ articleCategory }}</span>
                     <span class="dot">·</span>
@@ -112,7 +112,26 @@ const articleCategory = computed(() => {
 useHead({
   title: article.value?.title ? `${article.value.title}${t('pages.article.articleDetail.suffix')}` : t('pages.article.articleDetail.fallback'),
   meta: [
-    { name: 'description', content: (article.value?.content || '').slice(0, 120) || t('pages.article.articleDetail.meta.description') }
+    { name: 'description', content: (article.value?.content || '').slice(0, 120).replace(/[#*`]/g, '') || t('pages.article.articleDetail.meta.description') },
+    { name: 'keywords', content: (article.value?.tags || []).join(',') || t('pages.article.articleDetail.meta.description') }
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      children: computed(() => JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: article.value?.title,
+        image: [], 
+        datePublished: article.value?.createTime,
+        dateModified: article.value?.updateTime || article.value?.createTime,
+        author: [{
+          '@type': 'Person',
+          name: 'PlankBevelen', 
+          url: 'https://plankbevelen.cn'
+        }]
+      }))
+    }
   ]
 })
 
