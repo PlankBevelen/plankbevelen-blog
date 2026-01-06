@@ -164,7 +164,7 @@ onBeforeUnmount(() => {
       }
       .title {
         color: #fff;
-        font-size: 32px;
+        font-size: @font-size-xxl;
         font-weight: bold;
         background: linear-gradient(90deg, #007bff, #00c6ff);
         -webkit-background-clip: text;
@@ -175,13 +175,13 @@ onBeforeUnmount(() => {
       }
       .subtitle {
         color: #fff;
-        font-size: 24px;
+        font-size: @font-size-xl;
         font-weight: normal;
         line-height: normal;
         margin-bottom: 48px;
       }
       .feature-list {        
-        font-size: 16px;
+        font-size: @font-size-md;
         font-weight: normal;
         margin-top: 30px;
         list-style: none;
@@ -219,14 +219,14 @@ onBeforeUnmount(() => {
         height: auto;
         padding: 40px 60px;
         .title {
-          font-size: 28px;
+          font-size: @font-size-xxl;
           font-weight: bold;
           line-height: normal;
           text-align: center;
           margin-bottom: 8px;
         }
         .subtitle {
-          font-size: 16px;
+          font-size: @font-size-md;
           font-weight: normal;
           line-height: normal;
           text-align: center;

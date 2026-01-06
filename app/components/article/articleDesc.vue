@@ -1,7 +1,7 @@
 <template>
     <Card class="article-desc" tag="article">
         <h2 class="title-wrapper">
-            <NuxtLink :to="{ path: '/article/detail', query: { id: article.id } }" class="title">{{ article.title }}</NuxtLink>
+            <NuxtLink :to="{ path: '/article/' + article.id }" class="title">{{ article.title }}</NuxtLink>
         </h2>
         <div class="meta">
             <span class="category">{{ article.category }}</span>
@@ -15,7 +15,7 @@
         </div>
         <div class="content">
             <div class="md-wrapper" :class="{ 'is-collapsed': !isExpand }">
-                <MdPreview :modelValue="displayContent" :theme="currentTheme" :noMermaid="true" :noKatex="true" previewOnly/>
+                <MdPreviewAsync :modelValue="displayContent" :theme="currentTheme" :noMermaid="true" :noKatex="true" previewOnly/>
             </div>
             <div class="ops">
                 <el-button type="primary" link size="small" @click="isExpand = !isExpand">{{ isExpand ? '收起' : '展开更多' }}</el-button>
@@ -27,8 +27,11 @@
 <script lang="ts" setup>
 import type { Article } from '@/types/article'
 import Card from '@/components/cards/card.vue'
-import { ref, computed } from 'vue'
-import { MdPreview } from 'md-editor-v3'
+import { ref, computed, defineAsyncComponent } from 'vue'
+const MdPreviewAsync = defineAsyncComponent({
+    loader: () => import('md-editor-v3').then(m => m.MdPreview),
+    delay: 100
+})
 import 'md-editor-v3/lib/style.css'
 import { formatDateTime } from '@/utils/format'
 import { useAdminStore } from '@/stores/admin.store'
@@ -46,11 +49,12 @@ const props = defineProps({
 const atLeastLines = ref(20)
 const maxLines = ref(60)
 const isExpand = ref(false)
+const lines = computed(() => props.article.content.split('\n'))
 const displayContent = computed(() => {
     if (isExpand.value) {
-        return props.article.content.split('\n').slice(0, maxLines.value).join('\n')
+        return lines.value.slice(0, maxLines.value).join('\n')
     }
-    return props.article.content.split('\n').slice(0, atLeastLines.value).join('\n')
+    return lines.value.slice(0, atLeastLines.value).join('\n')
 })
 
 </script>
@@ -65,7 +69,7 @@ const displayContent = computed(() => {
         line-height: normal;
     }
     .title {
-        font-size: 28px;
+        font-size: @font-size-xxl;
         font-weight: 500;
         color: var(--primary-color);
         cursor: pointer;
@@ -76,23 +80,22 @@ const displayContent = computed(() => {
     }
     .meta {
         color: var(--tertiary-color);
-        font-size: 12px;
+        font-size: @font-size-xs;
         display: flex;
         gap: 8px;
         text-wrap: auto;
         .tags {
             display: flex;
             gap: 4px;
-            font-size: 12px;
+            font-size: @font-size-xs;
         }
-    }
-    
+    }    
     .content {
         display: flex;
         flex-direction: column;
         gap: 8px;
         :deep(.md-editor-preview) {
-            font-size: 14px !important;
+            font-size: @font-size-sm !important;
         }
     }
 }

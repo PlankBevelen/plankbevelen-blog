@@ -2,7 +2,6 @@
     <Card type="tag" class="tag-cloud-card">
         <template #header>
             <div class="header-content">
-                <i class="el-icon-collection-tag"></i>
                 {{ $t('cards.tag.title') }}
             </div>
         </template>

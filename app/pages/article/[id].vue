@@ -21,10 +21,10 @@
                 <MdPreview :modelValue="displayContent" :theme="currentTheme" :noMermaid="true" :noKatex="true" />
                 <div class="prev-next">
                   <div class="item prev" v-if="article?.prev" >
-                    <NuxtLink :to="{ path: '/article/detail', query: { id: article.prev.id } }" class="link">{{ $t('pages.article.articleDetail.prev') }}：{{ article.prev.title }}</NuxtLink>
+                    <NuxtLink :to="{ path: '/article/' + article.prev.id }" class="link">{{ $t('pages.article.articleDetail.prev') }}：{{ article.prev.title }}</NuxtLink>
                   </div>
                   <div class="item next" v-if="article?.next">
-                    <NuxtLink :to="{ path: '/article/detail', query: { id: article.next.id } }" class="link">{{ $t('pages.article.articleDetail.next') }}：{{ article.next.title }}</NuxtLink>
+                    <NuxtLink :to="{ path: '/article/' + article.next.id }" class="link">{{ $t('pages.article.articleDetail.next') }}：{{ article.next.title }}</NuxtLink>
                   </div>
                 </div>
               </Card>
@@ -55,7 +55,7 @@ const currentTheme = computed(() => admin.getTheme)
 
 const route = useRoute()
 const id = computed(() => {
-  return String(route.query.id || route.params.id || '')
+  return String(route.params.id || '')
 })
 if (!id.value) {
   await navigateTo('/article', { replace: true })
@@ -110,10 +110,13 @@ const articleCategory = computed(() => {
 })
 
 useHead({
-  title: article.value?.title ? `${article.value.title}${t('pages.article.articleDetail.suffix')}` : t('pages.article.articleDetail.fallback'),
+  title: article.value?.title ? `${article.value.title}` : t('pages.article.articleDetail.fallback'),
   meta: [
     { name: 'description', content: (article.value?.content || '').slice(0, 120).replace(/[#*`]/g, '') || t('pages.article.articleDetail.meta.description') },
-    { name: 'keywords', content: (article.value?.tags || []).join(',') || t('pages.article.articleDetail.meta.description') }
+    { name: 'keywords', content: (article.value?.tags || []).join(',') + ',plankbevelen, plank, bevelen, PlankBevelen' || t('pages.article.articleDetail.meta.keywords') }
+  ],
+  link: [
+    { rel: 'canonical', href: `https://plankbevelen.cn/article/${id.value}` }
   ],
   script: [
     {
@@ -151,7 +154,7 @@ useHead({
   }
 }
 .title {
-    font-size: 28px;
+    font-size: @font-size-xxl;
     font-weight: 700;
     color: var(--text-color);
     margin-bottom: 20px;
@@ -163,7 +166,7 @@ useHead({
     justify-content: center;
     gap: 12px;
     color: var(--secondary-color);
-    font-size: 14px;
+    font-size: @font-size-sm;
     margin-bottom: 40px;
     padding-bottom: 20px;
     border-bottom: 1px solid var(--border-color);
@@ -179,7 +182,7 @@ useHead({
         gap: 4px;
         margin-left: 12px;
         :deep(.nuxt-icon) {
-            font-size: 16px;
+            font-size: @font-size-md;
         }
     }
 }
@@ -192,7 +195,7 @@ useHead({
   justify-content: space-between;
   
   .item {
-    font-size: 14px;
+    font-size: @font-size-sm;
     color: var(--secondary-color);
     
     .link {

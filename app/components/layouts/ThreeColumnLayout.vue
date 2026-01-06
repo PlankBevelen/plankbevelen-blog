@@ -2,32 +2,44 @@
     <div class="three-column-layout">
         <div class="content">
             <div class="left">
-                <div class="slot-wrapper" v-show="!loading">
-                    <slot name="left"></slot>
-                </div>
-                <div class="skeleton-group" v-show="loading">
-                    <div class="skeleton block"></div>
-                    <div class="skeleton block"></div>
-                </div>
+                <el-skeleton :loading="loading" animated>
+                    <template #template>
+                        <el-skeleton-item variant="image" style="width: 100%; height: 140px;" />
+                        <el-skeleton-item variant="image" style="width: 100%; height: 140px;" />
+                    </template>
+                    <template #default>
+                        <div class="slot-wrapper">
+                            <slot name="left"></slot>
+                        </div>
+                    </template>
+                </el-skeleton>
             </div>
             <div class="middle">
-                <div class="slot-wrapper" v-show="!loading">
-                    <slot name="middle"></slot>
-                </div>
-                <div class="skeleton-group" v-show="loading">
-                    <div class="skeleton block large"></div>
-                    <div class="skeleton block"></div>
-                    <div class="skeleton block"></div>
-                </div>
+                <el-skeleton :loading="loading" animated>
+                    <template #template>
+                        <el-skeleton-item variant="image" style="width: 100%; height: 220px;" />
+                        <el-skeleton-item variant="image" style="width: 100%; height: 140px;" />
+                        <el-skeleton-item variant="image" style="width: 100%; height: 140px;" />
+                    </template>
+                    <template #default>
+                        <div class="slot-wrapper">
+                            <slot name="middle"></slot>
+                        </div>
+                    </template>
+                </el-skeleton>
             </div>
             <div class="right">
-                <div class="slot-wrapper" v-show="!loading">
-                    <slot name="right"></slot>
-                </div>
-                <div class="skeleton-group" v-show="loading">
-                    <div class="skeleton block"></div>
-                    <div class="skeleton block"></div>
-                </div>
+                <el-skeleton :loading="loading" animated>
+                    <template #template>
+                        <el-skeleton-item variant="image" style="width: 100%; height: 140px;" />
+                        <el-skeleton-item variant="image" style="width: 100%; height: 140px;" />
+                    </template>
+                    <template #default>
+                        <div class="slot-wrapper">
+                            <slot name="right"></slot>
+                        </div>
+                    </template>
+                </el-skeleton>
             </div>
         </div>
     </div>
@@ -77,40 +89,6 @@ defineProps({
 
 .right .slot-wrapper > * {
     animation: fly-in-from-top-right 0.3s ease-in-out;
-}
-
-.skeleton-group {
-    display: flex;
-    flex-direction: column;
-    gap: @base-gap;
-}
-
-.skeleton.block {
-    position: relative;
-    height: 140px;
-    border-radius: @small-border-radius;
-    background-color: var(--mute-bg-color);
-    overflow: hidden;
-}
-
-.skeleton.block.large { 
-    height: 220px; 
-}
-
-.skeleton.block::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -40%;
-    width: 40%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-    animation: skeleton-shimmer 1.2s ease-in-out infinite;
-}
-
-@keyframes skeleton-shimmer {
-    0% { left: -40%; }
-    100% { left: 100%; }
 }
 
 @media (max-width: 1024px) {

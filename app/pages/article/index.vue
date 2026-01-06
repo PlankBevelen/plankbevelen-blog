@@ -87,7 +87,8 @@ watch(() => route.query.q, (val) => { keyword.value = String(val || '') })
 useHead({
     title: t('pages.article.title'),
     meta: [
-        { name: 'description', content: t('pages.article.meta.description') }
+        { name: 'description', content: t('pages.article.meta.description') },
+        { name: 'keywords', content: t('pages.article.meta.keywords') }
     ]
 })
 
@@ -108,7 +109,7 @@ useHead({
         justify-content: space-between;
     }
     .breadcrumb {
-        font-size: 14px;
+        font-size: @font-size-md;
         font-weight: bold;
         line-height: normal;
         a { text-decoration: none; color: var(--text-color); &:hover { color: var(--primary-hover-color); } }

@@ -67,14 +67,14 @@ function onSelect(item: Category) {
         cursor: pointer;
         &:hover { background-color: var(--shallow-hover-bg-color); }
         .name {
-            font-size: 14px;
+            font-size: @font-size-sm;
         }
         .count {
             color: var(--tertiary-color);
             background-color: var(--mute-bg-color);
             padding: 4px 8px;
             border-radius: @small-border-radius;
-            font-size: 11px;
+            font-size: @font-size-2xs;
         }
     }
 }

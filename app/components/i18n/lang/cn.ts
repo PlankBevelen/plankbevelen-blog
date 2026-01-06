@@ -2,6 +2,9 @@ const cn = {
   common: {
     title: "PlankBevelen的博客"
   },
+  site: {
+    description: "个人技术博客，分享前端开发、Web 技术、编程经验和技术文章"
+  },
   header: {
     title: "PlankBevelen的博客",
     nav: {
@@ -29,30 +32,37 @@ const cn = {
     home: {
       title: "PlankBevelen Blog",
       meta: {
-        description: "PlankBevelen的个人博客，分享前端开发经验和文章",
-        keywords: "PlankBevelen,前端开发,个人博客"
+        description: "PlankBevelen的个人技术博客 - 分享编程教程、开发经验和科技见解",
+        keywords: "plankbevelen, plank, bevelen, PlankBevelen, Web开发教程, 编程博客, 编码经验, 前端开发, 后端开发, 软件工程, 技术博客, 个人博客"
       }
     },
     article: {
       title: "文章",
       meta: {
-        description: "PlankBevelen的个人博客，分享前端开发经验和文章",
-        keywords: "PlankBevelen,前端开发,个人博客"
+        description: "浏览PlankBevelen博客上的所有技术文章和编程教程",
+        keywords: "plankbevelen, plank, bevelen, PlankBevelen, 编程文章, 编码教程, Web开发指南, 技术学习资源, PlankBevelen文章, 前端教程, 后端教程"
       },
       search: {
         placeholder: "搜索文章",
         btn: "搜索"
       },
       articleDetail: {
-        suffix: " - 文章详情",
         fallback: "文章详情",
         meta: {
-          description: "文章详情"
+          description: "文章详情 - 技术文章和编程教程的详细内容",
+          keywords: "plankbevelen, plank, bevelen, PlankBevelen"
         },
         prev: "上一篇",
         next: "下一篇"
       }
-    }
+    },
+    about: {
+      title: "关于",
+      meta: {
+        description: "了解更多关于PlankBevelen - 一位热衷于分享知识和编码经验的开发者",
+        keywords: "关于PlankBevelen, plankbevelen, plank, bevelen, PlankBevelen, 开发者介绍, 技术博主, 编程背景, 个人介绍, 技术分享者"
+      }
+    },
   }
 }
 

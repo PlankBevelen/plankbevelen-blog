@@ -2,18 +2,30 @@
     <div class="two-column-layout">
         <div class="content" :class="[type]">
             <div class="left">
-                <slot name="left" v-if="!loading"></slot>
-                <div class="skeleton-group" v-else>
-                    <div class="skeleton block"></div>
-                    <div class="skeleton block"></div>
-                </div>
+                <el-skeleton :loading="loading" animated>
+                    <template #template>
+                        <el-skeleton-item variant="image" style="width: 100%; height: 140px;" />
+                        <el-skeleton-item variant="image" style="width: 100%; height: 140px;" />
+                    </template>
+                    <template #default>
+                        <slot name="left"></slot>
+                    </template>
+                </el-skeleton>
             </div>
             <div class="right">
-                <slot name="right" v-if="!loading"></slot>
-                <div class="skeleton-group" v-else>
-                    <div class="skeleton block"></div>
-                    <div class="skeleton block"></div>
-                </div>
+                <el-skeleton :loading="loading" animated>
+                    <template #template>
+                        <el-skeleton-item variant="h1" style="width: 60%; margin: 0 auto 10px;" />
+                        <el-skeleton-item variant="text" style="width: 40%; margin: 0 auto 20px;" />
+                        <el-skeleton-item variant="text" />
+                        <el-skeleton-item variant="text" />
+                        <el-skeleton-item variant="text" style="width: 80%;" />
+                        <el-skeleton-item variant="image" style="width: 100%; height: 400px;" />
+                    </template>
+                    <template #default>
+                        <slot name="right"></slot>
+                    </template>
+                </el-skeleton>
             </div>
         </div>
     </div>
@@ -57,38 +69,5 @@ defineProps({
     display: flex;
     flex-direction: column;
     gap: @base-gap;
-}
-.left > * {
-    animation: fly-in-from-left-top 0.3s ease-in-out;
-}
-.right > * {
-    animation: fly-in-from-top-right 0.3s ease-in-out;
-}
-
-.skeleton-group {
-    display: flex;
-    flex-direction: column;
-    gap: @base-gap;
-}
-.skeleton.block {
-    position: relative;
-    height: 140px;
-    border-radius: @small-border-radius;
-    background-color: var(--mute-bg-color);
-    overflow: hidden;
-}
-.skeleton.block::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -40%;
-    width: 40%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-    animation: skeleton-shimmer 1.2s ease-in-out infinite;
-}
-@keyframes skeleton-shimmer {
-    0% { left: -40%; }
-    100% { left: 100%; }
 }
 </style>

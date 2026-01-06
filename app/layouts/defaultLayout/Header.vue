@@ -117,9 +117,8 @@ watch(isMobile, (val) => {
 })
 
 onMounted(()=>{
-  admin.initPreferences()
-  
-  let lastScrollY = 0;
+  admin.initPreferences()  
+  /* let lastScrollY = 0;
   window.addEventListener('scroll', () => {
     const header = document.querySelector('.header');
     const currentScrollY = window.scrollY;
@@ -135,7 +134,7 @@ onMounted(()=>{
     }
     
     lastScrollY = currentScrollY;
-  })
+  }) */
 })
 </script>
 
@@ -189,7 +188,7 @@ onMounted(()=>{
         text-decoration: none;
         position: relative;
         padding-bottom: 5px;
-        font-size: 16px;
+        font-size: @font-size-md;
         &::after {
           content: '';
           position: absolute;
@@ -220,7 +219,7 @@ onMounted(()=>{
       .lang { 
         position: relative;
         cursor: pointer;
-        font-size: 24px;
+        font-size: @font-size-xl;
         &:hover {
           .lang-choose { opacity: 1; transform: translateX(-50%) scaleY(1); pointer-events: auto; }
         }

@@ -2,6 +2,9 @@ const en = {
   common: {
     title: "PlankBevelen's Blog"
   },
+  site: {
+    description: "Personal tech blog sharing coding experience and articles"
+  },
   header: {
     title: "PlankBevelen's Blog",
     nav: {
@@ -29,28 +32,35 @@ const en = {
     home: {
       title: "PlankBevelen Blog",
       meta: {
-        description: "Personal tech blog sharing coding experience and articles",
-        keywords: "blog,tech,coding,development"
+        description: "Personal tech blog by PlankBevelen - Sharing coding tutorials, development experiences and tech insights",
+        keywords: "plankbevelen, plank, bevelen, PlankBevelen, web development tutorials, programming blog, coding experiences, frontend development, backend development, software engineering"
       }
     },
     article: {
       title: "Articles",
       meta: {        
-        description: "Personal tech blog sharing coding experience and articles",
-        keywords: "blog,tech,coding,development"
+        description: "Browse all tech articles and coding tutorials on PlankBevelen's blog",
+        keywords: "plankbevelen, plank, bevelen, PlankBevelen, programming articles, coding tutorials, web development guides, tech learning resources, PlankBevelen articles"
       },
       search: {
         placeholder: "Search articles",
         btn: "Search"
       },
       articleDetail: {
-        suffix: " - Article Detail",
         fallback: "Article Detail",
         meta: {
-          description: "Article Detail"
+          description: "Article Detail",
+          keywords: "plankbevelen, plank, bevelen, PlankBevelen"
         },
         prev: "Previous Article",
         next: "Next Article"
+      },
+      about: {
+        title: "About",
+        meta: {
+          description: "Learn more about PlankBevelen - A developer passionate about sharing knowledge and coding experiences",
+          keywords: "about, plankbevelen, plank, bevelen, PlankBevelen, developer introduction, tech blogger, programming background"
+        }
       }
     }
   }

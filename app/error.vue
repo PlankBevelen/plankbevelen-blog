@@ -34,6 +34,8 @@
 </template>
 
 <script lang="ts" setup>
+import { t } from '@/components/i18n/index'
+
 const router = useRouter()
 
 const goBack = () => {

@@ -33,10 +33,10 @@ const props = defineProps({
     background-color: var(--card-color);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease-in-out;
-    padding: 20px;
+    padding: 16px 24px;
     position: relative;
     .card-header {
-        font-size: 14px;
+        font-size: @font-size-sm;
         font-weight: bold;
         margin-bottom: @base-gap;
     }
