@@ -1,5 +1,7 @@
 import { defineEventHandler, getQuery, setResponseStatus } from 'h3'
 import { query } from '../../utils/db'
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -22,7 +24,7 @@ export default defineEventHandler(async (event) => {
       : 'ORDER BY a.updated_at DESC, a.created_at DESC, a.id DESC'
 
     const listSql = `
-      SELECT a.id, a.title, a.tags, a.content, a.created_at, a.updated_at, a.category_id, c.name AS category_name
+      SELECT a.id, a.title, a.tags, a.file_path, a.created_at, a.updated_at, a.category_id, c.name AS category_name
       FROM articles a
       LEFT JOIN categories c ON a.category_id = c.id
       ${where}
@@ -43,14 +45,27 @@ export default defineEventHandler(async (event) => {
     const countRows: any = await query(countSql, countParams)
     const total = Number(countRows?.[0]?.total || 0)
 
-    const data = (rows || []).map((r: any) => ({
-      id: String(r.id),
-      title: r.title,
-      tags: (r.tags || '').split(',').filter((t: string) => !!t),
-      category: r.category_name || '',
-      content: r.content,
-      createTime: r.created_at,
-      updateTime: r.updated_at,
+    const data = await Promise.all((rows || []).map(async (r: any) => {
+      let content = ''
+      const filePath = String(r.file_path || '')
+      if (filePath) {
+        const absPath = path.join(process.cwd(), 'public', filePath.replace(/^\//, ''))
+        console.log('absPath:', absPath)
+        try {
+          content = await fs.readFile(absPath, 'utf-8')
+        } catch (e) {
+          content = ''
+        }
+      }
+      return {
+        id: String(r.id),
+        title: r.title,
+        tags: (r.tags || '').split(',').filter((t: string) => !!t),
+        category: r.category_name || '',
+        content,
+        createTime: r.created_at,
+        updateTime: r.updated_at,
+      }
     }))
 
     setResponseStatus(event, 200)
