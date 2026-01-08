@@ -71,5 +71,5 @@ export default defineNuxtConfig({
     // 压缩静态资源
     serveStatic: true,
     compressPublicAssets: true,
-  }
+  },
 })
