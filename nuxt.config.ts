@@ -1,11 +1,50 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
+import viteCompression from 'vite-plugin-compression'
+import { t } from './app/components/i18n/index'
+
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
+  compatibilityDate: '2025-09-15',
   devtools: { enabled: true },
-  css: ['element-plus/dist/index.css', '@/assets/css/global.less', '@/assets/css/theme.less', '@/assets/css/variables.less'],
-  modules: ['nuxt-icons', '@pinia/nuxt', '@nuxt/image'],
-  runtimeConfig: {
+  css: ['@/assets/css/global.less', '@/assets/css/theme.less', '@/assets/css/variables.less'],
+  modules: ['nuxt-icons', '@pinia/nuxt', '@nuxt/image', '@nuxtjs/seo', '@element-plus/nuxt'],
+  site: {
+    url: 'https://plankbevelen.cn',
+    name: t('common.title'),
+    description: t('site.description'),
+    defaultLocale: 'zh-CN',
+  },
+  sitemap: {
+    sources: [
+      '/api/sitemap-urls'
+    ],
+    exclude: ['/admin/**'],
+    xsl: false,
+    credits: false,
+  },
+  robots: {
+    allow: ['/'],
+    disallow: ['/admin/**'],
+    sitemap: 'https://plankbevelen.cn/sitemap.xml',
+  },
+  app: {
+    head: {
+      htmlAttrs: {
+        lang: 'zh-CN'
+      },
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'icon', type: 'image/webp', href: '/img/logo.webp' },
+        { rel: 'apple-touch-icon', href: '/img/logo.webp' }
+      ],
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'format-detection', content: 'telephone=no' }
+      ]
+    }
+  },
+  runtimeConfig: {  
     public: {
       baseUrl: process.env.NUXT_BASE_URL || '/',
       cookiePrefix: process.env.NUXT_PUBLIC_COOKIE_PREFIX || '',
@@ -35,11 +74,34 @@ export default defineNuxtConfig({
     }
   },
   vite: {
+    plugins: [
+      viteCompression({
+        verbose: true,
+        disable: false,
+        threshold: 10240,
+        algorithm: 'gzip',
+        ext: '.gz',
+      })
+    ],
     css: {
       preprocessorOptions: {
         less: {
           additionalData: '@import "@/assets/css/global.less"; @import "@/assets/css/theme.less"; @import "@/assets/css/variables.less";',
           javascriptEnabled: true,
+        }
+      }
+    },
+    build: {
+      chunkSizeWarningLimit: 1500,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('md-editor-v3')) {
+                return 'md-editor-v3'
+              }
+            }
+          }
         }
       }
     }
@@ -65,6 +127,10 @@ export default defineNuxtConfig({
     }
   },
   nitro: {
+    prerender: {
+      crawlLinks: true,
+      routes: ['/sitemap.xml', '/robots.txt']
+    },
     externals: {
       inline: ['element-plus', '@popperjs/core']
     },

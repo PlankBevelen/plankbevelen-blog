@@ -6,8 +6,9 @@
                     <BloggerCard :articleCount="stats?.articles || 0" :categoryCount="stats?.categories || 0" :tagCount="stats?.tags || 0" />
                     <RecordLinkCard />
                 </template>
-                <template #middle>
+                <template #middle>                    
                     <Card class="aboutContent">
+                        <h1 class="title">{{ $t('pages.about.title') }}</h1>
                         <MdPreview v-if="aboutMd" :modelValue="aboutMd" :theme="currentTheme" />
                     </Card>
                 </template>
@@ -58,7 +59,8 @@ const aboutMd = computed(() => aboutData.value || '')
 useHead({
     title: t('pages.about.title'),
     meta: [
-        { name: 'description', content: t('pages.about.meta.description') }
+        { name: 'description', content: t('pages.about.meta.description') },
+        { name: 'keywords', content: t('pages.about.meta.keywords') }
     ]
 })
 </script>
@@ -67,6 +69,16 @@ useHead({
 .about {
     min-height: 100vh;
     padding-top: @header-height;
+    .title {
+        font-size: @font-size-xxl;
+        font-weight: 500;
+        color: var(--primary-color);
+        cursor: pointer;
+        text-decoration: none;
+        line-height: normal;
+        display: block;
+        &:hover { color: var(--primary-hover-color); }
+    }
     .container { padding: 40px 0; }
 }
 

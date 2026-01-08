@@ -113,29 +113,29 @@ onMounted(async () => {
         }
     }
     .blogger-name {
-        font-size: 18px;
+        font-size: @font-size-lg;
         font-weight: bold;
         margin-bottom: 12px;
     }
     .blogger-profession {
-        font-size: 14px;
+        font-size: @font-size-sm;
         margin-bottom: 12px;        
         .nuxt-icon {
             margin-right: 4px;
-            font-size: 18px;
+            font-size: @font-size-lg;
         }
     }
     .blogger-location {
-        font-size: 14px;
+        font-size: @font-size-sm;
         margin-bottom: 12px;
         .nuxt-icon {
             margin-right: 4px;
-            font-size: 18px;
+            font-size: @font-size-lg;
         }
     }
     .blogger-article {
         :deep(.el-statistic__content) {
-            font-size: 18px;
+            font-size: @font-size-lg;
             color: var(--text-color);
         }
         :deep(.el-statistic__head) {

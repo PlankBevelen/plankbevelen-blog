@@ -1,8 +1,7 @@
 import { createI18n } from 'vue-i18n'
 
-import cn from '@/components/i18n/lang/cn'
-import en from '@/components/i18n/lang/en'
-
+import cn from './lang/cn'
+import en from './lang/en'
 
 function deepMerge(target: any, source: any): any {
   for (const key in source) {

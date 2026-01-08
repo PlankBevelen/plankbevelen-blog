@@ -5,7 +5,7 @@
     </template>
     <ul class="latestList">
       <li v-for="item in latestList" :key="item.id" class="latest-item">  
-        <NuxtLink :to="{path: '/article/detail', query: { id: item.id }}">
+        <NuxtLink :to="{path: '/article/' + item.id }">
           <div class="time">{{ formatDateTime(item.createTime) }}</div>
           <div class="title">{{ item.title }}</div>
           <div class="category">{{ item.category }}</div>
@@ -66,16 +66,16 @@ onMounted(async () => {
     }
     a { text-decoration: none; }
     .title {
-      font-size: 14px;
+      font-size: @font-size-sm;
       color: var(--text-color);
       line-height: normal;
     }
     .category {
-      font-size: 12px;
+      font-size: @font-size-xs;
       color: var(--tertiary-color);
     }
     .time {
-      font-size: 12px;
+      font-size: @font-size-xs;
       color: var(--tertiary-color);
     }
   }

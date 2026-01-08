@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@nuxt/image": "^2.0.0",
+    "@nuxtjs/seo": "^3.3.0",
     "@pinia/nuxt": "^0.11.3",
     "@popperjs/core": "^2.11.8",
     "@vavt/md-editor-extension": "^3.0.0",
@@ -34,11 +35,13 @@
     "nuxt-icon": "1.0.0-beta.7",
     "pinia": "^3.0.4",
     "sharp": "^0.34.5",
+    "vite-plugin-compression": "^0.5.1",
     "vue": "^3.5.24",
     "vue-i18n": "^11.1.12",
     "vue-router": "^4.6.3"
   },
   "devDependencies": {
+    "@element-plus/nuxt": "^1.1.4",
     "autoprefixer": "^10.4.22",
     "nuxt-icons": "^4.0.0",
     "postcss-preset-env": "^10.4.0",
