@@ -1,6 +1,6 @@
 import { setResponseStatus, defineEventHandler } from 'h3'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event) => {  
   try {
     const [articleRes, categoryRes, tagRes, latestRes]: any[] = await Promise.all([
       $fetch('/api/article', { params: { page: 1, limit: 10 }, key: 'articles-list' }),

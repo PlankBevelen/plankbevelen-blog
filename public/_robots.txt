@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Allow: /favicon.ico
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://plankbevelen.cn/sitemap.xml

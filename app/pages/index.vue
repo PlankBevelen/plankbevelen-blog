@@ -7,7 +7,9 @@
                     <RecordLinkCard />
                 </template>
                 <template #middle>
-                    <ArticleList single :articleList="homeData.articles"/>
+                    <keep-alive>
+                        <ArticleList single :articleList="homeData.articles"/>
+                    </keep-alive>
                 </template>
                 <template #right>
                     <LatestArticlesCard :articles="homeData.latestArticles" />
@@ -74,6 +76,30 @@ useHead({
     ]
 })
 
+useHead({
+    script: [
+        {
+            type: 'application/ld+json',
+            children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "PlankBevelen Blog",
+                "url": "https://plankbevelen.cn",
+                "author": {
+                    "@type": "Person",
+                    "name": "PlankBevelen",
+                    "url": "https://plankbevelen.cn"
+                },
+                "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "https://plankbevelen.cn/article?keyword={search_term_string}",
+                    "query-input": "required name=search_term_string"
+                }
+            })
+        }
+    ]
+})
+
 </script>
 
 <style lang="less" scoped>
@@ -83,5 +109,16 @@ useHead({
     .container {
         padding: 40px 0;
     }
+}
+.seo-hidden-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 </style>

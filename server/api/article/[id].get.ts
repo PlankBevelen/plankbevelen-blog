@@ -1,5 +1,7 @@
 import { defineEventHandler, setResponseStatus } from 'h3'
 import { query } from '../../utils/db'
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -22,6 +24,18 @@ export default defineEventHandler(async (event) => {
     const prev = prevRows?.[0] ? { id: String(prevRows[0].id), title: prevRows[0].title } : null
     const next = nextRows?.[0] ? { id: String(nextRows[0].id), title: nextRows[0].title } : null
 
+    // 读取文件内容
+    let content = ''
+    const filePath = String(r.file_path || '')
+    if (filePath) {
+      const absPath = path.join(process.cwd(), 'public', filePath.replace(/^\//, ''))
+      try {
+        content = await fs.readFile(absPath, 'utf-8')
+      } catch (e) {
+        content = ''
+      }
+    }
+
     const data = {
       id: String(r.id),
       title: r.title,
@@ -30,7 +44,7 @@ export default defineEventHandler(async (event) => {
         .map((t: string) => t.trim())
         .filter((t: string) => !!t),
       category: String(r.category_id),
-      content: r.content,
+      content,
       createTime: r.created_at,
       updateTime: r.updated_at,
       prev,
