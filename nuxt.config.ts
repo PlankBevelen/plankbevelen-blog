@@ -1,18 +1,28 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-
 import viteCompression from 'vite-plugin-compression'
-import { t } from './app/components/i18n/index'
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-09-15',
   devtools: { enabled: true },
   css: ['@/assets/css/global.less', '@/assets/css/theme.less', '@/assets/css/variables.less'],
-  modules: ['nuxt-icons', '@pinia/nuxt', '@nuxt/image', '@nuxtjs/seo', '@element-plus/nuxt'],
+  modules: ['nuxt-icons', '@pinia/nuxt', '@nuxt/image', '@nuxtjs/seo', '@element-plus/nuxt', '@nuxtjs/i18n'],
+  ssr: true,
+  // i18n 
+  i18n: {
+    locales: [
+      { code: 'zh', file: 'zh.json', name: '中文' },
+      { code: 'en', file: 'en.json', name: 'English' }
+    ],
+    defaultLocale: 'zh',
+    langDir: 'locales',
+    strategy: 'prefix_except_default',
+  },
+  // seo优化
   site: {
     url: 'https://plankbevelen.cn',
-    name: t('common.title'),
-    description: t('site.description'),
-    defaultLocale: 'zh-CN',
+    name: 'plankbevelen 的个人博客',
+    description: 'plankbevelen的个人博客',
+    defaultLocale: 'zh',
   },
   sitemap: {
     sources: [
@@ -27,10 +37,11 @@ export default defineNuxtConfig({
     disallow: ['/admin/**'],
     sitemap: 'https://plankbevelen.cn/sitemap.xml',
   },
+  // 全局head配置
   app: {
     head: {
       htmlAttrs: {
-        lang: 'zh-CN'
+        lang: 'zh'
       },
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
@@ -40,7 +51,9 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'format-detection', content: 'telephone=no' }
+        { name: 'format-detection', content: 'telephone=no' },
+        { name: 'keywords', content: 'plankbevelen, plank, bevelen, PlankBevelen, 个人博客, 前端开发, Web 技术, 编程经验, 技术文章' },
+        { name: 'description', content: '个人技术博客，分享前端开发、Web 技术、编程经验和技术文章' },
       ]
     }
   },
@@ -51,8 +64,7 @@ export default defineNuxtConfig({
       expirationTime: process.env.NUXT_EXPIRATION_TIME || '432000',
       keepAliveTime: process.env.NUXT_KEEP_ALIVE_TIME || '432000',
     }
-  },
-  ssr: true,
+  },  
   postcss: {
     plugins: {
       'postcss-preset-env': {
@@ -111,7 +123,7 @@ export default defineNuxtConfig({
     ipx: {
       baseURL: '/_ipx',
       maxAge: 60 * 60 * 24 * 365,
-      format: ['webp', 'avif', 'png', 'jpg'],
+      // format: ['webp', 'avif', 'png', 'jpg'],
       modifiers: {
         quality: 80
       },

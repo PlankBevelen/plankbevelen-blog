@@ -13,12 +13,12 @@
           width="40"
           height="40"
         />
-        <span class="logo-text">{{ $t('common.title') }}</span>
+        <span class="logo-text">{{ $t('site.name') }}</span>
       </div>
       
       <ul class="nav-menu" v-if="!isMobile">
         <li v-for="item in navList" :key="item.path" class="nav-item">
-          <NuxtLink :to="item.path" class="nav-link">{{ $t(item.key) }}</NuxtLink>
+          <NuxtLink :to="localePath(item.path)" class="nav-link">{{ $t(item.key) }}</NuxtLink>
         </li>
       </ul>
       <div class="mobile-menu-btn" v-if="isMobile" @click="toggleMobileMenu">
@@ -40,8 +40,8 @@
         <span class="lang">
           <nuxt-icon name="header/language" />
           <div class="lang-choose">
-            <span class="lang-item" @click="admin.setLocale('en')" :class="{'active': currentLocale === 'en'}">{{ $t('lang.en') }}</span>
-            <span class="lang-item" @click="admin.setLocale('cn')" :class="{'active': currentLocale === 'cn'}">{{ $t('lang.cn') }}</span>
+            <span class="lang-item" @click="changeLocale('en')" :class="{'active': currentLocale === 'en'}">{{ $t('lang.en') }}</span>
+            <span class="lang-item" @click="changeLocale('zh')" :class="{'active': currentLocale === 'zh'}">{{ $t('lang.zh') }}</span>
           </div>
         </span>
       </div>
@@ -51,7 +51,7 @@
       <div class="mobile-menu-drawer" v-if="isMobile && mobileMenuOpen">
         <ul class="mobile-nav-list">
           <li v-for="item in navList" :key="item.path" class="mobile-nav-item" @click="closeMobileMenu">
-            <NuxtLink :to="item.path" class="mobile-nav-link">{{ $t(item.key) }}</NuxtLink>
+            <NuxtLink :to="localePath(item.path)" class="mobile-nav-link">{{ $t(item.key) }}</NuxtLink>
           </li>
         </ul>
         <div class="mobile-controls">
@@ -72,9 +72,9 @@
           <div class="control-item">
             <span>{{ $t('lang.' + currentLocale) }}</span>
             <div class="lang-toggle">
-              <span class="lang-opt" :class="{ active: currentLocale === 'cn' }" @click="admin.setLocale('cn')">CN</span>
+              <span class="lang-opt" :class="{ active: currentLocale === 'zh' }" @click="changeLocale('zh')">ZH</span>
               <span class="divider">/</span>
-              <span class="lang-opt" :class="{ active: currentLocale === 'en' }" @click="admin.setLocale('en')">EN</span>
+              <span class="lang-opt" :class="{ active: currentLocale === 'en' }" @click="changeLocale('en')">EN</span>
             </div>
           </div>
         </div>
@@ -91,6 +91,14 @@ import { useUserAgent } from '@/composables/useUserAgent'
 const admin = useAdminStore()
 const themeSwitch = computed({ get(){ return admin.getTheme === 'dark' }, set(v){ admin.setTheme(v ? 'dark' : 'light') } })
 const currentLocale = computed(() => admin.getLocale)
+const localePath = useLocalePath()
+const switchLocalePath = useSwitchLocalePath()
+
+const changeLocale = async (locale: 'en' | 'zh') => {
+  admin.setLocale(locale)
+  const target = switchLocalePath(locale)
+  if (target) await navigateTo(target, { replace: true })
+}
 
 const navList = [
   { key: 'header.nav.home', path: '/' },

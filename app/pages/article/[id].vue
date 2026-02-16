@@ -47,8 +47,9 @@ import 'md-editor-v3/lib/style.css'
 import { formatDateTime } from '@/utils/format'
 import { useAdminStore } from '@/stores/admin.store'
 import Toc from '@/components/article/toc.vue'
-import { t } from '@/components/i18n/index'
 import articleService from '@/services/article.service'
+
+const { t } = useI18n() 
 
 const admin = useAdminStore()
 const currentTheme = computed(() => admin.getTheme)

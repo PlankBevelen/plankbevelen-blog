@@ -18,9 +18,9 @@ config({
   editorConfig: {
     languageUserDefined: {
       'my-lang': {
-        toolbar: {
+        /* toolbar: {
           title: '标题',
-        }
+        } */
       }
     }
   },
@@ -28,7 +28,7 @@ config({
   editorExtensions: {
     highlight: {
       js: '',
-      css: ''
+      // css: ''
     },
     echarts: {
       js: ''
@@ -41,14 +41,25 @@ config({
       js: '',
       css: ''
     },
-    iconfont: {
+    /* iconfont: {
       js: ''
-    }
+    } */
   }
 })
 
 const admin = useAdminStore()
 const elLocale = computed(() => admin.getLocale === 'en' ? en : zhCn)
+
+const { t, locale } = useI18n()
+useHead(() => ({
+  htmlAttrs: { lang: locale.value },
+  title: t('site.name'),
+  meta: [
+    { name: 'title', content: t('site.name') },
+    { name: 'description', content: t('site.description') },
+    { name: 'keywords', content: 'plankbevelen, 个人博客, 前端开发, Web 技术, 编程经验, 技术文章' },    
+  ]
+}))
 </script>
 
 

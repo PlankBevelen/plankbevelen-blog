@@ -1,18 +1,18 @@
 <!-- 推荐网站链接 -->
 <template>
-    <Card type="record-link">
-        <template #header>
-            {{ $t('cards.recordLink.title') }}
-        </template>
-        <ul class="links">
-            <li v-for="item in recordLink" :key="item.link" class="link-item">
-                <a :href="item.link" target="_blank" rel="noopener noreferrer" class="link">
-                    <span class="title">{{ item.title }}</span>
-                    <span class="target">{{ item.target }}</span>
-                </a>                    
-            </li>
-        </ul>
-    </Card>
+  <Card type="record-link">
+    <template #header>
+      {{ $t('recordLink.title') }}
+    </template>
+    <ul class="links">
+      <li v-for="item in recordLink" :key="item.link" class="link-item">
+        <a :href="item.link" target="_blank" rel="noopener noreferrer" class="link">
+            <span class="title">{{ item.title }}</span>
+            <span class="target">{{ item.target }}</span>
+        </a>                    
+      </li>
+    </ul>
+  </Card>
 </template>
 
 <script setup lang="ts">

@@ -1,7 +1,7 @@
 <template>
   <Card type="latest">
     <template #header>
-      {{ $t('cards.latest.title') }}
+      {{ $t('latest.title') }}
     </template>
     <ul class="latestList">
       <li v-for="item in latestList" :key="item.id" class="latest-item">  

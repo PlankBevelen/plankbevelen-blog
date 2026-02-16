@@ -1,16 +1,16 @@
 <!-- 分类卡片 -->
 <template>
-    <Card type="category">
-        <template #header>
-            {{ $t('cards.category.title') }}
-        </template>
-        <ul class="categoryList">
-            <li v-for="item in categoryList" :key="item.id" class="category-item" @click="onSelect(item)">
-                <span class="name">{{ item.name }}</span>
-                <span class="count">{{ item.count }}</span>       
-            </li>
-        </ul>
-    </Card>
+  <Card type="category">
+    <template #header>
+      {{ $t('category.title') }}
+    </template>
+    <ul class="categoryList">
+      <li v-for="item in categoryList" :key="item.id" class="category-item" @click="onSelect(item)">
+          <span class="name">{{ item.name }}</span>
+          <span class="count">{{ item.count }}</span>       
+      </li>
+    </ul>
+  </Card>
 </template>
 
 <script setup lang="ts"> 

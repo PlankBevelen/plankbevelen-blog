@@ -35,7 +35,6 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { navigateTo, useAsyncData, useHead } from 'nuxt/app'
-import { t } from '@/components/i18n/index'
 import Card from '@/components/cards/card.vue'
 import ArticleList from '@/components/article/articleList.vue'
 import CategoryCard from '@/components/cards/category.vue'
@@ -44,6 +43,8 @@ import ThreeColumnLayout from '~/components/layouts/ThreeColumnLayout.vue'
 import BloggerCard from '@/components/cards/blogger.vue'
 import RecordLinkCard from '@/components/cards/recordLink.vue'
 import http from '~/utils/http'
+
+const { t } = useI18n() 
 
 const keyword = ref('')
 

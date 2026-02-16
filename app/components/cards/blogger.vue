@@ -1,42 +1,42 @@
 <!-- 博主信息卡片 -->
 <template>    
-    <Card type="blogger" animation>
-        <div class="blogger-avatar">
-            <NuxtImg
-                provider="ipx"
-                src="/img/avatar.webp"
-                alt="avatar"
-                class="avatar"
-                loading="eager"
-                fetchpriority="high"
-                quality="100"
-                :width="140"
-                :height="140"
-            />
-        </div>
-        <div class="blogger-name">
-            {{ name }}
-        </div>
-        <div class="blogger-profession">
-            <nuxt-icon name="blogger/profession" />{{ $t('cards.blogger.profession') }}
-        </div>
-        <div class="blogger-location">
-            <nuxt-icon name="blogger/location" />{{ $t('cards.blogger.location') }}
-        </div>
-        <div class="blogger-article">
-            <el-row :gutter="20">
-                <el-col :span="8">
-                    <el-statistic :title="$t('cards.blogger.stats.articles')" :value="articleCountOutput"></el-statistic>
-                </el-col>
-                <el-col :span="8">
-                    <el-statistic :title="$t('cards.blogger.stats.categories')" :value="followCountOutput"></el-statistic>
-                </el-col>
-                <el-col :span="8">
-                    <el-statistic :title="$t('cards.blogger.stats.tags')" :value="tagCountOutput"></el-statistic>
-                </el-col>
-            </el-row>
-        </div>
-    </Card>    
+  <Card type="blogger" animation>
+    <div class="blogger-avatar">
+      <NuxtImg
+        provider="ipx"
+        src="/img/avatar.webp"
+        alt="avatar"
+        class="avatar"
+        loading="eager"
+        fetchpriority="high"
+        quality="80"
+        :width="140"
+        :height="140"
+      />
+    </div>
+    <div class="blogger-name">
+      {{ name }}
+    </div>
+    <div class="blogger-profession">
+      <nuxt-icon name="blogger/profession" />{{ $t('blogger.profession') }}
+    </div>
+    <div class="blogger-location">
+      <nuxt-icon name="blogger/location" />{{ $t('blogger.location') }}
+    </div>
+    <div class="blogger-article">
+      <el-row :gutter="20">
+        <el-col :span="8">
+          <el-statistic :title="$t('blogger.stats.articles')" :value="articleCountOutput"></el-statistic>
+        </el-col>
+        <el-col :span="8">
+          <el-statistic :title="$t('blogger.stats.categories')" :value="followCountOutput"></el-statistic>
+        </el-col>
+        <el-col :span="8">
+          <el-statistic :title="$t('blogger.stats.tags')" :value="tagCountOutput"></el-statistic>
+        </el-col>
+      </el-row>
+    </div>
+  </Card>    
 </template>
 
 <script setup lang="ts">

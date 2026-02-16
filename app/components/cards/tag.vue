@@ -2,7 +2,7 @@
     <Card type="tag" class="tag-cloud-card">
         <template #header>
             <div class="header-content">
-                {{ $t('cards.tag.title') }}
+                {{ $t('tag.title') }}
             </div>
         </template>
         <div class="cloud-container">

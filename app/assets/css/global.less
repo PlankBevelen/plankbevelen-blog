@@ -1,7 +1,14 @@
 /*
 * 重置默认样式
 * */
-/* CSS Document */
+
+@font-face {
+  font-family: 'ZTGJHeiTi';
+  src: url('@/assets/font/ZiTiGuanJiaHeiTi-1.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -12,12 +19,12 @@ b, u, i, center, dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
 abbr,article,aside,audio,canvas,datalist,details,figure,footer,hgroup,header,mark,menu,meter,nav,output,progress,section,time,video{
-    margin: 0;
-    padding: 0;
-    border: 0;
-    outline: 0;
-    vertical-align: baseline;
-    background: transparent;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  vertical-align: baseline;
+  background: transparent;
 }
 .article,aside,audio,canvas,datalist,details,figure,footer,hgroup,header,mark,menu,meter,nav,output,progress,section,time,video{
     display: block;
@@ -41,8 +48,9 @@ q:before, q:after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  /* 优化字体栈，优先使用系统字体，避免字体加载导致的 FOIT/FOUT 和布局偏移 */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Open Sans", "Microsoft YaHei", sans-serif;
+  /* 加载字体资源 */
+  
+  // font-family: "黑体", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Open Sans", "Microsoft YaHei", sans-serif;
 }
 html {
     font-size: 24px;
@@ -65,6 +73,7 @@ body {
     background-color: var(--bg-color);  
     font-size: @base-font-size;
     line-height: normal;
+    font-family: 'ZTGJHeiTi', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Microsoft YaHei', sans-serif;
 }
 
 .container {
