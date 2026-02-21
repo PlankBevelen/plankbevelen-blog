@@ -16,17 +16,17 @@ export const useAdminStore = defineStore('admin', {
   },
   actions: {        
     async login(account: string, password: string, remember?: boolean) {
-        try {
-            const res = await adminService.login(account, useAuthentication().hashPassword(password), remember || false)
-            if (res.status === 200) {
-                this.userInfo = res.data
-                useAuthentication().setToken(res.data.token, remember)
-                return true
-            }
-        } catch (error) {
-            console.log(error, '登录失败')
-            return false
+      try {
+        const res: any = await adminService.login(account, useAuthentication().hashPassword(password), remember || false)
+        if (res.status === 200) {
+          this.userInfo = res.data
+          useAuthentication().setToken(res.token, remember)
+          return true
         }
+      } catch (error) {
+        console.log(error, '登录失败')
+        return false
+      }
     },
     async logout() {
         try {

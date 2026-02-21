@@ -1,6 +1,5 @@
-// server/utils/db.js
 import mysql from 'mysql2/promise';
-import type { Pool, PoolOptions, RowDataPacket, ResultSetHeader } from 'mysql2/promise'
+import type { Pool, PoolOptions, RowDataPacket, ResultSetHeader, PoolConnection } from 'mysql2/promise'
 import dotenv from 'dotenv';
 
 // 加载环境变量
@@ -86,10 +85,12 @@ export function stopKeepAlive() {
 
 export async function query<T extends RowDataPacket>(
   sql: string,
-  params?: any[]
+  params?: any[],
+  connection?: PoolConnection
 ): Promise<T[]> {
   try {
-    const [rows] = await getPool().query<T[]>(sql, params)
+    const executor = connection || getPool()
+    const [rows] = await executor.query<T[]>(sql, params)
     return rows
   } catch (error) {
     console.error('sql error:', {
@@ -103,10 +104,12 @@ export async function query<T extends RowDataPacket>(
 
 export async function execute(
   sql: string,
-  params?: any[]
+  params?: any[],
+  connection?: PoolConnection
 ): Promise<ResultSetHeader> {
   try {
-    const [result] = await getPool().execute<ResultSetHeader>(sql, params)
+    const executor = connection || getPool()
+    const [result] = await executor.execute<ResultSetHeader>(sql, params)
     return result
   } catch (error) {
     console.error('sql error:', {
@@ -118,3 +121,23 @@ export async function execute(
   }
 }
 
+/**
+ * 事务包裹函数
+ * @param callback 事务执行的回调函数，接收一个 connection 参数
+ */
+export async function withTransaction<T>(
+  callback: (connection: PoolConnection) => Promise<T>
+): Promise<T> {
+  const connection = await getPool().getConnection()
+  try {
+    await connection.beginTransaction()
+    const result = await callback(connection)
+    await connection.commit()
+    return result
+  } catch (error) {
+    await connection.rollback()
+    throw error
+  } finally {
+    connection.release()
+  }
+}

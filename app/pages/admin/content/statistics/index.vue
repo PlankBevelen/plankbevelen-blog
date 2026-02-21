@@ -1,12 +1,11 @@
 <template>
-  <Dashboard />
+  <Statistics />
 </template>
 
 <script setup lang="ts">
-import Dashboard from '@/components/admin/dashboard.vue'
+import Statistics from '@/components/admin/statistics.vue'
 
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
-
 </script>
 
 <style lang="less" scoped>

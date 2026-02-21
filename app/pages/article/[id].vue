@@ -69,17 +69,13 @@ const { data: detailData, pending } = await useAsyncData(
     if (!rid) {
       throw createError({ statusCode: 400, statusMessage: '参数错误' })
     }
-    if (process.server) {
-      const r: any = await $fetch(`/api/article/${rid}`)
-      if (r?.status === 200) return r.data
-      return null
-    } else {
-      const res = await articleService.getArticle(rid)
-      if (res.status === 200 && res.data.status === 200) {
-        return res.data.data
-      }
-      return null
+    // 统一使用 Service，由于 Service 内部已使用 $fetch 封装的 http 工具，
+    // 在 SSR 和客户端均可正常工作，无需 process.server 判断
+    const res: any = await articleService.getArticle(rid)
+    if (res?.status === 200) {
+      return res.data
     }
+    return null
   },
   {
     watch: [id]
@@ -91,15 +87,9 @@ const timeText = computed(() => formatDateTime(article.value?.updateTime || arti
 const displayContent = computed(() =>  String(article.value?.content || '') )
 
 const { data: homeData } = await useAsyncData('article-detail-home-data', async () => {
-  if (process.server) {
-    const r: any = await $fetch('/api/home.data')
-    if (r?.status === 200) return r.data
-    return null
-  } else {
-    const res = await http.get('/api/home.data')
-    if (res.status === 200 && res.data.status === 200) return res.data.data
-    return null
-  }
+  const res: any = await http.get('/home.data')
+  if (res?.status === 200) return res.data
+  return null
 })
 
 const stats = computed(() => homeData.value?.stats || null)

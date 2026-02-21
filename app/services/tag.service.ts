@@ -2,10 +2,10 @@ import http from "~/utils/http"
 
 class TagService {
   async getTags() {
-    return await http.get('/api/tag')
+    return await http.get('/tag')
   }
   async syncTags(add: string[] = [], remove: string[] = []) {
-    return await http.post('/api/tag/sync', { add, remove })
+    return await http.post('/tag/sync', { add, remove })
   }
 }
 

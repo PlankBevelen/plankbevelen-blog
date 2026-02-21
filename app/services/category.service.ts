@@ -2,16 +2,16 @@ import http from "~/utils/http"
 
 class CategoryService {
     async getCategories() {
-        return await http('/api/category')
+        return await http.get('/category')
     }
     async createCategory(name: string) {
-        return await http.post('/api/category', { name })
+        return await http.post('/category', { name })
     }
     async updateCategory(id: number | string, name: string) {
-        return await http.put(`/api/category/${id}`, { name })
+        return await http.put(`/category/${id}`, { name })
     }
     async deleteCategory(id: number | string) {
-        return await http.delete(`/api/category/${id}`)
+        return await http.delete(`/category/${id}`)
     }
 }
 

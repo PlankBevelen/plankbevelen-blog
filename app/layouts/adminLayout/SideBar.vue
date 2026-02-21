@@ -20,7 +20,7 @@
                         分类管理
                     </el-menu-item>
                 </el-sub-menu>
-                <el-menu-item index="3" @click="navigateTo('/admin/statistics')">
+                <el-menu-item index="3" @click="navigateTo('/admin/content/statistics')">
                     <nuxt-icon name="admin/sidebar/stastics"></nuxt-icon>数据统计
                 </el-menu-item>
             </el-menu>
@@ -39,7 +39,7 @@ const activeIndex = computed(() => {
     if (currentRoute.path === '/admin') return '1'
     if (currentRoute.path === '/admin/content/article' || currentRoute.path.includes('/admin/content/article/')) return '2-1'
     if (currentRoute.path === '/admin/content/category') return '2-2'
-    if (currentRoute.path === '/admin/statistics') return '3'
+    if (currentRoute.path === '/admin/content/statistics') return '3'
     return '1'
 })
 </script>

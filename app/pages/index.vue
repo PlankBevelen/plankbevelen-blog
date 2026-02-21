@@ -43,13 +43,13 @@ const homeData = reactive({
 
 const { data, pending } = await useAsyncData('home-data', async () => { 
   try {
-    const res = await http.get('/api/home.data') as any 
-    if(res.status === 200 && res.data.status === 200) {
-        return res.data.data
+    const res = await http.get('/home.data') as any 
+    if(res.status === 200) {
+        return res.data
     }else {
-        throw Error(res.data.message || '获取首页数据失败')
+        throw Error(res.msg || '获取首页数据失败')
     }
-  } catch (err) {
+  } catch (err: any) {
     throw Error(err.message || '获取首页数据失败')
   }
 })

@@ -66,15 +66,15 @@ const handleEdit = (mode: string, id?: string) => {
 
 const getArticleList = async () => {
   try {
-    const res = await articleService.getArticles(page.value, limit.value, (searchText.value || '').trim())
-    if( res.status === 200 && res.data.status === 200 ) {
-        const list: Article[] = (res.data.data || []).map((i: any) => ({
+    const res: any = await articleService.getArticles(page.value, limit.value, (searchText.value || '').trim())
+    if( res.status === 200 ) {
+        const list: Article[] = (res.data || []).map((i: any) => ({
           ...i,
           createTime: formatDateTime(i.createTime),
           updateTime: formatDateTime(i.updateTime),
         }))
         articleList.value = list
-        total.value = Number(res.data.total || 0)
+        total.value = Number(res.total || 0)
     }
   } catch (error) {
     console.error('获取文章列表失败:', error)
@@ -106,10 +106,10 @@ const handleDelete = async (id: string) => {
   try {
     await ElMessageBox.confirm('确认删除该文章吗？', '提示', { type: 'warning' })
     // 获取文章标签以便同步更新标签表
-    const detail = await articleService.getArticle(id)
-    const removeTags: string[] = (detail.status === 200 && detail.data.status === 200) ? (detail.data.data?.tags || []) : []
-    const res = await articleService.deleteArticle(id)
-    if (res.status === 200 && res.data.status === 200) {
+    const detail: any = await articleService.getArticle(id)
+    const removeTags: string[] = (detail.status === 200) ? (detail.data?.tags || []) : []
+    const res: any = await articleService.deleteArticle(id)
+    if (res.status === 200) {
       if (removeTags.length) {
         await tagService.syncTags([], removeTags)
       }

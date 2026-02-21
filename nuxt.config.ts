@@ -58,6 +58,7 @@ export default defineNuxtConfig({
     }
   },
   runtimeConfig: {  
+    authSecret: process.env.NUXT_AUTH_SECRET || 'dev-secret',
     public: {
       baseUrl: process.env.NUXT_BASE_URL || '/',
       cookiePrefix: process.env.NUXT_PUBLIC_COOKIE_PREFIX || '',

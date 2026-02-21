@@ -52,7 +52,7 @@ export const useAuthentication = () => {
   }
 
   const hashPassword = (password: string) => {
-    return sha256(password)
+    return password
   }
 
   const clearUp = () => {

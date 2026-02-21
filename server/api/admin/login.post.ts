@@ -10,8 +10,9 @@ export default defineEventHandler(async (event) => {
   const body = await readBody<{ account: string; password: string; remember?: boolean }>(event)
   const { account, password, remember } = body || { account: '', password: '', remember: false }
 
+  const config = useRuntimeConfig()
   const adminAccount = process.env.NUXT_ADMIN_ACCOUNT 
-  const secret = process.env.NUXT_AUTH_SECRET 
+  const secret = config.authSecret as string
   const adminPassword = process.env.NUXT_ADMIN_PASSWORD 
   if (!adminAccount || !secret || !adminPassword) {
     setResponseStatus(event, 500)
@@ -23,7 +24,11 @@ export default defineEventHandler(async (event) => {
     setResponseStatus(event, 400)
     return { code: 'BAD_REQUEST', message: 'Missing account or password' }
   }
-  if (account !== adminAccount || password !== hash) {
+  
+  // 对前端传来的明文密码进行哈希，然后与配置的密码哈希进行比对
+  const inputHash = sha256(String(password))
+  
+  if (account !== adminAccount || inputHash !== hash) {
     setResponseStatus(event, 401)
     return { code: 'INVALID_CREDENTIALS', message: 'Invalid account or password' }
   }
