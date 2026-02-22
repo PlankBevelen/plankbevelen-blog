@@ -74,9 +74,9 @@ const loadData = async () => {
     loading.value = true
     try {
         const res = await articleService.getArticles(page.value, limit.value, props.q || undefined)
-        if (res.status === 200 && res.data.status === 200) {
-            articleList.value = res.data.data || []
-            total.value = Number(res.data.total || 0)
+        if (res.status === 200) {
+            articleList.value = res.data || []
+            total.value = Number(res.total || 0)
         }
     } finally {
         loading.value = false

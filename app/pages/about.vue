@@ -39,8 +39,8 @@ const { t, locale, setLocale } = useI18n()
 
 const { data, pending } = await useAsyncData('about-home-data', async () => {
     const res = await http.get('/api/home.data') as any
-    if (res.status === 200 && res.data.status === 200) {
-        return res.data.data
+    if (res.status === 200) {
+        return res.data
     }
     return null
 })

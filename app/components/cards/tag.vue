@@ -85,8 +85,8 @@ const cloudItems = computed(() => {
 onMounted(async () => {
     if (props.tags.length === 0) {
         try {
-            const res = await tagService.getTags()
-            if (res.data?.data) tagList.value = res.data.data
+            const res: any = await tagService.getTags()
+            if (res.status === 200) tagList.value = res.data || []
         } catch (e) {
             console.error('Fetch tags failed:', e)
         }

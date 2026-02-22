@@ -1,34 +1,34 @@
 <template>
-    <div class="article">
-        <div class="container">
-            <ThreeColumnLayout :loading="homePending">
-                <template #left>
-                    <BloggerCard :articleCount="stats?.articles || 0" :categoryCount="stats?.categories || 0" :tagCount="stats?.tags || 0" />
-                    <RecordLinkCard />
-                </template>
-                <template #middle>
-                    <Card class="navBar">
-                        <div class="breadcrumb">
-                            <NuxtLink to="/article">{{ $t('pages.article.title') }}</NuxtLink>
-                            <template v-if="breadcrumbSuffix">
-                                <span> / </span>
-                                <span>{{ breadcrumbSuffix }}</span>
-                            </template>
-                        </div>
-                        <div class="searchArea">
-                            <el-input v-model="keyword" :placeholder="$t('pages.article.search.placeholder')" clearable />
-                            <el-button type="primary" @click="onSearch">{{ $t('pages.article.search.btn') }}</el-button>
-                        </div>
-                    </Card>
-                    <ArticleList :q="currentQuery" />                    
-                </template>
-                <template #right>
-                    <CategoryCard @select="onSelectCategory" />
-                    <TagCard />
-                </template>
-            </ThreeColumnLayout>
-        </div>
+  <div class="article">
+    <div class="container">
+      <ThreeColumnLayout :loading="homePending">
+        <template #left>
+          <BloggerCard :articleCount="stats?.articles || 0" :categoryCount="stats?.categories || 0" :tagCount="stats?.tags || 0" />
+          <RecordLinkCard />
+        </template>
+        <template #middle>
+          <Card class="navBar">
+            <div class="breadcrumb">
+              <NuxtLink to="/article">{{ $t('pages.article.title') }}</NuxtLink>
+              <template v-if="breadcrumbSuffix">
+                <span> / </span>
+                <span>{{ breadcrumbSuffix }}</span>
+              </template>
+            </div>
+            <div class="searchArea">
+              <el-input v-model="keyword" :placeholder="$t('pages.article.search.placeholder')" clearable />
+              <el-button type="primary" @click="onSearch">{{ $t('pages.article.search.btn') }}</el-button>
+            </div>
+          </Card>
+          <ArticleList :q="currentQuery" />                    
+        </template>
+        <template #right>
+          <CategoryCard :categories="homeData.categories" @select="onSelectCategory"/>
+          <TagCard :tags="homeData.tags" />
+        </template>
+      </ThreeColumnLayout>
     </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -67,8 +67,9 @@ const breadcrumbSuffix = computed(() => {
 
 const { data: homeData, pending: homePending } = await useAsyncData('article-page-home-data', async () => { 
     const res = await http.get('/api/home.data') as any 
-    if(res.status === 200 && res.data.status === 200) {
-        return res.data.data
+    console.log(res, res.status, res.data)
+    if(res.status === 200) {
+      return res.data
     }
     return null
 })
@@ -86,11 +87,11 @@ const onSelectCategory = async (item: any) => {
 watch(() => route.query.q, (val) => { keyword.value = String(val || '') })
 
 useHead({
-    title: t('pages.article.title'),
-    meta: [
-        { name: 'description', content: t('pages.article.meta.description') },
-        { name: 'keywords', content: t('pages.article.meta.keywords') }
-    ]
+  title: t('pages.article.title'),
+  meta: [
+      { name: 'description', content: t('pages.article.meta.description') },
+      { name: 'keywords', content: t('pages.article.meta.keywords') }
+  ]
 })
 
 </script>

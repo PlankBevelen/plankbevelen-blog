@@ -37,9 +37,9 @@ const categoryList = computed(() => {
 onMounted(async () => {
     if (!props.categories || props.categories.length === 0) {
         try {
-            const res = await categoryService.getCategories()
-            if (res.status === 200 && res.data.status === 200) {
-                fallback.value = res.data.data || []
+            const res: any = await categoryService.getCategories()
+            if (res.status === 200) {
+                fallback.value = res.data || []
             }
         } catch (e) {
         }

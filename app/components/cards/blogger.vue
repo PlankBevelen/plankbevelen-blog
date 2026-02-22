@@ -74,20 +74,20 @@ onMounted(async () => {
       let ai = 0
       if (needArticle) {
         const res = results[ai++]
-        if (res.status === 200 && res.data.status === 200) {
-          articleCount.value = Number(res.data.total || 0)
+        if (res.status === 200) {
+          articleCount.value = Number(res.total || 0)
         }
       }
       if (needCategory) {
         const res = results[ai++]
-        if (res.status === 200 && res.data.status === 200) {
-          followCount.value = Number((res.data.data || []).length)
+        if (res.status === 200) {
+          followCount.value = Number((res.data || []).length)
         }
       }
       if (needTag) {
         const res = results[ai++]
-        if (res.status === 200 && res.data.status === 200) {
-          tagCount.value = Number((res.data.data || []).length)
+        if (res.status === 200) {
+          tagCount.value = Number((res.data || []).length)
         }
       }
     } catch (e) {
