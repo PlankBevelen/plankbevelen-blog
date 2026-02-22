@@ -40,7 +40,13 @@
           </el-card>
           
           <el-card shadow="hover" class="panel editor-panel">
-            <MdEditor v-model="form.content" class="md-editor" placeholder="开始创作你的文章..." :toolbars-exclude="['github']" />
+            <MdEditor 
+                v-model="form.content" 
+                class="md-editor" 
+                placeholder="开始创作你的文章..." 
+                :toolbars-exclude="['github']" 
+                @onUploadImg="onUploadImg"
+            />
           </el-card>
         </div>
     </div>
@@ -60,6 +66,21 @@ import type { NewArticle, Article } from '@/types/article'
 import categoryService from '@/services/category.service'
 import appCache from '@/utils/cache'
 import tagService from '@/services/tag.service'
+import uploadService from '@/services/upload.service'
+
+const onUploadImg = async (files: Array<File>, callback: (urls: Array<string>) => void) => {
+  try {
+    const res = await uploadService.uploadFiles(files) as any
+    if (res.status === 200 && res.data) {
+      const urls = res.data.map((file: any) => file.url)
+      callback(urls)
+    } else {
+      ElMessage.error('图片上传失败')
+    }
+  } catch (e) {
+    ElMessage.error('图片上传出错')
+  }
+}
 
 const route = useRoute()
 const mode = computed(() => (route.query.mode === 'update' ? 'update' : 'add'))
@@ -115,8 +136,8 @@ onMounted(() => {
     const id = route.query.id as string | undefined
     if (id) {
       articleService.getArticle(id).then((res: any) => {
-        if (res.status === 200 && res.data.status === 200) {
-          const d = res.data.data
+        if (res.status === 200) {
+          const d = res.data
           form.value = {
             title: d.title,
             category: d.category,
