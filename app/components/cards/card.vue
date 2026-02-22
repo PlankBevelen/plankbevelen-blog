@@ -33,17 +33,23 @@ const props = defineProps({
     background-color: var(--card-color);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease-in-out;
-    padding: 16px 24px;
     position: relative;
+    display: flex;
+    flex-direction: column;
+
     .card-header {
         font-size: @font-size-sm;
         font-weight: bold;
-        margin-bottom: @base-gap;
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border-color);
+        flex-shrink: 0;
     }
+
     .card-content {
         position: relative;
         z-index: 2;
-        height: 100%;
+        padding: 16px 24px;
+        flex: 1;
     }
     &:hover {
         transform: translateY(-3px);

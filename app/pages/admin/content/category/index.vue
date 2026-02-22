@@ -1,29 +1,51 @@
 <template>
-    <div class="category container">
-        <div class="category-header">
-            <div class="search">
-                <el-input v-model="searchText" placeholder="请输入分类名称" clearable />
-            </div>
-            <div class="button-group">
-                <el-button type="primary" @click="handleEdit('add')">新增分类</el-button>
-            </div>
-        </div>
-        <div class="category-content">
-            <el-table :data="filteredCategoryList" style="width: 100%" stripe>
-                <el-table-column prop="name" label="分类名称"></el-table-column>
-                <el-table-column prop="count" label="文章数" width="120"></el-table-column>
-                <el-table-column prop="created_at" label="创建时间" width="180"></el-table-column>
-                <el-table-column prop="updated_at" label="更新时间" width="180"></el-table-column>
-                <el-table-column label="操作" width="300" class-name="operation-column">
-                    <template #default="scope">
-                        <el-button type="primary"  @click="handleEdit('update', scope.row.id)">编辑</el-button>
-                        <el-button type="danger" @click="handleDelete(scope.row.id)">删除</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
+    <div class="category">
+        <div class="header">
+            <h2 class="title">分类管理</h2>
         </div>
 
-        <el-dialog v-model="dialogVisible" :title="dialogTitle" width="480px">
+        <el-card shadow="hover" class="category-card">
+            <template #header>
+                <div class="card-header-content">
+                    <div class="search-area">
+                        <el-input 
+                            v-model="searchText" 
+                            placeholder="搜索分类名称" 
+                            clearable 
+                            prefix-icon="Search"
+                            class="search-input"
+                        />
+                    </div>
+                    <div class="actions">
+                        <el-button type="primary" icon="Plus" @click="handleEdit('add')">新增分类</el-button>
+                    </div>
+                </div>
+            </template>
+            <div class="category-content">
+                <el-table :data="filteredCategoryList" style="width: 100%" :header-cell-style="{ background: 'var(--bg-color)', color: 'var(--text-color)' }">
+                    <el-table-column prop="name" label="分类名称">
+                        <template #default="scope">
+                            <span style="font-weight: 500;">{{ scope.row.name }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="count" label="文章数" width="120" sortable>
+                        <template #default="scope">
+                            <el-tag type="info" effect="plain" round>{{ scope.row.count || 0 }}</el-tag>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="created_at" label="创建时间" width="180" sortable></el-table-column>
+                    <el-table-column prop="updated_at" label="更新时间" width="180" sortable></el-table-column>
+                    <el-table-column label="操作" width="180" fixed="right">
+                        <template #default="scope">
+                            <el-button type="primary" link size="small" @click="handleEdit('update', scope.row.id)">编辑</el-button>
+                            <el-button type="danger" link size="small" @click="handleDelete(scope.row.id)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+        </el-card>
+
+        <el-dialog v-model="dialogVisible" :title="dialogTitle" width="480px" destroy-on-close>
             <el-form :model="form" :rules="rules" ref="formRef" label-position="top">
                 <el-form-item label="分类名称" prop="name">
                     <el-input v-model="form.name" placeholder="请输入分类名称" />
@@ -65,7 +87,7 @@ const filteredCategoryList = computed(() => {
 
 const getCategoryList = async () => {
     try {
-        const res = await categoryService.getCategories()
+        const res: any = await categoryService.getCategories()
         if (res.status === 200 && res.data.status === 200) {
             categoryList.value = res.data.data
             appCache.setCategories(res.data.data)
@@ -142,16 +164,67 @@ onMounted(() => {
     height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 20px;
-}
-.category-header {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 12px;
-}
-.search :deep(.el-input) { width: 280px; }
-.category-content :deep(.el-table) { border-radius: 8px; }
-.dialog-footer { display: flex; justify-content: flex-end; gap: 12px; }
 
+    .header {
+        margin-bottom: 24px;
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+        }
+    }
+    
+    .category-card {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        
+        :deep(.el-card__body) {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 0;
+        }
+    }
+
+    .card-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .search-area {
+            .search-input {
+                width: 300px;
+            }
+        }
+        
+        .actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+    }
+
+    .category-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+
+        :deep(.el-table) {
+            flex: 1;
+            
+            // 表头样式
+            th.el-table__cell {
+                background-color: var(--bg-color-soft);
+                font-weight: 600;
+                color: var(--text-color-primary);
+            }
+        }
+    }
+}
+.dialog-footer { display: flex; justify-content: flex-end; gap: 12px; }
 </style>

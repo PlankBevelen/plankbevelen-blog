@@ -1,40 +1,73 @@
 <template>
-    <div class="article container">
-        <div class="article-header">
-            <div class="search">
-                <el-input placeholder="请输入文章标题、分类、标签" v-model="searchText" clearable @keyup.enter="onSearch"></el-input>                
-            </div>
-            <div class="button-group">
-                <el-button type="primary" @click="handleEdit('add')">新增文章</el-button>
-            </div>
+    <div class="article">
+        <div class="header">
+            <h2 class="title">文章管理</h2>
         </div>
-        <div class="article-content">
-            <el-table :data="articleList" style="width: 100%">
-                <el-table-column prop="title" label="文章标题" ></el-table-column>
-                <el-table-column prop="category" label="分类" width="200"></el-table-column>
-                <el-table-column prop="tags" label="标签" width="200"></el-table-column>
-                <el-table-column prop="createTime" label="创建时间" width="160"></el-table-column>
-                <el-table-column prop="updateTime" label="更新时间" width="160"></el-table-column>
-                <el-table-column label="操作" width="200" class-name="operation-column">
-                    <template #default="scope">
-                        <el-button type="primary" size="mini" @click="handleEdit('update', scope.row.id)">编辑</el-button>
-                        <el-button type="danger" size="mini" @click="handleDelete(scope.row.id)">删除</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <div style="display:flex; justify-content:flex-end; margin-top: 16px;">
-              <el-pagination
-                background
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="total"
-                :current-page="page"
-                :page-size="limit"
-                :page-sizes="[10, 20, 50]"
-                @size-change="onPageSizeChange"
-                @current-change="onPageChange"
-              />
+
+        <el-card shadow="hover" class="article-card">
+            <template #header>
+                <div class="card-header-content">
+                    <div class="search-area">
+                        <el-input 
+                            placeholder="搜索文章标题、分类、标签" 
+                            v-model="searchText" 
+                            clearable 
+                            prefix-icon="Search"
+                            class="search-input"
+                            @keyup.enter="onSearch"
+                        ></el-input>
+                    </div>
+                    <div class="actions">
+                        <el-button type="primary" icon="Plus" @click="handleEdit('add')">新增文章</el-button>
+                    </div>
+                </div>
+            </template>
+            <div class="article-content">
+                <el-table :data="articleList" style="width: 100%" :header-cell-style="{ background: 'var(--bg-color)', color: 'var(--text-color)' }">
+                    <el-table-column prop="title" label="文章标题" min-width="200" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="category" label="分类" width="150">
+                        <template #default="scope">
+                            <el-tag effect="light" size="small">{{ scope.row.category }}</el-tag>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="tags" label="标签" width="200">
+                        <template #default="scope">
+                            <div class="tags-wrapper">
+                                <el-tag 
+                                    v-for="(tag, index) in scope.row.tags" 
+                                    :key="index" 
+                                    size="small" 
+                                    effect="plain" 
+                                    class="tag-item"
+                                >
+                                    {{ tag }}
+                                </el-tag>
+                            </div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="createTime" label="创建时间" width="160" sortable></el-table-column>
+                    <el-table-column prop="updateTime" label="更新时间" width="160" sortable></el-table-column>
+                    <el-table-column label="操作" width="180" fixed="right">
+                        <template #default="scope">
+                            <el-button type="primary" link size="small" @click="handleEdit('update', scope.row.id)">编辑</el-button>
+                            <el-button type="danger" link size="small" @click="handleDelete(scope.row.id)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <div class="pagination-wrapper">
+                  <el-pagination
+                    background
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total"
+                    :current-page="page"
+                    :page-size="limit"
+                    :page-sizes="[10, 20, 50]"
+                    @size-change="onPageSizeChange"
+                    @current-change="onPageChange"
+                  />
+                </div>
             </div>
-        </div>
+        </el-card>
     </div>
 </template>
 
@@ -51,7 +84,6 @@ import appCache from '@/utils/cache'
 import { formatDateTime } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import tagService from '@/services/tag.service'
-const route = useRoute()
 
 const searchText = ref('')
 const articleList = ref<Article[]>([])
@@ -126,12 +158,88 @@ const handleDelete = async (id: string) => {
 
 <style scoped lang="less">
 .article {
-    height: 100%;
-    .article-header {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+    
+
+    .header {
+        margin-bottom: 24px;
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+        }
+    }
+    
+    .article-card {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        
+        :deep(.el-card__body) {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 0; 
+        }
+    }
+
+    .card-header-content {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+
+        .search-area {
+            .search-input {
+                width: 300px;
+            }
+        }
+        
+        .actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+    }
+
+    .article-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+
+        :deep(.el-table) {
+            flex: 1;
+            
+            // 表头样式
+            th.el-table__cell {
+                background-color: var(--bg-color-soft);
+                font-weight: 600;
+                color: var(--text-color-primary);
+            }
+        }
+
+        .tags-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            
+            .tag-item {
+                margin-right: 4px;
+            }
+        }
+
+        .pagination-wrapper {
+            display: flex; 
+            justify-content: flex-end; 
+            padding: 16px;
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+        }
     }
 }
 </style>

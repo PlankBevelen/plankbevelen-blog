@@ -1,33 +1,47 @@
 <template>
     <div class="article-edit">
         <div class="header">
-            <div class="left">
-              <el-button @click="navigateTo('/admin/content/article')">返回</el-button>
-            </div>
-            <div class="center"><h2 class="title">{{ pageTitle }}</h2></div>
+            <h2 class="title">{{ pageTitle }}</h2>
             <div class="ops">
-              <el-button type="primary" @click="onSubmit">保存</el-button>
+                <el-button @click="navigateTo('/admin/content/article')">取消</el-button>
+                <el-button type="primary" @click="onSubmit" :icon="Check">保存文章</el-button>
             </div>
         </div>
+
         <div class="editor-layout">
-          <Card class="panel form-panel">
+          <el-card shadow="hover" class="panel form-panel">
+            <template #header>
+                <span>文章设置</span>
+            </template>
             <el-form :model="form" ref="formRef" :rules="rules" label-position="top">
-              <el-form-item label="标题" prop="title">
-                <el-input v-model="form.title" placeholder="请输入标题" />
+              <el-form-item label="文章标题" prop="title">
+                <el-input v-model="form.title" placeholder="请输入文章标题" clearable />
               </el-form-item>
-              <el-form-item label="分类" prop="category">
-                <el-select v-model="form.category" placeholder="请选择分类">
+              <el-form-item label="文章分类" prop="category">
+                <el-select v-model="form.category" placeholder="请选择文章分类" style="width: 100%">
                   <el-option v-for="item in categoryOptions" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
-              <el-form-item label="标签" prop="tags">
-                <el-input-tag v-model="form.tags" placeholder="标签以逗号分隔" />
+              <el-form-item label="文章标签" prop="tags">
+                <el-select
+                    v-model="form.tags"
+                    multiple
+                    filterable
+                    allow-create
+                    default-first-option
+                    :reserve-keyword="false"
+                    placeholder="输入或选择标签"
+                    style="width: 100%"
+                >
+                     <el-option v-for="item in tagOptions" :key="item.value" :label="item.label" :value="item.value" />
+                </el-select>
               </el-form-item>
-              </el-form>
-          </Card>
-          <Card class="panel editor-panel">
-            <MdEditor v-model="form.content" class="md-editor"/>
-          </Card>
+            </el-form>
+          </el-card>
+          
+          <el-card shadow="hover" class="panel editor-panel">
+            <MdEditor v-model="form.content" class="md-editor" placeholder="开始创作你的文章..." :toolbars-exclude="['github']" />
+          </el-card>
         </div>
     </div>
 </template>
@@ -52,6 +66,7 @@ const mode = computed(() => (route.query.mode === 'update' ? 'update' : 'add'))
 const pageTitle = computed(() => (mode.value === 'add' ? '新增文章' : '编辑文章'))
 
 const categoryOptions = ref([]) as Ref<{ label: string, value: number }[]>
+const tagOptions = ref<{ label: string, value: string }[]>([])
 
 const form = ref<NewArticle>({
   title: '',
@@ -67,6 +82,16 @@ const rules = ref({
   content: [{ required: true, message: '请输入内容', trigger: ['blur'] }]
 })
 onMounted(() => {
+  // 加载标签
+  tagService.getTags().then((res: any) => {
+    if (res.status === 200 && res.data.status === 200) {
+      tagOptions.value = (res.data.data || []).map((item: any) => ({
+        label: item.name,
+        value: item.name
+      }))
+    }
+  })
+
   // 加载分类标签
   const categoryList = appCache.getCategories()
   if (categoryList) {
@@ -150,46 +175,74 @@ const onSubmit = async () => {
     height: 100vh;
     display: flex;
     flex-direction: column;
-    gap: 40px;
-    padding: 20px 40px; 
-    overflow: hidden;
+
     .header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 0;
-      background: var(--card-color);
-      border-bottom: 1px solid var(--border-color);
-      .left { display: flex; gap: @base-gap; }
-      .center { display: flex; justify-content: center; }
-      .title { font-size: 18px; }
-      .ops { display: flex; gap: @base-gap; justify-content: flex-end; }
-      :deep(.el-button) {
-        padding: 8px 16px;
-      }
-    }
-    .editor-layout {
-      display: grid;
-      grid-template-columns: 1fr 3.5fr;
-      grid-gap: 20px;
-      flex: 1 1 auto;
-      min-height: 0;
-      overflow: auto;
-    }
-    .panel {
-        height: 100%;
-        min-height: 0;
-        overflow: auto;
-        .md-editor {
-          height: 100% !important;
+        flex: 0 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 24px;
+        height: 60px;
+        margin-bottom: 0;
+
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .ops { 
+            display: flex; 
+            gap: 16px; 
+            align-items: center; 
         }
     }
-    .form-panel :deep(.el-form-item) {
-        margin-bottom: 16px;
+
+    .editor-layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        grid-gap: 24px;
+        padding: 0 24px 24px 24px;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+
+        .panel {
+            height: 100%;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            
+            :deep(.el-card__body) {
+                flex: 1;
+                overflow: auto;
+                padding: 20px;
+            }
+        }
+
+        .form-panel {
+            :deep(.el-form-item) {
+                margin-bottom: 24px;
+                
+                .el-form-item__label {
+                    font-weight: 500;
+                    padding-bottom: 8px;
+                }
+            }
+        }
+        
+        .editor-panel {
+            :deep(.el-card__body) {
+                padding: 0;
+            }
+            
+            .md-editor {
+                height: 100% !important;
+                border: none;
+            }
+        }
     }
 }
 </style>

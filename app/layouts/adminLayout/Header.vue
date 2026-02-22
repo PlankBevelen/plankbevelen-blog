@@ -13,7 +13,7 @@
           :width="40"
           :height="40"
         />
-        <span class="logo-text">{{ $t('common.title') }}</span>
+        <span class="logo-text">{{ $t('site.name') }}</span>
       </div>
       <div class="navbar">
         <div class="close" @click="$emit('toggle')"><nuxt-icon name="admin/close"></nuxt-icon></div>
