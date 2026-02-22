@@ -1,6 +1,6 @@
 <template>
   <Card class="toc-card" type="toc">
-    <template #header>{{ $t('cards.toc.title') }}</template>
+    <template #header>{{ $t('toc.title') }}</template>
     <template v-if="tocItems.length > 0">
       <ul class="toc-list" >
         <li v-for="(item, i) in tocItems" :key="i" :class="['toc-item', 'lvl-' + item.level]" @click="onJump(item)">
@@ -10,7 +10,7 @@
     </template>
     <template v-else>
       <a class="toTop" href="#">
-        {{ $t('cards.toc.toTop') }}
+        {{ $t('toc.toTop') }}
       </a>
     </template>
   </Card>
@@ -57,16 +57,6 @@ function onJump(item: TocItem) {
   display: flex;
   flex-direction: column;
   padding: 0 !important;
-}
-.toc-card :deep(.card-header) {
-  padding: 20px 20px 0 20px;
-  flex-shrink: 0;
-}
-.toc-card :deep(.card-content) {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 0 20px 20px 20px;
 }
 .toc-list { 
   display: flex; 

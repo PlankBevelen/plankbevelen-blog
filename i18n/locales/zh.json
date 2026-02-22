@@ -48,6 +48,10 @@
   "tag": {
     "title": "标签云"
   },
+  "toc": {
+    "title": "目录",
+    "toTop": "返回顶部"
+  },
   "pages": {
     "home": {
       "title": "PlankBevelen Blog",

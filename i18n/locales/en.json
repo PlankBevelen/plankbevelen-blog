@@ -48,6 +48,10 @@
   "tag": {
     "title": "Tag Cloud"
   },
+  "toc": {
+    "title": "Table of Contents",
+    "toTop": "Back to Top"
+  },
   "pages": {
     "home": {
       "title": "PlankBevelen Blog",
