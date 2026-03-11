@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
       return { status: 400, msg: '参数错误', data: null }
     }
 
-    const rows: any = await query('SELECT * FROM articles WHERE id = ?', [id])
+    const rows: any = await query('SELECT * FROM articles WHERE id = ? AND deleted_at IS NULL', [id])
     const r = rows?.[0]
     if (!r) {
       setResponseStatus(event, 404)
@@ -19,8 +19,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // 获取上一条和下一条
-    const prevRows: any = await query('SELECT id, title FROM articles WHERE id < ? ORDER BY id DESC LIMIT 1', [id])
-    const nextRows: any = await query('SELECT id, title FROM articles WHERE id > ? ORDER BY id ASC LIMIT 1', [id])
+    const prevRows: any = await query('SELECT id, title FROM articles WHERE id < ? AND deleted_at IS NULL ORDER BY id DESC LIMIT 1', [id])
+    const nextRows: any = await query('SELECT id, title FROM articles WHERE id > ? AND deleted_at IS NULL ORDER BY id ASC LIMIT 1', [id])
     const prev = prevRows?.[0] ? { id: String(prevRows[0].id), title: prevRows[0].title } : null
     const next = nextRows?.[0] ? { id: String(nextRows[0].id), title: nextRows[0].title } : null
 
@@ -58,4 +58,3 @@ export default defineEventHandler(async (event) => {
     return { status: 500, msg: '服务器错误', data: null }
   }
 })
-

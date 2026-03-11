@@ -123,13 +123,11 @@ onMounted(() => {
   }else {
     // 缓存中没有分类标签，从服务器加载
     categoryService.getCategories().then((res: any) => {
-      if (res.status === 200 && res.data.status === 200) {
-        categoryOptions.value = res.data.data.map((item: any) => ({
-          label: item.name,
-          value: item.id
-        }))
-        appCache.setCategories(res.data.data)
-      }
+      categoryOptions.value = res.data.map((item: any) => ({
+        label: item.name,
+        value: item.id
+      }))
+      appCache.setCategories(res.data.data)
     })
   }
   if (mode.value === 'update') {

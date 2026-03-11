@@ -88,9 +88,9 @@ const filteredCategoryList = computed(() => {
 const getCategoryList = async () => {
     try {
         const res: any = await categoryService.getCategories()
-        if (res.status === 200 && res.data.status === 200) {
-            categoryList.value = res.data.data
-            appCache.setCategories(res.data.data)
+        if (res.status === 200) {
+            categoryList.value = res.data
+            appCache.setCategories(res.data)
         }
     } catch (error: any) {
         ElMessage.error(error.msg || '分类查询错误')

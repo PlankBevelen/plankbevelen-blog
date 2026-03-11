@@ -1,7 +1,7 @@
 <template>
     <Card class="article-desc" tag="article">
         <h2 class="title-wrapper">
-            <NuxtLink :to="{ path: '/article/' + article.id }" class="title">{{ article.title }}</NuxtLink>
+            <NuxtLink :to="localePath('/article/' + article.id)" class="title">{{ article.title }}</NuxtLink>
         </h2>
         <div class="meta">
             <span class="category">{{ article.category }}</span>
@@ -28,6 +28,7 @@
 import type { Article } from '@/types/article'
 import Card from '@/components/cards/card.vue'
 import { ref, computed, defineAsyncComponent } from 'vue'
+const localePath = useLocalePath()
 const MdPreviewAsync = defineAsyncComponent({
     loader: () => import('md-editor-v3').then(m => m.MdPreview),
     delay: 100

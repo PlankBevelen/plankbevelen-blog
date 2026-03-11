@@ -13,11 +13,14 @@ export default defineEventHandler(async (event) => {
     const offset = (pageNum - 1) * pageSize
 
     const params: any[] = []
-    let where = ''
+    
+    // Build WHERE clause
+    const conditions = ['a.deleted_at IS NULL']
     if (keyword) {
-      where = 'WHERE a.title LIKE ? OR a.tags LIKE ? OR c.name LIKE ?'
+      conditions.push('(a.title LIKE ? OR a.tags LIKE ? OR c.name LIKE ?)')
       params.push(`%${keyword}%`, `%${keyword}%`, `%${keyword}%`)
     }
+    const where = 'WHERE ' + conditions.join(' AND ')
 
     const orderBy = sort === 'created'
       ? 'ORDER BY a.created_at DESC, a.id DESC'
@@ -38,8 +41,8 @@ export default defineEventHandler(async (event) => {
       ${where}
     `
 
-    const listParams = keyword ? [...params, pageSize, offset] : [pageSize, offset]
-    const countParams = keyword ? params : []
+    const listParams = [...params, pageSize, offset]
+    const countParams = params
 
     const rows: any = await query(listSql, listParams)
     const countRows: any = await query(countSql, countParams)
@@ -50,7 +53,6 @@ export default defineEventHandler(async (event) => {
       const filePath = String(r.file_path || '')
       if (filePath) {
         const absPath = path.join(process.cwd(), 'public', filePath.replace(/^\//, ''))
-        console.log('absPath:', absPath)
         try {
           content = await fs.readFile(absPath, 'utf-8')
         } catch (e) {
@@ -75,4 +77,3 @@ export default defineEventHandler(async (event) => {
     return { status: 500, msg: '服务器错误', data: null }
   }
 })
-

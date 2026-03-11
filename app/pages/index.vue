@@ -31,6 +31,7 @@ import TagCard from '@/components/cards/tag.vue'
 import LatestArticlesCard from '@/components/article/latest.vue'
 import { useAsyncData } from 'nuxt/app'
 import http from '~/utils/http'
+const localePath = useLocalePath()
 const { t } = useI18n()
 
 const homeData = reactive({
@@ -55,7 +56,8 @@ const { data, pending } = await useAsyncData('home-data', async () => {
 })
 
 const onSelectCategory = async (item: any) => {
-  await navigateTo({ path: '/article', query: { category: item.name } })
+  const target = localePath('/article')
+  await navigateTo({ path: target, query: { category: item.name } })
 }
 
 watch(data, (newData) => {

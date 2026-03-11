@@ -12,6 +12,7 @@ async function getArticles(limit: number, sort: 'created' | 'updated' = 'updated
     SELECT a.id, a.title, a.tags, a.file_path, a.created_at, a.updated_at, a.category_id, c.name AS category_name
     FROM articles a
     LEFT JOIN categories c ON a.category_id = c.id
+    WHERE a.deleted_at IS NULL
     ${orderBy}
     LIMIT ?
   `
@@ -49,7 +50,7 @@ export default defineEventHandler(async (event) => {
       query<any>('SELECT * FROM categories'),
       query<any>('SELECT `name`, `count` FROM `tags` ORDER BY `count` DESC, `name` ASC'),
       getArticles(5, 'created'),
-      query<any>('SELECT COUNT(*) as total FROM articles')
+      query<any>('SELECT COUNT(*) as total FROM articles WHERE deleted_at IS NULL')
     ])
 
     const articleCount = Number(articleCountRes?.[0]?.total || 0)

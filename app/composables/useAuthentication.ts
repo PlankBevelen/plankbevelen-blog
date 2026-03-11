@@ -37,7 +37,7 @@ export const useAuthentication = () => {
 
   const getI18n = () => {
     const c = useCookie<string | undefined>(i18nKey.value)
-    return c.value || 'cn'
+    return c.value || 'zh'
   }
 
   const setTheme = (theme: string) => {
@@ -57,7 +57,7 @@ export const useAuthentication = () => {
 
   const clearUp = () => {
     removeToken()
-    setI18n('cn')
+    setI18n('zh')
     setTheme('light')
   }
 

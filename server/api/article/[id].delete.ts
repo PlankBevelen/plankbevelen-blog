@@ -13,28 +13,28 @@ export default defineEventHandler(async (event) => {
     }
 
     await withTransaction(async (conn) => {
-      // 1. Get old data
-      const rows0: any = await query('SELECT * FROM articles WHERE id = ?', [id], conn)
+      // 1. Get old data (ensure not already soft deleted)
+      const rows0: any = await query('SELECT * FROM articles WHERE id = ? AND deleted_at IS NULL', [id], conn)
       const oldArticle = rows0?.[0]
-      if (!oldArticle) return // Already deleted?
+      if (!oldArticle) return // Already deleted or not found
       
-      // 2. Delete Article
-      await execute('DELETE FROM articles WHERE id = ?', [id], conn)
+      // 2. Soft Delete Article
+      await execute('UPDATE articles SET deleted_at = NOW() WHERE id = ?', [id], conn)
       
       // 3. Update Counts
       await updateTagsCount(oldArticle.tags, null, conn)
       await updateCategoryCount(oldArticle.category_id, null, conn)
       
-      // 4. Delete File
-      if (oldArticle.file_path) {
-          const absPath = path.join(process.cwd(), 'public', oldArticle.file_path.replace(/^\//, ''))
-          try {
-              await fs.unlink(absPath)
-          } catch (e) {
-              console.error('Delete file failed:', e)
-              // File missing is not critical enough to rollback DB delete
-          }
-      }
+      // 4. Delete File (Soft delete: Keep file for potential restore)
+      // if (oldArticle.file_path) {
+      //     const absPath = path.join(process.cwd(), 'public', oldArticle.file_path.replace(/^\//, ''))
+      //     try {
+      //         await fs.unlink(absPath)
+      //     } catch (e) {
+      //         console.error('Delete file failed:', e)
+      //         // File missing is not critical enough to rollback DB delete
+      //     }
+      // }
     })
 
     setResponseStatus(event, 200)

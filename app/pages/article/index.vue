@@ -9,7 +9,7 @@
         <template #middle>
           <Card class="navBar">
             <div class="breadcrumb">
-              <NuxtLink to="/article">{{ $t('pages.article.title') }}</NuxtLink>
+              <NuxtLink :to="localePath('/article')">{{ $t('pages.article.title') }}</NuxtLink>
               <template v-if="breadcrumbSuffix">
                 <span> / </span>
                 <span>{{ breadcrumbSuffix }}</span>
@@ -34,6 +34,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
+const localePath = useLocalePath()
 import { navigateTo, useAsyncData, useHead } from 'nuxt/app'
 import Card from '@/components/cards/card.vue'
 import ArticleList from '@/components/article/articleList.vue'
@@ -77,11 +78,13 @@ const { data: homeData, pending: homePending } = await useAsyncData('article-pag
 const stats = computed(() => homeData.value?.stats || null)
 
 const onSearch = async () => {
-    await navigateTo({ path: '/article', query: { q: keyword.value || undefined } })
+    const target = localePath('/article')
+    await navigateTo({ path: target, query: { q: keyword.value || undefined } })
 }
 
 const onSelectCategory = async (item: any) => {
-    await navigateTo({ path: '/article', query: { category: item.name } })
+    const target = localePath('/article')
+    await navigateTo({ path: target, query: { category: item.name } })
 }
 
 watch(() => route.query.q, (val) => { keyword.value = String(val || '') })

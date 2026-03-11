@@ -43,10 +43,9 @@ export const useAdminStore = defineStore('admin', {
     },
     initPreferences() {
       const { getI18n, getTheme } = useAuthentication()
-      const { locale, setLocale } = useI18n()
-      // 语言
-      if (locale.value) { setLocale(locale.value) }
-      this.locale = (locale.value === 'en' ? 'en' : 'zh')
+      // 语言（从 Cookie 读取并保存到 Store）
+      const savedLocale = getI18n()
+      this.locale = (savedLocale === 'en' ? 'en' : 'zh')
       // 主题
       const savedTheme = getTheme()
       const { currentTheme } = useTheme()
@@ -59,9 +58,7 @@ export const useAdminStore = defineStore('admin', {
       }
     },
     setLocale(locale: 'en' | 'zh') {
-      const { setLocale } = useI18n()
       this.locale = locale as 'en' | 'zh'
-      setLocale(locale)
       const { setI18n } = useAuthentication()
       setI18n(locale)
     },

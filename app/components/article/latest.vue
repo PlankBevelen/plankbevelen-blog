@@ -5,7 +5,7 @@
     </template>
     <ul class="latestList">
       <li v-for="item in latestList" :key="item.id" class="latest-item">  
-        <NuxtLink :to="{path: '/article/' + item.id }">
+        <NuxtLink :to="localePath('/article/' + item.id)">
           <div class="time">{{ formatDateTime(item.createTime) }}</div>
           <div class="title">{{ item.title }}</div>
           <div class="category">{{ item.category }}</div>
@@ -19,6 +19,7 @@
 <script setup lang="ts">
 import Card from '@/components/cards/card.vue'
 import { ref, computed, onMounted } from 'vue'
+const localePath = useLocalePath()
 import { formatDateTime } from '@/utils/format'
 import articleService from '@/services/article.service'
 import type { Article } from '@/types/article'
