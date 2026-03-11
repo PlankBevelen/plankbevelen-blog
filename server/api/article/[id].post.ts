@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody<{ title: string; category: string; tags: string[]; content: string }>(event)
     const title = body?.title || ''
     const category = body?.category || ''
-    const content = body?.content || ''
+    let content = body?.content || ''
     const tagsStr = Array.isArray(body?.tags) ? body!.tags.join(',') : ''
 
     if (!id || !title || !category || !content) {
@@ -30,7 +30,10 @@ export default defineEventHandler(async (event) => {
         await execute('UPDATE articles SET file_path = ? WHERE id = ?', [filePath, id], conn)
       }
       
-      // 2. Write file
+      content = content.replace(/\]\(uploads\\/g, '](/uploads/')
+      content = content.replace(/\]\(uploads\//g, '](/uploads/')
+      content = content.replace(/src="uploads\\/g, 'src="/uploads/')
+      content = content.replace(/src="uploads\//g, 'src="/uploads/')
       const absPath = path.join(process.cwd(), 'public', filePath.replace(/^\//, ''))
       try {
         await fs.mkdir(path.dirname(absPath), { recursive: true })

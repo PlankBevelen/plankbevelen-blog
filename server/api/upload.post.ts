@@ -12,11 +12,9 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Find articleId if present
   const articleIdPart = files.find(f => f.name === 'articleId')
   let articleId = articleIdPart ? articleIdPart.data.toString() : 'temp'
-  
-  // Sanitize articleId to prevent directory traversal
+ 
   articleId = articleId.replace(/[^a-zA-Z0-9-]/g, '')
   if (!articleId) articleId = 'temp'
 

@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody<{ title: string; category: string; tags: string[]; content: string; tempId?: string }>(event)
     const title = body?.title || ''
     const category = body?.category || ''
-    const content = body?.content || ''
+    let content = body?.content || ''
     const tempId = body?.tempId || ''
     const tagsStr = Array.isArray(body?.tags) ? body!.tags.join(',') : ''
     
@@ -33,9 +33,18 @@ export default defineEventHandler(async (event) => {
         
         try {
           await fs.access(tempDir)
-          await fs.rename(tempDir, targetDir)
+          try {
+            await fs.rename(tempDir, targetDir)
+          } catch (err: any) {
+            if (err && err.code === 'EXDEV') {
+              await (fs as any).cp(tempDir, targetDir, { recursive: true })
+              await (fs as any).rm(tempDir, { recursive: true, force: true })
+            } else {
+              throw err
+            }
+          }
           
-          finalContent = finalContent.replaceAll(`/uploads/${tempId}/`, `/uploads/${id}/`)
+          finalContent = finalContent.replace(new RegExp(`/uploads/${tempId}/`, 'g'), `/uploads/${id}/`)
         } catch (e) {
           // Ignore if temp dir doesn't exist
         }

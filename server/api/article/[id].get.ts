@@ -24,13 +24,16 @@ export default defineEventHandler(async (event) => {
     const prev = prevRows?.[0] ? { id: String(prevRows[0].id), title: prevRows[0].title } : null
     const next = nextRows?.[0] ? { id: String(nextRows[0].id), title: nextRows[0].title } : null
 
-    // 读取文件内容
     let content = ''
     const filePath = String(r.file_path || '')
     if (filePath) {
       const absPath = path.join(process.cwd(), 'public', filePath.replace(/^\//, ''))
       try {
         content = await fs.readFile(absPath, 'utf-8')
+        content = content.replace(/\]\(uploads\\/g, '](/uploads/')
+        content = content.replace(/\]\(uploads\//g, '](/uploads/')
+        content = content.replace(/src="uploads\\/g, 'src="/uploads/')
+        content = content.replace(/src="uploads\//g, 'src="/uploads/')
       } catch (e) {
         content = ''
       }
