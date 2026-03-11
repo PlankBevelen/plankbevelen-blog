@@ -86,7 +86,7 @@
 <script setup lang="ts">
 import { onMounted, computed, ref, watch } from 'vue'
 import { useAdminStore } from '@/stores/admin.store'
-import { useUserAgent } from '@/composables/useUserAgent'
+import { useUserAgent } from '@/composables/useUseragent'
 
 const admin = useAdminStore()
 const themeSwitch = computed({ get(){ return admin.getTheme === 'dark' }, set(v){ admin.setTheme(v ? 'dark' : 'light') } })
