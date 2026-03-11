@@ -3,9 +3,6 @@ import path from 'node:path'
 import fs from 'node:fs/promises'
 
 export default defineEventHandler(async (event) => {
-  // Check for authentication if needed (optional for now, but good practice)
-  // const session = await requireUserSession(event)
-  
   const files = await readMultipartFormData(event)
 
   if (!files || files.length === 0) {
@@ -15,7 +12,15 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+  // Find articleId if present
+  const articleIdPart = files.find(f => f.name === 'articleId')
+  let articleId = articleIdPart ? articleIdPart.data.toString() : 'temp'
+  
+  // Sanitize articleId to prevent directory traversal
+  articleId = articleId.replace(/[^a-zA-Z0-9-]/g, '')
+  if (!articleId) articleId = 'temp'
+
+  const uploadDir = path.join(process.cwd(), 'public', 'uploads', articleId)
   
   try {
     await fs.mkdir(uploadDir, { recursive: true })
@@ -36,7 +41,7 @@ export default defineEventHandler(async (event) => {
       uploadedFiles.push({
         originalName: file.filename,
         filename: uniqueFilename,
-        url: `/uploads/${uniqueFilename}`,
+        url: `/uploads/${articleId}/${uniqueFilename}`,
         mimetype: file.type,
         size: file.data.length
       })

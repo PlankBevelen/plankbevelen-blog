@@ -116,7 +116,7 @@ const handleEdit = (m: 'add' | 'update', id?: number) => {
 const handleDelete = async (id: number) => {
     try {
         await ElMessageBox.confirm('确认删除该分类吗？', '提示', { type: 'warning' })
-        const res = await categoryService.deleteCategory(id)
+        const res: any = await categoryService.deleteCategory(id)
         if (res.status === 200 && res.data.status === 200) {
             ElMessage.success('删除成功')
             await getCategoryList()
@@ -131,12 +131,12 @@ const onSubmit = async () => {
         if (!valid) return
         try {
             if (mode.value === 'add') {
-                const res = await categoryService.createCategory(form.value.name)
+                const res: any = await categoryService.createCategory(form.value.name)
                 if (res.status === 200 && res.data.status === 200) {
                     ElMessage.success('新增成功')
                 }
             } else if (currentId.value) {
-                const res = await categoryService.updateCategory(currentId.value, form.value.name)
+                const res: any = await categoryService.updateCategory(currentId.value, form.value.name)
                 if (res.status === 200 && res.data.status === 200) {
                     ElMessage.success('编辑成功')
                 }
@@ -216,8 +216,7 @@ onMounted(() => {
 
         :deep(.el-table) {
             flex: 1;
-            
-            // 表头样式
+
             th.el-table__cell {
                 background-color: var(--bg-color-soft);
                 font-weight: 600;

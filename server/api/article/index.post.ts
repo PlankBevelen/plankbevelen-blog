@@ -6,10 +6,11 @@ import path from 'node:path'
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody<{ title: string; category: string; tags: string[]; content: string }>(event)
+    const body = await readBody<{ title: string; category: string; tags: string[]; content: string; tempId?: string }>(event)
     const title = body?.title || ''
     const category = body?.category || ''
     const content = body?.content || ''
+    const tempId = body?.tempId || ''
     const tagsStr = Array.isArray(body?.tags) ? body!.tags.join(',') : ''
     
     if (!title || !category || !content) {
@@ -25,6 +26,21 @@ export default defineEventHandler(async (event) => {
       )
       const id = result?.insertId
       
+      let finalContent = content
+      if (tempId && tempId.trim()) {
+        const tempDir = path.join(process.cwd(), 'public', 'uploads', tempId)
+        const targetDir = path.join(process.cwd(), 'public', 'uploads', id.toString())
+        
+        try {
+          await fs.access(tempDir)
+          await fs.rename(tempDir, targetDir)
+          
+          finalContent = finalContent.replaceAll(`/uploads/${tempId}/`, `/uploads/${id}/`)
+        } catch (e) {
+          // Ignore if temp dir doesn't exist
+        }
+      }
+
       // 写入文件到 public/md
       const mdDir = path.join(process.cwd(), 'public', 'md')
       const fileName = `article-${id}.md`
@@ -32,7 +48,7 @@ export default defineEventHandler(async (event) => {
       const relPath = `/md/${fileName}`
       try {
         await fs.mkdir(mdDir, { recursive: true })
-        await fs.writeFile(absPath, content, 'utf-8')
+        await fs.writeFile(absPath, finalContent, 'utf-8')
       } catch (e) {
         console.error('写入文章文件失败:', e)
         // 抛出错误以触发事务回滚

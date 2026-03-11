@@ -12,5 +12,6 @@ export interface NewArticle {
   title: string
   tags: string[]
   category: string
-  content: string    
+  content: string
+  tempId?: string
 }

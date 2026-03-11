@@ -70,7 +70,8 @@ import uploadService from '@/services/upload.service'
 
 const onUploadImg = async (files: Array<File>, callback: (urls: Array<string>) => void) => {
   try {
-    const res = await uploadService.uploadFiles(files) as any
+    const id = mode.value === 'update' ? (route.query.id as string) : tempId.value
+    const res = await uploadService.uploadFiles(files, id) as any
     if (res.status === 200 && res.data) {
       const urls = res.data.map((file: any) => file.url)
       callback(urls)
@@ -93,8 +94,10 @@ const form = ref<NewArticle>({
   title: '',
   category: '',
   tags: [] as string[],
-  content: ''
+  content: '',
+  tempId: ''
 })
+const tempId = ref('')
 const originalTags = ref<string[]>([])
 const rules = ref({
   title: [{ required: true, message: '请输入标题', trigger: ['blur'] }],
@@ -136,24 +139,32 @@ onMounted(() => {
       articleService.getArticle(id).then((res: any) => {
         if (res.status === 200) {
           const d = res.data
+          // Fix image paths with backslashes
+          let content = d.content || ''
+          content = content.replace(/\]\(uploads\\/g, '](/uploads/')
+          content = content.replace(/\]\(uploads\//g, '](/uploads/')
+          content = content.replace(/src="uploads\\/g, 'src="/uploads/')
+          content = content.replace(/src="uploads\//g, 'src="/uploads/')
+          
           form.value = {
             title: d.title,
             category: d.category,
             tags: d.tags || [],
-            content: d.content,
+            content: content,
           }
           originalTags.value = (d.tags || []).slice()
         }
       })
     }
   } else {
-    
+    tempId.value = Date.now().toString(36) + Math.random().toString(36).substr(2)
   }
 })
 
 const onSubmit = async () => {
  if(mode.value === 'add') {
   try {
+    form.value.tempId = tempId.value
     const res = await articleService.createArticle(form.value)
     if (res.status === 200 && res.data.status === 200) {
       if (Array.isArray(form.value.tags) && form.value.tags.length > 0) {
