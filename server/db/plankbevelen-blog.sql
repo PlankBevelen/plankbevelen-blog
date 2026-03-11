@@ -15,6 +15,8 @@
 */
 
 CREATE DATABASE `plankbevelen-blog`;
+*/
+
 USE `plankbevelen-blog`;
 
 SET NAMES utf8mb4;
