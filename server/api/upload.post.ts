@@ -2,6 +2,10 @@ import { defineEventHandler, readMultipartFormData, createError } from 'h3'
 import path from 'node:path'
 import fs from 'node:fs/promises'
 
+// 检查是否生产环境
+const isProd = process.env.NODE_ENV === 'production';
+const UPLOAD_BASE = isProd ? '/var/www/plankbevelen-blog/.output/public/uploads' : path.join(process.cwd(), 'public', 'uploads')
+
 export default defineEventHandler(async (event) => {
   const files = await readMultipartFormData(event)
 
@@ -14,17 +18,14 @@ export default defineEventHandler(async (event) => {
 
   const articleIdPart = files.find(f => f.name === 'articleId')
   let articleId = articleIdPart ? articleIdPart.data.toString() : 'temp'
- 
+
   articleId = articleId.replace(/[^a-zA-Z0-9-]/g, '')
   if (!articleId) articleId = 'temp'
 
-  const uploadDir = path.join(process.cwd(), 'public', 'uploads', articleId)
-  
-  try {
-    await fs.mkdir(uploadDir, { recursive: true })
-  } catch (err) {
-    // Ignore if directory already exists
-  }
+  const uploadDir = path.join(UPLOAD_BASE, articleId)
+  console.log(uploadDir)
+
+  await fs.mkdir(uploadDir, { recursive: true })
 
   const uploadedFiles = []
 
@@ -41,7 +42,7 @@ export default defineEventHandler(async (event) => {
         filename: uniqueFilename,
         url: `/uploads/${articleId}/${uniqueFilename}`,
         mimetype: file.type,
-        size: file.data.length
+        size: file.data.length,
       })
     }
   }
@@ -49,6 +50,6 @@ export default defineEventHandler(async (event) => {
   return {
     status: 200,
     message: 'Upload successful',
-    data: uploadedFiles
+    data: uploadedFiles,
   }
 })
