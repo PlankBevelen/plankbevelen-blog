@@ -5,6 +5,7 @@ module.exports = {
       script: '.output/server/index.mjs',
       exec_mode: 'cluster',
       instances: 'max',
+      cwd: '/var/www/plankbevelen-blog'
       // watch: false,
       env: {
         PORT: 3000,
