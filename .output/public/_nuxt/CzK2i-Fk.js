@@ -1,0 +1,1 @@
+import{_ as o}from"./-SHESWXC.js";import{a3 as t,$ as r,a5 as s}from"./CqizBe5N.js";const c={},a={class:"project"};function n(_,e){return r(),t("div",a,[...e[0]||(e[0]=[s("h1",null,"敬请期待",-1)])])}const f=o(c,[["render",n],["__scopeId","data-v-c3363166"]]);export{f as default};

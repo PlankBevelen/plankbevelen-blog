@@ -1,0 +1,94 @@
+const resource = {
+  "site": {
+    "name": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "PlankBevelen的博客" } },
+    "description": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "个人技术博客，分享前端开发、Web 技术、编程经验和技术文章" } },
+    "keywords": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "plankbevelen, plank, bevelen, PlankBevelen, Plank, Bevelen, 个人博客, 前端开发, Web 技术, 编程经验, 技术文章" } }
+  },
+  "header": {
+    "title": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "PlankBevelen的博客" } },
+    "nav": {
+      "home": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "首页" } },
+      "article": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "文章" } },
+      "about": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "关于" } },
+      "project": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "项目介绍" } }
+    }
+  },
+  "footer": {
+    "title": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "PlankBevelen的博客" } },
+    "description": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "记录生活，分享技术，追求美好" } },
+    "copyright": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "PlankBevelen. 保留所有权利" } },
+    "beian": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "蜀ICP备2024114585号" } }
+  },
+  "theme": {
+    "light": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "浅色" } },
+    "dark": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "深色" } }
+  },
+  "lang": {
+    "zh": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "中文" } },
+    "en": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "English" } }
+  },
+  "blogger": {
+    "profession": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "前端开发工程师" } },
+    "location": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "中国 - 成都" } },
+    "stats": {
+      "articles": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "文章数" } },
+      "categories": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "分类数" } },
+      "tags": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "标签数" } }
+    }
+  },
+  "category": {
+    "title": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "分类" } }
+  },
+  "latest": {
+    "title": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "最新文章" } }
+  },
+  "recordLink": {
+    "title": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "推荐网站链接" } }
+  },
+  "tag": {
+    "title": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "标签云" } }
+  },
+  "toc": {
+    "title": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "目录" } },
+    "toTop": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "返回顶部" } }
+  },
+  "pages": {
+    "home": {
+      "title": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "PlankBevelen Blog" } },
+      "meta": {
+        "description": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "PlankBevelen的个人技术博客 - 分享编程教程、开发经验和科技见解" } },
+        "keywords": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "plankbevelen, plank, bevelen, PlankBevelen, Web开发教程, 编程博客, 编码经验, 前端开发, 后端开发, 软件工程, 技术博客, 个人博客" } }
+      }
+    },
+    "article": {
+      "title": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "文章" } },
+      "meta": {
+        "description": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "浏览PlankBevelen博客上的所有技术文章和编程教程" } },
+        "keywords": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "plankbevelen, plank, bevelen, PlankBevelen, 编程文章, 编码教程, Web开发指南, 技术学习资源, PlankBevelen文章, 前端教程, 后端教程" } }
+      },
+      "search": {
+        "placeholder": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "搜索文章" } },
+        "btn": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "搜索" } }
+      },
+      "articleDetail": {
+        "fallback": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "文章详情" } },
+        "meta": {
+          "description": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "文章详情 - 技术文章和编程教程的详细内容" } },
+          "keywords": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "plankbevelen, plank, bevelen, PlankBevelen" } }
+        },
+        "prev": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "上一篇" } },
+        "next": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "下一篇" } }
+      }
+    },
+    "about": {
+      "title": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "关于" } },
+      "meta": {
+        "description": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "了解更多关于PlankBevelen - 一位热衷于分享知识和编码经验的开发者" } },
+        "keywords": { "t": 0, "b": { "t": 2, "i": [{ "t": 3 }], "s": "关于PlankBevelen, plankbevelen, plank, bevelen, PlankBevelen, 开发者介绍, 技术博主, 编程背景, 个人介绍, 技术分享者" } }
+      }
+    }
+  }
+};
+
+export { resource as default };
+//# sourceMappingURL=zh-C_mo5ABv.mjs.map
