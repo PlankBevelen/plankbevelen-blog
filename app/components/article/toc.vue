@@ -53,10 +53,12 @@ function onJump(item: TocItem) {
 .toc-card { 
   position: sticky; 
   top: calc(@header-height + 20px); 
-  max-height: calc((100vh - @header-height) / 2);
+  max-height: calc((100vh - @header-height) / 2);  
   display: flex;
   flex-direction: column;
   padding: 0 !important;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 .toc-list { 
   display: flex; 

@@ -1,55 +1,55 @@
 <template>
-    <div class="article-edit">
-        <div class="header">
-            <h2 class="title">{{ pageTitle }}</h2>
-            <div class="ops">
-                <el-button @click="navigateTo('/admin/content/article')">取消</el-button>
-                <el-button type="primary" @click="onSubmit" :icon="Check">保存文章</el-button>
-            </div>
-        </div>
-
-        <div class="editor-layout">
-          <el-card shadow="hover" class="panel form-panel">
-            <template #header>
-                <span>文章设置</span>
-            </template>
-            <el-form :model="form" ref="formRef" :rules="rules" label-position="top">
-              <el-form-item label="文章标题" prop="title">
-                <el-input v-model="form.title" placeholder="请输入文章标题" clearable />
-              </el-form-item>
-              <el-form-item label="文章分类" prop="category">
-                <el-select v-model="form.category" placeholder="请选择文章分类" style="width: 100%">
-                  <el-option v-for="item in categoryOptions" :key="item.value" :label="item.label" :value="item.value" />
-                </el-select>
-              </el-form-item>
-              <el-form-item label="文章标签" prop="tags">
-                <el-select
-                    v-model="form.tags"
-                    multiple
-                    filterable
-                    allow-create
-                    default-first-option
-                    :reserve-keyword="false"
-                    placeholder="输入或选择标签"
-                    style="width: 100%"
-                >
-                     <el-option v-for="item in tagOptions" :key="item.value" :label="item.label" :value="item.value" />
-                </el-select>
-              </el-form-item>
-            </el-form>
-          </el-card>
-          
-          <el-card shadow="hover" class="panel editor-panel">
-            <MdEditor 
-                v-model="form.content" 
-                class="md-editor" 
-                placeholder="开始创作你的文章..." 
-                :toolbars-exclude="['github']" 
-                @onUploadImg="onUploadImg"
-            />
-          </el-card>
-        </div>
+  <div class="article-edit">
+    <div class="header">
+      <h2 class="title">{{ pageTitle }}</h2>
+      <div class="ops">
+        <el-button @click="navigateTo('/admin/content/article')">取消</el-button>
+        <el-button type="primary" @click="onSubmit">保存文章</el-button>
+      </div>
     </div>
+
+    <div class="editor-layout">
+      <el-card shadow="hover" class="panel form-panel">
+        <template #header>
+            <span>文章设置</span>
+        </template>
+        <el-form :model="form" ref="formRef" :rules="rules" label-position="top">
+          <el-form-item label="文章标题" prop="title">
+            <el-input v-model="form.title" placeholder="请输入文章标题" clearable />
+          </el-form-item>
+          <el-form-item label="文章分类" prop="category">
+            <el-select v-model="form.category" placeholder="请选择文章分类" style="width: 100%">
+              <el-option v-for="item in categoryOptions" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="文章标签" prop="tags">
+            <el-select
+                v-model="form.tags"
+                multiple
+                filterable
+                allow-create
+                default-first-option
+                :reserve-keyword="false"
+                placeholder="输入或选择标签"
+                style="width: 100%"
+            >
+              <el-option v-for="item in tagOptions" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </el-form-item>
+        </el-form>
+      </el-card>
+      
+      <el-card shadow="hover" class="panel editor-panel">
+        <MdEditor 
+          v-model="form.content" 
+          class="md-editor" 
+          placeholder="开始创作你的文章..." 
+          :toolbars-exclude="['github']" 
+          @onUploadImg="onUploadImg"
+        />
+      </el-card>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
