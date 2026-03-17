@@ -2373,13 +2373,13 @@ const _routes = [
     name: "admin___zh",
     path: "/admin",
     meta: { ...__nuxt_page_meta$6 || {}, ...{ "middleware": "auth-middleware" } },
-    component: () => import('./index-DxUjayqS.mjs')
+    component: () => import('./index-DKXlgGue.mjs')
   },
   {
     name: "admin___en",
     path: "/en/admin",
     meta: { ...__nuxt_page_meta$6 || {}, ...{ "middleware": "auth-middleware" } },
-    component: () => import('./index-DxUjayqS.mjs')
+    component: () => import('./index-DKXlgGue.mjs')
   },
   {
     name: "admin-login___zh",
@@ -3638,7 +3638,7 @@ function createNuxtI18nContext(nuxt, vueI18n, defaultLocale) {
       return;
     }
     const headers = getLocaleConfig(locale)?.cacheable ? {} : { "Cache-Control": "no-cache" };
-    const messages = await $fetch(`${"/_i18n/T-uuxJKW"}/${locale}/messages.json`, { headers });
+    const messages = await $fetch(`${"/_i18n/SI5ZM0BU"}/${locale}/messages.json`, { headers });
     for (const k of Object.keys(messages)) {
       i18n.mergeLocaleMessage(k, messages[k]);
     }
@@ -9908,7 +9908,7 @@ const i18n_AjXuhfEzi8xlg63Efx1HmOMLQlp1loLrdWOEKXDwc5Y = /* @__PURE__ */ defineN
     {
       localeConfigs.value = useRequestEvent().context.nuxtI18n?.localeConfigs || {};
     }
-    prerenderRoutes(localeCodes.map((locale) => `${"/_i18n/T-uuxJKW"}/${locale}/messages.json`));
+    prerenderRoutes(localeCodes.map((locale) => `${"/_i18n/SI5ZM0BU"}/${locale}/messages.json`));
     const i18n = createI18n(optionsI18n);
     const detectors = useDetectors(useRequestEvent(nuxt), useI18nDetection(nuxt), nuxt);
     const ctx = createNuxtI18nContext(nuxt, i18n, optionsI18n.defaultLocale);

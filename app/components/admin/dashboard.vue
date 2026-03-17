@@ -4,7 +4,7 @@
       <h2 class="title">仪表盘</h2>
       <div class="actions">
         <el-button type="primary" @click="navigateTo('/admin/content/article/edit')">
-          <nuxt-icon name="admin/add" class="mr-1" /> 写文章
+          写文章
         </el-button>
       </div>
     </div>
