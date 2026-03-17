@@ -1,1 +1,0 @@
-import{h as t}from"./-SHESWXC.js";class r{async getCategories(){return await t.get("/category")}async createCategory(e){return await t.post("/category",{name:e})}async updateCategory(e,a){return await t.put(`/category/${e}`,{name:a})}async deleteCategory(e){return await t.delete(`/category/${e}`)}}const y=new r;export{y as c};

@@ -3,6 +3,7 @@ import { execute, query, withTransaction } from '../../utils/db'
 import { updateTagsCount, updateCategoryCount } from '../../utils/article-helpers'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { getUploadsBaseDir } from '../../utils/uploads'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -28,23 +29,33 @@ export default defineEventHandler(async (event) => {
       
       let finalContent = content
       if (tempId && tempId.trim()) {
-        const tempDir = path.join(process.cwd(), 'public', 'uploads', tempId)
-        const targetDir = path.join(process.cwd(), 'public', 'uploads', id.toString())
+        const uploadsBase = getUploadsBaseDir()
+        const tempDir = path.join(uploadsBase, 'temp', tempId)
+        const legacyTempDir = path.join(uploadsBase, tempId)
+        const targetDir = path.join(uploadsBase, id.toString())
         
         try {
-          await fs.access(tempDir)
+          let sourceDir = tempDir
           try {
-            await fs.rename(tempDir, targetDir)
+            await fs.access(sourceDir)
+          } catch {
+            sourceDir = legacyTempDir
+            await fs.access(sourceDir)
+          }
+          try {
+            await fs.rename(sourceDir, targetDir)
           } catch (err: any) {
             if (err && err.code === 'EXDEV') {
-              await (fs as any).cp(tempDir, targetDir, { recursive: true })
-              await (fs as any).rm(tempDir, { recursive: true, force: true })
+              await (fs as any).cp(sourceDir, targetDir, { recursive: true })
+              await (fs as any).rm(sourceDir, { recursive: true, force: true })
             } else {
               throw err
             }
           }
           
-          finalContent = finalContent.replace(new RegExp(`/uploads/${tempId}/`, 'g'), `/uploads/${id}/`)
+          finalContent = finalContent
+            .replace(new RegExp(`/uploads/temp/${tempId}/`, 'g'), `/uploads/${id}/`)
+            .replace(new RegExp(`/uploads/${tempId}/`, 'g'), `/uploads/${id}/`)
         } catch (e) {
           // Ignore if temp dir doesn't exist
         }

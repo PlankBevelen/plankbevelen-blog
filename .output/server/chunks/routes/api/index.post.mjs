@@ -1,4 +1,4 @@
-import { c as defineEventHandler, r as readBody, e as setResponseStatus, w as withTransaction, g as execute, h as updateTagsCount, i as updateCategoryCount, q as query } from '../../_/nitro.mjs';
+import { c as defineEventHandler, r as readBody, e as setResponseStatus, w as withTransaction, g as execute, k as getUploadsBaseDir, h as updateTagsCount, i as updateCategoryCount, q as query } from '../../_/nitro.mjs';
 import { promises } from 'node:fs';
 import path from 'node:path';
 import 'lru-cache';
@@ -46,21 +46,29 @@ const index_post = defineEventHandler(async (event) => {
       const id = result == null ? void 0 : result.insertId;
       let finalContent = content;
       if (tempId && tempId.trim()) {
-        const tempDir = path.join(process.cwd(), "public", "uploads", tempId);
-        const targetDir = path.join(process.cwd(), "public", "uploads", id.toString());
+        const uploadsBase = getUploadsBaseDir();
+        const tempDir = path.join(uploadsBase, "temp", tempId);
+        const legacyTempDir = path.join(uploadsBase, tempId);
+        const targetDir = path.join(uploadsBase, id.toString());
         try {
-          await promises.access(tempDir);
+          let sourceDir = tempDir;
           try {
-            await promises.rename(tempDir, targetDir);
+            await promises.access(sourceDir);
+          } catch {
+            sourceDir = legacyTempDir;
+            await promises.access(sourceDir);
+          }
+          try {
+            await promises.rename(sourceDir, targetDir);
           } catch (err) {
             if (err && err.code === "EXDEV") {
-              await promises.cp(tempDir, targetDir, { recursive: true });
-              await promises.rm(tempDir, { recursive: true, force: true });
+              await promises.cp(sourceDir, targetDir, { recursive: true });
+              await promises.rm(sourceDir, { recursive: true, force: true });
             } else {
               throw err;
             }
           }
-          finalContent = finalContent.replace(new RegExp(`/uploads/${tempId}/`, "g"), `/uploads/${id}/`);
+          finalContent = finalContent.replace(new RegExp(`/uploads/temp/${tempId}/`, "g"), `/uploads/${id}/`).replace(new RegExp(`/uploads/${tempId}/`, "g"), `/uploads/${id}/`);
         } catch (e) {
         }
       }

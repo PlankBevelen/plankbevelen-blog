@@ -97,6 +97,7 @@ export default defineNuxtConfig({
       })
     ],
     css: {
+      preprocessorMaxWorkers: 0,  // 禁用预处理器多线程，避免在服务器端运行时出现问题
       preprocessorOptions: {
         less: {
           additionalData: '@import "@/assets/css/global.less"; @import "@/assets/css/theme.less"; @import "@/assets/css/variables.less";',

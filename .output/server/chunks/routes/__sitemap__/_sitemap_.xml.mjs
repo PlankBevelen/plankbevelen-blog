@@ -1,4 +1,4 @@
-import { c as defineEventHandler, V as useSitemapRuntimeConfig, X as getRouterParam, l as createError, Y as withoutLeadingSlash, Z as withoutTrailingSlash, _ as parseChunkInfo, $ as getSitemapConfig, a0 as createSitemap } from '../../_/nitro.mjs';
+import { c as defineEventHandler, W as useSitemapRuntimeConfig, Y as getRouterParam, m as createError, Z as withoutLeadingSlash, _ as withoutTrailingSlash, $ as parseChunkInfo, a0 as getSitemapConfig, a1 as createSitemap } from '../../_/nitro.mjs';
 import 'lru-cache';
 import '@unocss/core';
 import '@unocss/preset-wind3';

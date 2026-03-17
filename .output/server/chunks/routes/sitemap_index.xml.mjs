@@ -1,4 +1,4 @@
-import { J as defineCachedFunction, K as escapeValueForXml, L as withQuery, M as globalSitemapSources, N as resolveSitemapSources, O as resolveSitemapEntries, P as defu, Q as joinURL, R as normaliseDate, S as childSitemapSources, T as sortInPlace, U as getHeader, c as defineEventHandler, V as useSitemapRuntimeConfig, W as useNitroUrlResolvers, b as useNitroApp, m as setHeader } from '../_/nitro.mjs';
+import { K as defineCachedFunction, L as escapeValueForXml, M as withQuery, N as globalSitemapSources, O as resolveSitemapSources, P as resolveSitemapEntries, Q as defu, R as joinURL, S as normaliseDate, T as childSitemapSources, U as sortInPlace, V as getHeader, c as defineEventHandler, W as useSitemapRuntimeConfig, X as useNitroUrlResolvers, b as useNitroApp, n as setHeader } from '../_/nitro.mjs';
 import 'lru-cache';
 import '@unocss/core';
 import '@unocss/preset-wind3';

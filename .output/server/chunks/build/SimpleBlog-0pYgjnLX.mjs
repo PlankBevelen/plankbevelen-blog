@@ -1,7 +1,7 @@
 import { computed, mergeProps, useSSRContext } from 'vue';
 import { ssrRenderAttrs, ssrRenderStyle, ssrInterpolate } from 'vue/server-renderer';
 import { W as useSiteConfig } from './server.mjs';
-import { ae as parseURL } from '../_/nitro.mjs';
+import { af as parseURL } from '../_/nitro.mjs';
 import 'pinia';
 import 'vue-router';
 import '@vueuse/core';

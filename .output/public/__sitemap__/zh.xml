@@ -28,7 +28,7 @@
         <loc>https://plankbevelen.cn/article/1</loc>
         <lastmod>2026-02-28T06:56:25Z</lastmod>
         <changefreq>daily</changefreq>
-        <priority>0.9</priority>
+        <priority>0.8</priority>
         <xhtml:link rel="alternate" href="https://plankbevelen.cn/article/1" hreflang="x-default" />
         <xhtml:link rel="alternate" href="https://plankbevelen.cn/article/1" hreflang="zh" />
     </url>
@@ -63,5 +63,13 @@
         <priority>0.9</priority>
         <xhtml:link rel="alternate" href="https://plankbevelen.cn/article/5" hreflang="x-default" />
         <xhtml:link rel="alternate" href="https://plankbevelen.cn/article/5" hreflang="zh" />
+    </url>
+    <url>
+        <loc>https://plankbevelen.cn/article/20</loc>
+        <lastmod>2026-03-15T22:02:00Z</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+        <xhtml:link rel="alternate" href="https://plankbevelen.cn/article/20" hreflang="x-default" />
+        <xhtml:link rel="alternate" href="https://plankbevelen.cn/article/20" hreflang="zh" />
     </url>
 </urlset>

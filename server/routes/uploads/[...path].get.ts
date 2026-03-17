@@ -1,6 +1,7 @@
 import { defineEventHandler, sendStream, createError, setHeader } from 'h3'
 import { promises as fs, createReadStream } from 'node:fs'
 import path from 'node:path'
+import { getUploadsBaseDir } from '../../utils/uploads'
 
 const MIME_TYPES: Record<string, string> = {
   '.png': 'image/png',
@@ -20,7 +21,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const cleanPath = path.normalize(String(filePathParam)).replace(/^(\.\.[\/\\])+/, '')
-  const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+  const uploadDir = getUploadsBaseDir()
   const fullPath = path.resolve(uploadDir, cleanPath)
 
   const rel = path.relative(uploadDir, fullPath)

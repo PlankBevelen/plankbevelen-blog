@@ -1,1 +1,0 @@
-import{a0 as a}from"./-SHESWXC.js";import{w as t,z as s}from"./CqizBe5N.js";function l(){if(!arguments.length)return[];var r=arguments[0];return a(r)?r:[r]}const v=({from:r,replacement:n,scope:m,version:o,ref:u,type:c="API"},e)=>{t(()=>s(e),i=>{},{immediate:!0})};export{l as c,v as u};

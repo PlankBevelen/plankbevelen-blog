@@ -1,4 +1,4 @@
-import { c as defineEventHandler, k as readMultipartFormData, l as createError } from '../../_/nitro.mjs';
+import { c as defineEventHandler, l as readMultipartFormData, m as createError, k as getUploadsBaseDir } from '../../_/nitro.mjs';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import 'lru-cache';
@@ -26,7 +26,7 @@ import 'vue/server-renderer';
 import 'ipx';
 import 'node:crypto';
 
-const UPLOAD_BASE = "/var/www/plankbevelen-blog/.output/public/uploads" ;
+const UPLOAD_BASE = getUploadsBaseDir();
 const upload_post = defineEventHandler(async (event) => {
   const files = await readMultipartFormData(event);
   if (!files || files.length === 0) {
@@ -39,8 +39,9 @@ const upload_post = defineEventHandler(async (event) => {
   let articleId = articleIdPart ? articleIdPart.data.toString() : "temp";
   articleId = articleId.replace(/[^a-zA-Z0-9-]/g, "");
   if (!articleId) articleId = "temp";
-  const uploadDir = path.join(UPLOAD_BASE, articleId);
-  console.log(uploadDir);
+  const isArticleId = /^\d+$/.test(articleId);
+  const uploadSubdir = isArticleId ? articleId : path.join("temp", articleId);
+  const uploadDir = path.join(UPLOAD_BASE, uploadSubdir);
   await fs.mkdir(uploadDir, { recursive: true });
   const uploadedFiles = [];
   for (const file of files) {
@@ -49,10 +50,11 @@ const upload_post = defineEventHandler(async (event) => {
       const uniqueFilename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
       const filePath = path.join(uploadDir, uniqueFilename);
       await fs.writeFile(filePath, file.data);
+      const urlSubPath = uploadSubdir.split(path.sep).join("/");
       uploadedFiles.push({
         originalName: file.filename,
         filename: uniqueFilename,
-        url: `/uploads/${articleId}/${uniqueFilename}`,
+        url: `/uploads/${urlSubPath}/${uniqueFilename}`,
         mimetype: file.type,
         size: file.data.length
       });

@@ -1,10 +1,9 @@
 import { defineEventHandler, readMultipartFormData, createError } from 'h3'
 import path from 'node:path'
 import fs from 'node:fs/promises'
+import { getUploadsBaseDir } from '../utils/uploads'
 
-// 检查是否生产环境
-const isProd = process.env.NODE_ENV === 'production';
-const UPLOAD_BASE = isProd ? '/var/www/plankbevelen-blog/.output/public/uploads' : path.join(process.cwd(), 'public', 'uploads')
+const UPLOAD_BASE = getUploadsBaseDir()
 
 export default defineEventHandler(async (event) => {
   const files = await readMultipartFormData(event)
@@ -22,8 +21,9 @@ export default defineEventHandler(async (event) => {
   articleId = articleId.replace(/[^a-zA-Z0-9-]/g, '')
   if (!articleId) articleId = 'temp'
 
-  const uploadDir = path.join(UPLOAD_BASE, articleId)
-  console.log(uploadDir)
+  const isArticleId = /^\d+$/.test(articleId)
+  const uploadSubdir = isArticleId ? articleId : path.join('temp', articleId)
+  const uploadDir = path.join(UPLOAD_BASE, uploadSubdir)
 
   await fs.mkdir(uploadDir, { recursive: true })
 
@@ -37,10 +37,11 @@ export default defineEventHandler(async (event) => {
 
       await fs.writeFile(filePath, file.data)
 
+      const urlSubPath = uploadSubdir.split(path.sep).join('/')
       uploadedFiles.push({
         originalName: file.filename,
         filename: uniqueFilename,
-        url: `/uploads/${articleId}/${uniqueFilename}`,
+        url: `/uploads/${urlSubPath}/${uniqueFilename}`,
         mimetype: file.type,
         size: file.data.length,
       })

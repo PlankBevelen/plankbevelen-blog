@@ -1,4 +1,4 @@
-import { c as defineEventHandler, l as createError, m as setHeader, n as sendStream } from '../../_/nitro.mjs';
+import { c as defineEventHandler, m as createError, k as getUploadsBaseDir, n as setHeader, o as sendStream } from '../../_/nitro.mjs';
 import { promises, createReadStream } from 'node:fs';
 import path from 'node:path';
 import 'lru-cache';
@@ -41,7 +41,7 @@ const ____path__get = defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: "File not found" });
   }
   const cleanPath = path.normalize(String(filePathParam)).replace(/^(\.\.[\/\\])+/, "");
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
+  const uploadDir = getUploadsBaseDir();
   const fullPath = path.resolve(uploadDir, cleanPath);
   const rel = path.relative(uploadDir, fullPath);
   if (rel.startsWith("..") || path.isAbsolute(rel)) {
