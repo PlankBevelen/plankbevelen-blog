@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd http://www.google.com/schemas/sitemap-image/1.1 http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://plankbevelen.cn/</loc>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://plankbevelen.cn/" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://plankbevelen.cn/en" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://plankbevelen.cn/" />
+    </url>
+    <url>
+        <loc>https://plankbevelen.cn/about</loc>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://plankbevelen.cn/about" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://plankbevelen.cn/en/about" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://plankbevelen.cn/about" />
+    </url>
+    <url>
+        <loc>https://plankbevelen.cn/article</loc>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://plankbevelen.cn/article" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://plankbevelen.cn/en/article" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://plankbevelen.cn/article" />
+    </url>
+    <url>
+        <loc>https://plankbevelen.cn/project</loc>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://plankbevelen.cn/project" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://plankbevelen.cn/en/project" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://plankbevelen.cn/project" />
+    </url>
+    <url>
+        <loc>https://plankbevelen.cn/article/1</loc>
+        <lastmod>2026-02-28T06:56:25Z</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+        <xhtml:link rel="alternate" href="https://plankbevelen.cn/article/1" hreflang="x-default" />
+        <xhtml:link rel="alternate" href="https://plankbevelen.cn/article/1" hreflang="zh" />
+    </url>
+    <url>
+        <loc>https://plankbevelen.cn/article/2</loc>
+        <lastmod>2026-02-28T06:56:26Z</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+        <xhtml:link rel="alternate" href="https://plankbevelen.cn/article/2" hreflang="x-default" />
+        <xhtml:link rel="alternate" href="https://plankbevelen.cn/article/2" hreflang="zh" />
+    </url>
+    <url>
+        <loc>https://plankbevelen.cn/article/3</loc>
+        <lastmod>2026-02-28T06:56:29Z</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+        <xhtml:link rel="alternate" href="https://plankbevelen.cn/article/3" hreflang="x-default" />
+        <xhtml:link rel="alternate" href="https://plankbevelen.cn/article/3" hreflang="zh" />
+    </url>
+    <url>
+        <loc>https://plankbevelen.cn/article/4</loc>
+        <lastmod>2026-02-28T06:56:31Z</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+        <xhtml:link rel="alternate" href="https://plankbevelen.cn/article/4" hreflang="x-default" />
+        <xhtml:link rel="alternate" href="https://plankbevelen.cn/article/4" hreflang="zh" />
+    </url>
+    <url>
+        <loc>https://plankbevelen.cn/article/5</loc>
+        <lastmod>2026-02-28T06:56:35Z</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+        <xhtml:link rel="alternate" href="https://plankbevelen.cn/article/5" hreflang="x-default" />
+        <xhtml:link rel="alternate" href="https://plankbevelen.cn/article/5" hreflang="zh" />
+    </url>
+</urlset>

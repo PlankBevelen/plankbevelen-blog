@@ -1,0 +1,1 @@
+import{au as i,a,n as e}from"./-SHESWXC.js";import"./CqizBe5N.js";const u=i(async t=>{if(t.path.startsWith("/admin")){if(t.path==="/admin/login")return a().isAuthenticated?e("/admin",{replace:!0}):void 0;if(t.path.startsWith("/admin"))return a().isAuthenticated?void 0:e("/admin/login",{replace:!0})}});export{u as default};
