@@ -16,12 +16,10 @@ class Http {
     const { getToken } = useAuthentication()
     const token = getToken()
 
-    // 默认 Headers
     const headers = {
       ...(options.headers || {}),
     }
 
-    // 注入 Token (针对 /admin 接口)
     if (url.includes('/admin') && token) {
       headers.token = token
     }
@@ -31,21 +29,15 @@ class Http {
         baseURL: this.baseURL,
         ...options,
         headers,
-        // 自动解析响应
         onResponse({ response }) {
-          // 这里可以进行全局的响应拦截处理
-          // 例如统一的错误提示等
+
         },
         onResponseError({ response }) {
-          // 处理 4xx, 5xx 错误
           if (response.status === 401) {
             // 处理未授权，例如跳转登录
           }
         }
       })
-
-      // 假设后端返回格式为 { status: 200, data: ..., msg: ... }
-      // 这里可以根据实际情况解包
       return response
     } catch (error: any) {
       // 统一错误处理
