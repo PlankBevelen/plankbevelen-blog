@@ -1,64 +1,64 @@
 <template>
-    <div class="category">
-        <div class="header">
-            <h2 class="title">分类管理</h2>
-        </div>
-
-        <el-card shadow="hover" class="category-card">
-            <template #header>
-                <div class="card-header-content">
-                    <div class="search-area">
-                        <el-input 
-                            v-model="searchText" 
-                            placeholder="搜索分类名称" 
-                            clearable 
-                            prefix-icon="Search"
-                            class="search-input"
-                        />
-                    </div>
-                    <div class="actions">
-                        <el-button type="primary" icon="Plus" @click="handleEdit('add')">新增分类</el-button>
-                    </div>
-                </div>
-            </template>
-            <div class="category-content">
-                <el-table :data="filteredCategoryList" style="width: 100%" :header-cell-style="{ background: 'var(--bg-color)', color: 'var(--text-color)' }">
-                    <el-table-column prop="name" label="分类名称">
-                        <template #default="scope">
-                            <span style="font-weight: 500;">{{ scope.row.name }}</span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="count" label="文章数" width="120" sortable>
-                        <template #default="scope">
-                            <el-tag type="info" effect="plain" round>{{ scope.row.count || 0 }}</el-tag>
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="created_at" label="创建时间" width="180" sortable></el-table-column>
-                    <el-table-column prop="updated_at" label="更新时间" width="180" sortable></el-table-column>
-                    <el-table-column label="操作" width="180" fixed="right">
-                        <template #default="scope">
-                            <el-button type="primary" link size="small" @click="handleEdit('update', scope.row.id)">编辑</el-button>
-                            <el-button type="danger" link size="small" @click="handleDelete(scope.row.id)">删除</el-button>
-                        </template>
-                    </el-table-column>
-                </el-table>
-            </div>
-        </el-card>
-
-        <el-dialog v-model="dialogVisible" :title="dialogTitle" width="480px" destroy-on-close>
-            <el-form :model="form" :rules="rules" ref="formRef" label-position="top">
-                <el-form-item label="分类名称" prop="name">
-                    <el-input v-model="form.name" placeholder="请输入分类名称" />
-                </el-form-item>
-            </el-form>
-            <template #footer>
-                <div class="dialog-footer">
-                    <el-button @click="dialogVisible = false">取消</el-button>
-                    <el-button type="primary" @click="onSubmit">确定</el-button>
-                </div>
-            </template>
-        </el-dialog>
+  <div class="category">
+    <div class="header">
+        <h2 class="title">分类管理</h2>
     </div>
+
+    <el-card shadow="hover" class="category-card">
+      <template #header>
+          <div class="card-header-content">
+              <div class="search-area">
+                  <el-input 
+                      v-model="searchText" 
+                      placeholder="搜索分类名称" 
+                      clearable 
+                      prefix-icon="Search"
+                      class="search-input"
+                  />
+              </div>
+              <div class="actions">
+                  <el-button type="primary" icon="Plus" @click="handleEdit('add')">新增分类</el-button>
+              </div>
+          </div>
+      </template>
+      <div class="category-content">
+          <el-table :data="filteredCategoryList" style="width: 100%" :header-cell-style="{ background: 'var(--bg-color)', color: 'var(--text-color)' }">
+              <el-table-column prop="name" label="分类名称">
+                  <template #default="scope">
+                      <span style="font-weight: 500;">{{ scope.row.name }}</span>
+                  </template>
+              </el-table-column>
+              <el-table-column prop="count" label="文章数" width="120" sortable>
+                  <template #default="scope">
+                      <el-tag type="info" effect="plain" round>{{ scope.row.count || 0 }}</el-tag>
+                  </template>
+              </el-table-column>
+              <el-table-column prop="createdAt" label="创建时间" width="180" sortable></el-table-column>
+              <el-table-column prop="updatedAt" label="更新时间" width="180" sortable></el-table-column>
+              <el-table-column label="操作" width="180" fixed="right">
+                  <template #default="scope">
+                      <el-button type="primary" link size="small" @click="handleEdit('update', scope.row.id)">编辑</el-button>
+                      <el-button type="danger" link size="small" @click="handleDelete(scope.row.id)">删除</el-button>
+                  </template>
+              </el-table-column>
+          </el-table>
+      </div>
+    </el-card>
+
+    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="480px" destroy-on-close>
+        <el-form :model="form" :rules="rules" ref="formRef" label-position="top">
+            <el-form-item label="分类名称" prop="name">
+                <el-input v-model="form.name" placeholder="请输入分类名称" />
+            </el-form-item>
+        </el-form>
+        <template #footer>
+            <div class="dialog-footer">
+                <el-button @click="dialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="onSubmit">确定</el-button>
+            </div>
+        </template>
+    </el-dialog>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -67,7 +67,6 @@ import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import categoryService from '@/services/category.service'
 import { formatDateTime } from '@/utils/format'
-import appCache from '@/utils/cache'
 
 const searchText = ref('')
 const categoryList = ref<any[]>([])
@@ -81,7 +80,7 @@ const rules = { name: [{ required: true, message: '请输入分类名称', trigg
 const dialogTitle = computed(() => (mode.value === 'add' ? '新增分类' : '编辑分类'))
 const filteredCategoryList = computed(() => {
     const text = (searchText.value || '').trim()
-    if (!text) return categoryList.value.map((c) => ({ ...c, created_at: formatDateTime(c.created_at), updated_at: formatDateTime(c.updated_at) }))
+    if (!text) return categoryList.value.map((c) => ({ ...c, createdAt: formatDateTime(c.createdAt), updatedAt: formatDateTime(c.updatedAt) }))
     return categoryList.value.filter((c) => String(c.name).includes(text))
 })
 
@@ -90,7 +89,6 @@ const getCategoryList = async () => {
         const res: any = await categoryService.getCategories()
         if (res.status === 200) {
             categoryList.value = res.data
-            appCache.setCategories(res.data)
         }
     } catch (error: any) {
         ElMessage.error(error.msg || '分类查询错误')
@@ -150,12 +148,7 @@ const onSubmit = async () => {
 }
 
 onMounted(() => { 
-    const categories = appCache.getCategories()
-    if (categories) {
-        categoryList.value = categories.map((c) => ({ ...c, created_at: formatDateTime(c.created_at), updated_at: formatDateTime(c.updated_at) }))
-    } else {
-        getCategoryList() 
-    }
+  getCategoryList() 
 })
 </script>
 

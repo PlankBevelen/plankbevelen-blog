@@ -1,62 +1,67 @@
-import type { PoolConnection } from 'mysql2/promise'
-import { execute } from './db'
+import type { Db, ClientSession } from 'mongodb'
+import { getCollections } from './mongo'
 
 /**
  * 解析标签字符串为数组
  * 处理中文逗号，去重，去除空值
  */
-function parseTags(tagsStr: string | null): string[] {
-  if (!tagsStr) return []
-  return tagsStr
-    .replace(/，/g, ',')
-    .split(',')
-    .map(t => t.trim())
-    .filter(t => t.length > 0)
+function parseTagsInput(tags: string | string[] | null | undefined): string[] {
+  if (!tags) return []
+  if (Array.isArray(tags)) {
+    return Array.from(new Set(tags.map(t => String(t).trim()).filter(t => t.length > 0)))
+  }
+  return Array.from(
+    new Set(
+      String(tags)
+        .replace(/，/g, ',')
+        .split(',')
+        .map(t => t.trim())
+        .filter(t => t.length > 0)
+    )
+  )
 }
 
 /**
  * 维护标签计数
  */
 export async function updateTagsCount(
-  oldTagsStr: string | null,
-  newTagsStr: string | null,
-  connection: PoolConnection
+  oldTags: string | string[] | null,
+  newTags: string | string[] | null,
+  ctx: { db: Db; session?: ClientSession }
 ) {
-  const oldTags = new Set(parseTags(oldTagsStr))
-  const newTags = new Set(parseTags(newTagsStr))
+  const { tags } = getCollections(ctx.db)
+  const now = new Date()
+
+  const oldSet = new Set(parseTagsInput(oldTags))
+  const newSet = new Set(parseTagsInput(newTags))
 
   // 找出需要增加计数的标签 (在新集合中但不在旧集合中)
-  const tagsToAdd = [...newTags].filter(t => !oldTags.has(t))
+  const tagsToAdd = [...newSet].filter(t => !oldSet.has(t))
   
   // 找出需要减少计数的标签 (在旧集合中但不在新集合中)
-  const tagsToRemove = [...oldTags].filter(t => !newTags.has(t))
+  const tagsToRemove = [...oldSet].filter(t => !newSet.has(t))
 
-  // 批量增加计数
-  if (tagsToAdd.length > 0) {
-    const values = tagsToAdd.map(() => '(?, 1)').join(', ')
-    const params = tagsToAdd
-    await execute(
-      `INSERT INTO tags (name, count) VALUES ${values} ON DUPLICATE KEY UPDATE count = count + 1`,
-      params,
-      connection
+  const opts = ctx.session ? { session: ctx.session } : undefined
+
+  await Promise.all([
+    ...tagsToAdd.map(name =>
+      tags.updateOne(
+        { name },
+        { $inc: { count: 1 }, $set: { updatedAt: now }, $setOnInsert: { createdAt: now } },
+        { ...opts, upsert: true }
+      )
+    ),
+    ...tagsToRemove.map(name =>
+      tags.updateOne(
+        { name },
+        { $inc: { count: -1 }, $set: { updatedAt: now } },
+        opts
+      )
     )
-  }
+  ])
 
-  // 批量减少计数
   if (tagsToRemove.length > 0) {
-    // MySQL 的 IN 语法需要 (?, ?, ?)
-    const placeholders = tagsToRemove.map(() => '?').join(', ')
-    await execute(
-      `UPDATE tags SET count = CASE WHEN count > 0 THEN count - 1 ELSE 0 END WHERE name IN (${placeholders})`,
-      tagsToRemove,
-      connection
-    )
-  }
-
-  // 清理计数为 0 的标签
-  // 注意：为了性能，可以不每次都清理，或者定期清理。但在触发器逻辑中是每次都清理的。
-  if (tagsToRemove.length > 0) {
-    await execute('DELETE FROM tags WHERE count <= 0', [], connection)
+    await tags.deleteMany({ count: { $lte: 0 } }, opts)
   }
 }
 
@@ -66,8 +71,11 @@ export async function updateTagsCount(
 export async function updateCategoryCount(
   oldCategoryId: number | string | null,
   newCategoryId: number | string | null,
-  connection: PoolConnection
+  ctx: { db: Db; session?: ClientSession }
 ) {
+  const { categories } = getCollections(ctx.db)
+  const now = new Date()
+
   const oldId = oldCategoryId ? Number(oldCategoryId) : null
   const newId = newCategoryId ? Number(newCategoryId) : null
 
@@ -75,19 +83,28 @@ export async function updateCategoryCount(
 
   // 减少旧分类计数
   if (oldId) {
-    await execute(
-      'UPDATE categories SET count = CASE WHEN count > 0 THEN count - 1 ELSE 0 END WHERE id = ?',
-      [oldId],
-      connection
+    await categories.updateOne(
+      { id: oldId },
+      [
+        {
+          $set: {
+            count: {
+              $cond: [{ $gt: ['$count', 0] }, { $subtract: ['$count', 1] }, 0]
+            },
+            updatedAt: now
+          }
+        }
+      ],
+      ctx.session ? { session: ctx.session } : undefined
     )
   }
 
   // 增加新分类计数
   if (newId) {
-    await execute(
-      'UPDATE categories SET count = count + 1 WHERE id = ?',
-      [newId],
-      connection
+    await categories.updateOne(
+      { id: newId },
+      { $inc: { count: 1 }, $set: { updatedAt: now } },
+      ctx.session ? { session: ctx.session } : undefined
     )
   }
 }

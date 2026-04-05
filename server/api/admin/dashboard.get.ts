@@ -1,33 +1,60 @@
 import { defineEventHandler, setResponseStatus } from 'h3'
-import { query } from '../../utils/db'
+import { getDb, getCollections } from '../../utils/mongo'
 import dayjs from 'dayjs'
 
 export default defineEventHandler(async (event) => {
   try {
+    const db = getDb()
+    const { articles: articlesCol, categories: categoriesCol, tags: tagsCol } = getCollections(db)
+    const notDeleted: any = { $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }] }
     // 1. 基础计数
-    const [totalArticles] = await query<any>('SELECT COUNT(*) as count FROM articles')
-    const [totalCategories] = await query<any>('SELECT COUNT(*) as count FROM categories')
-    const [totalTags] = await query<any>('SELECT COUNT(*) as count FROM tags')
+    const [totalArticles, totalCategories, totalTags] = await Promise.all([
+      articlesCol.countDocuments(notDeleted),
+      categoriesCol.countDocuments({}),
+      tagsCol.countDocuments({})
+    ])
 
     // 2. 最近文章 (Top 5)
-    const recentArticles = await query<any>('SELECT id, title, created_at, category_id FROM articles ORDER BY created_at DESC LIMIT 5')
+    const recentArticles = (await articlesCol
+      .find(notDeleted, { projection: { _id: 0, id: 1, title: 1, createdAt: 1, categoryId: 1 } })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .toArray()).map((a: any) => ({
+        id: a.id,
+        title: a.title,
+        created_at: a.createdAt,
+        category_id: a.categoryId
+      }))
 
     // 3. 分类统计 (Top 10)
-    const categoryStats = await query<any>('SELECT name, count as value FROM categories ORDER BY count DESC LIMIT 10')
+    const categoryStats = (await categoriesCol
+      .find({}, { projection: { _id: 0, name: 1, count: 1 } })
+      .sort({ count: -1 })
+      .limit(10)
+      .toArray()).map((c: any) => ({ name: c.name, value: c.count }))
 
     // 4. 标签统计 (Top 10)
-    const tagStats = await query<any>('SELECT name, count as value FROM tags ORDER BY count DESC LIMIT 10')
+    const tagStats = (await tagsCol
+      .find({}, { projection: { _id: 0, name: 1, count: 1 } })
+      .sort({ count: -1, name: 1 })
+      .limit(10)
+      .toArray()).map((t: any) => ({ name: t.name, value: t.count }))
 
     // 5. 发布趋势 (最近 6 个月)
-    // 注意：这里使用简单的 SQL 分组，可能需要根据实际数据库方言调整
-    // MySQL 8.0+ 支持 DATE_FORMAT
-    const trendStats = await query<any>(`
-      SELECT DATE_FORMAT(created_at, '%Y-%m') as date, COUNT(*) as count
-      FROM articles
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
-      GROUP BY date
-      ORDER BY date ASC
-    `)
+    const startDate = dayjs().subtract(6, 'month').toDate()
+    const trendStats = await articlesCol
+      .aggregate([
+        { $match: { ...notDeleted, createdAt: { $gte: startDate } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m', date: '$createdAt', timezone: '+08:00' } },
+            count: { $sum: 1 }
+          }
+        },
+        { $project: { _id: 0, date: '$_id', count: 1 } },
+        { $sort: { date: 1 } }
+      ])
+      .toArray()
 
     // 补全缺失的月份 (如果某个月没有文章，SQL 可能不返回)
     const months: string[] = []
@@ -46,9 +73,9 @@ export default defineEventHandler(async (event) => {
       status: 200,
       msg: 'success',
       data: {
-        totalArticles: totalArticles?.count || 0,
-        totalCategories: totalCategories?.count || 0,
-        totalTags: totalTags?.count || 0,
+        totalArticles: totalArticles || 0,
+        totalCategories: totalCategories || 0,
+        totalTags: totalTags || 0,
         recentArticles: recentArticles || [],
         categoryStats: categoryStats || [],
         tagStats: tagStats || [],

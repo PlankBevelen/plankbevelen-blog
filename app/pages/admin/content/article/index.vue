@@ -76,18 +76,14 @@ definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
 import { ref, computed, onMounted, watch } from 'vue'
 import type { Article } from '@/types/article'
-import type { Category } from '@/types/category'
 import articleService from '@/services/article.service'
-import categoryService from '@/services/category.service'
 import { useRoute } from 'vue-router'
-import appCache from '@/utils/cache'
 import { formatDateTime } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import tagService from '@/services/tag.service'
 
 const searchText = ref('')
 const articleList = ref<Article[]>([])
-const categoryList = ref<Category[]>([])
 const page = ref(1)
 const limit = ref(10)
 const total = ref(0)
@@ -114,19 +110,6 @@ const getArticleList = async () => {
 }
 
 onMounted(async () => {
-    try {
-        if (!appCache.getCategories()) {
-            const res = await categoryService.getCategories()
-            if ( res.status === 200 && res.data.status === 200) {
-                categoryList.value = res.data.data || []
-                appCache.setCategories(categoryList.value)
-            } 
-        } else {
-            categoryList.value = appCache.getCategories() || []
-        }
-    } catch (error) {
-        console.error('获取文章列表失败:', error)
-    }
     await getArticleList()
 })
 
@@ -145,7 +128,6 @@ const handleDelete = async (id: string) => {
       if (removeTags.length) {
         await tagService.syncTags([], removeTags)
       }
-      appCache.removeCategories()
       ElMessage.success('删除成功')
       await getArticleList()
     }

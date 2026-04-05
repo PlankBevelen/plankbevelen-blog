@@ -1,7 +1,5 @@
 import { defineEventHandler, getQuery, setResponseStatus } from 'h3'
-import { query } from '../../utils/db'
-import { promises as fs } from 'node:fs'
-import path from 'node:path'
+import { getDb, getCollections } from '../../utils/mongo'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,62 +10,70 @@ export default defineEventHandler(async (event) => {
     const sort = String(q.sort || 'created').toLowerCase() // 排序方式：updated|created
     const offset = (pageNum - 1) * pageSize
 
-    const params: any[] = []
-    
-    // Build WHERE clause
-    const conditions = ['a.deleted_at IS NULL']
+    const db = getDb()
+    const { articles } = getCollections(db)
+
+    const matchDeleted: any = { $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }] }
+
+    const pipeline: any[] = [
+      { $match: matchDeleted },
+      {
+        $lookup: {
+          from: 'categories',
+          localField: 'categoryId',
+          foreignField: 'id',
+          as: 'category'
+        }
+      },
+      { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } }
+    ]
+
     if (keyword) {
-      conditions.push('(a.title LIKE ? OR a.tags LIKE ? OR c.name LIKE ?)')
-      params.push(`%${keyword}%`, `%${keyword}%`, `%${keyword}%`)
+      const rx = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')
+      pipeline.push({
+        $match: {
+          $or: [{ title: rx }, { tags: rx }, { 'category.name': rx }]
+        }
+      })
     }
-    const where = 'WHERE ' + conditions.join(' AND ')
 
-    const orderBy = sort === 'created'
-      ? 'ORDER BY a.created_at DESC, a.id DESC'
-      : 'ORDER BY a.updated_at DESC, a.created_at DESC, a.id DESC'
+    const sortStage =
+      sort === 'created'
+        ? { createdAt: -1, id: -1 }
+        : { updatedAt: -1, createdAt: -1, id: -1 }
 
-    const listSql = `
-      SELECT a.id, a.title, a.tags, a.file_path, a.created_at, a.updated_at, a.category_id, c.name AS category_name
-      FROM articles a
-      LEFT JOIN categories c ON a.category_id = c.id
-      ${where}
-      ${orderBy}
-      LIMIT ? OFFSET ?
-    `
-    const countSql = `
-      SELECT COUNT(*) AS total
-      FROM articles a
-      LEFT JOIN categories c ON a.category_id = c.id
-      ${where}
-    `
-
-    const listParams = [...params, pageSize, offset]
-    const countParams = params
-
-    const rows: any = await query(listSql, listParams)
-    const countRows: any = await query(countSql, countParams)
-    const total = Number(countRows?.[0]?.total || 0)
-
-    const data = await Promise.all((rows || []).map(async (r: any) => {
-      let content = ''
-      const filePath = String(r.file_path || '')
-      if (filePath) {
-        const absPath = path.join(process.cwd(), 'public', filePath.replace(/^\//, ''))
-        try {
-          content = await fs.readFile(absPath, 'utf-8')
-        } catch (e) {
-          content = ''
+    pipeline.push(
+      { $sort: sortStage },
+      {
+        $facet: {
+          data: [
+            { $skip: offset },
+            { $limit: pageSize },
+            {
+              $project: {
+                _id: 0,
+                id: 1,
+                title: 1,
+                tags: 1,
+                category: { $ifNull: ['$category.name', ''] },
+                content: 1,
+                createTime: '$createdAt',
+                updateTime: '$updatedAt'
+              }
+            }
+          ],
+          total: [{ $count: 'value' }]
         }
       }
-      return {
-        id: String(r.id),
-        title: r.title,
-        tags: (r.tags || '').split(',').filter((t: string) => !!t),
-        category: r.category_name || '',
-        content,
-        createTime: r.created_at,
-        updateTime: r.updated_at,
-      }
+    )
+
+    const aggRes = await articles.aggregate(pipeline).toArray()
+    const res0: any = aggRes?.[0] || { data: [], total: [] }
+    const total = Number(res0?.total?.[0]?.value || 0)
+    const data = (res0?.data || []).map((r: any) => ({
+      ...r,
+      id: String(r.id),
+      tags: Array.isArray(r.tags) ? r.tags : []
     }))
 
     setResponseStatus(event, 200)

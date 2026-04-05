@@ -1,59 +1,65 @@
 import { setResponseStatus, defineEventHandler } from 'h3'
-import { query } from '../utils/db'
-import { promises as fs } from 'node:fs'
-import path from 'node:path'
+import { getDb, getCollections } from '../utils/mongo'
 
 async function getArticles(limit: number, sort: 'created' | 'updated' = 'updated') {
-  const orderBy = sort === 'created'
-    ? 'ORDER BY a.created_at DESC, a.id DESC'
-    : 'ORDER BY a.updated_at DESC, a.created_at DESC, a.id DESC'
-    
-  const sql = `
-    SELECT a.id, a.title, a.tags, a.file_path, a.created_at, a.updated_at, a.category_id, c.name AS category_name
-    FROM articles a
-    LEFT JOIN categories c ON a.category_id = c.id
-    WHERE a.deleted_at IS NULL
-    ${orderBy}
-    LIMIT ?
-  `
-  
-  const rows = await query<any>(sql, [limit])
-  
-  return Promise.all((rows || []).map(async (r: any) => {
-      let content = ''
-      const filePath = String(r.file_path || '')
-      if (filePath) {
-        const absPath = path.join(process.cwd(), 'public', filePath.replace(/^\//, ''))
-        try {
-          content = await fs.readFile(absPath, 'utf-8')
-        } catch (e) {
-          content = ''
+  const db = getDb()
+  const { articles } = getCollections(db)
+
+  const sortStage =
+    sort === 'created'
+      ? { createdAt: -1, id: -1 }
+      : { updatedAt: -1, createdAt: -1, id: -1 }
+
+  const rows: any = await articles
+    .aggregate([
+      { $match: { $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }] } },
+      {
+        $lookup: {
+          from: 'categories',
+          localField: 'categoryId',
+          foreignField: 'id',
+          as: 'category'
+        }
+      },
+      { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
+      { $sort: sortStage },
+      { $limit: limit },
+      {
+        $project: {
+          _id: 0,
+          id: 1,
+          title: 1,
+          tags: 1,
+          category: { $ifNull: ['$category.name', ''] },
+          content: 1,
+          createTime: '$createdAt',
+          updateTime: '$updatedAt'
         }
       }
-      return {
-        id: String(r.id),
-        title: r.title,
-        tags: (r.tags || '').split(',').filter((t: string) => !!t),
-        category: r.category_name || '',
-        content, 
-        createTime: r.created_at,
-        updateTime: r.updated_at,
-      }
-    }))
+    ])
+    .toArray()
+
+  return (rows || []).map((r: any) => ({
+    ...r,
+    id: String(r.id),
+    tags: Array.isArray(r.tags) ? r.tags : []
+  }))
 }
 
 export default defineEventHandler(async (event) => {  
   try {
+    const db = getDb()
+    const { categories: categoriesCol, tags: tagsCol, articles: articlesCol } = getCollections(db)
     // Parallel execution for better performance and reliability (no loopback http calls)
     const [articles, categories, tags, latestArticlesRaw, articleCountRes] = await Promise.all([
       getArticles(10, 'updated'),
-      query<any>('SELECT * FROM categories'),
-      query<any>('SELECT `name`, `count` FROM `tags` ORDER BY `count` DESC, `name` ASC'),
+      categoriesCol.find({}, { projection: { _id: 0 } }).sort({ id: 1 }).toArray(),
+      tagsCol.find({}, { projection: { _id: 0, name: 1, count: 1 } }).sort({ count: -1, name: 1 }).toArray(),
       getArticles(5, 'created'),
-      query<any>('SELECT COUNT(*) as total FROM articles WHERE deleted_at IS NULL')
+      articlesCol.countDocuments({ $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }] })
     ])
 
-    const articleCount = Number(articleCountRes?.[0]?.total || 0)
+    const articleCount = Number(articleCountRes || 0)
     
     const latestArticles = latestArticlesRaw.map((r: any) => ({
       title: r.title,

@@ -1,5 +1,5 @@
 import { defineEventHandler, readBody, setResponseStatus } from 'h3'
-import { execute, query } from '../../utils/db'
+import { getDb, getCollections } from '../../utils/mongo'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -10,10 +10,12 @@ export default defineEventHandler(async (event) => {
       setResponseStatus(event, 400)
       return { status: 400, msg: '参数错误', data: null }
     }
-    await execute('UPDATE categories SET name = ? WHERE id = ?', [name, id])
-    const rows: any = await query('SELECT * FROM categories WHERE id = ?', [id])
+    const db = getDb()
+    const { categories } = getCollections(db)
+    await categories.updateOne({ id }, { $set: { name, updatedAt: new Date() } })
+    const doc: any = await categories.findOne({ id }, { projection: { _id: 0 } })
     setResponseStatus(event, 200)
-    return { status: 200, msg: '更新成功', data: rows?.[0] || { id, name } }
+    return { status: 200, msg: '更新成功', data: doc || { id, name } }
   } catch (error) {
     setResponseStatus(event, 500)
     return { status: 500, msg: '服务器错误', data: null }

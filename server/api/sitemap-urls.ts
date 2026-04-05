@@ -1,13 +1,21 @@
 import { defineEventHandler } from 'h3'
-import { query } from '../utils/db'
+import { getDb, getCollections } from '../utils/mongo'
 
 export default defineEventHandler(async () => {
   try {
-    const articles: any = await query('SELECT id, title, updated_at, created_at FROM articles ORDER BY updated_at DESC')
+    const db = getDb()
+    const { articles: articlesCol } = getCollections(db)
+    const articles: any = await articlesCol
+      .find(
+        { $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }] },
+        { projection: { _id: 0, id: 1, title: 1, updatedAt: 1, createdAt: 1 } }
+      )
+      .sort({ updatedAt: -1 })
+      .toArray()
     
     return articles.map((article: any, index: number) => ({
       loc: `/article/${article.id}`,
-      lastmod: article.updated_at || article.created_at,
+      lastmod: article.updatedAt || article.createdAt,
       changefreq: index < 10 ? 'daily' : 'weekly',
       priority: index < 5 ? 0.9 : (index < 20 ? 0.8 : 0.7)
     }))

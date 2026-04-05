@@ -24,14 +24,14 @@
           </el-form-item>
           <el-form-item label="文章标签" prop="tags">
             <el-select
-                v-model="form.tags"
-                multiple
-                filterable
-                allow-create
-                default-first-option
-                :reserve-keyword="false"
-                placeholder="输入或选择标签"
-                style="width: 100%"
+              v-model="form.tags"
+              multiple
+              filterable
+              allow-create
+              default-first-option
+              :reserve-keyword="false"
+              placeholder="输入或选择标签"
+              style="width: 100%"
             >
               <el-option v-for="item in tagOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
@@ -64,7 +64,6 @@ import { ElMessage } from 'element-plus'
 import articleService from '@/services/article.service'
 import type { NewArticle, Article } from '@/types/article'
 import categoryService from '@/services/category.service'
-import appCache from '@/utils/cache'
 import tagService from '@/services/tag.service'
 import uploadService from '@/services/upload.service'
 
@@ -117,22 +116,16 @@ onMounted(() => {
   })
 
   // 加载分类标签
-  const categoryList = appCache.getCategories()
-  if (categoryList) {
-    categoryOptions.value = categoryList.map((item: any) => ({
-      label: item.name,
-      value: item.id
-    }))
-  }else {
-    // 缓存中没有分类标签，从服务器加载
-    categoryService.getCategories().then((res: any) => {
-      categoryOptions.value = res.data.map((item: any) => ({
+  categoryService.getCategories().then((res: any) => {
+    console.log(res)
+    if (res.status === 200) {
+      const list = res.data || []
+      categoryOptions.value = list.map((item: any) => ({
         label: item.name,
         value: item.id
       }))
-      appCache.setCategories(res.data.data)
-    })
-  }
+    }
+  })
   if (mode.value === 'update') {
     const id = route.query.id as string | undefined
     if (id) {
@@ -166,11 +159,10 @@ const onSubmit = async () => {
   try {
     form.value.tempId = tempId.value
     const res = await articleService.createArticle(form.value)
-    if (res.status === 200 && res.data.status === 200) {
+    if ( res.status === 200 ) {
       if (Array.isArray(form.value.tags) && form.value.tags.length > 0) {
         await tagService.syncTags(form.value.tags, [])
       }
-      appCache.removeCategories()
       ElMessage.success('保存成功')
       navigateTo('/admin/content/article', { replace: true })
     }
@@ -181,7 +173,7 @@ const onSubmit = async () => {
   try {
     const id = route.query.id as string
     const res = await articleService.updateArticle(id, form.value)
-    if (res.status === 200 && res.data.status === 200) {
+    if ( res.status === 200 ) {
       const currentTags = Array.isArray(form.value.tags) ? form.value.tags : []
       const prevTags = originalTags.value
       const add = currentTags.filter(t => !prevTags.includes(t))
@@ -189,7 +181,6 @@ const onSubmit = async () => {
       if (add.length || remove.length) {
         await tagService.syncTags(add, remove)
       }
-      appCache.removeCategories()
       ElMessage.success('保存成功')
       navigateTo('/admin/content/article', { replace: true })
     }
