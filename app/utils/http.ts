@@ -1,10 +1,5 @@
 import { useAuthentication } from "@/composables/useAuthentication"
-import { createError } from "h3"
 
-/**
- * 统一的 HTTP 请求工具，基于 $fetch 封装
- * 自动处理 baseURL, token 注入, 响应解包和错误处理
- */
 class Http {
   private baseURL: string
 

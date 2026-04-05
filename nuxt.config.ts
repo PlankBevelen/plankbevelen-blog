@@ -42,18 +42,18 @@ export default defineNuxtConfig({
     head: {
       htmlAttrs: {
         lang: 'zh'
-      },
+      },      
+      title: 'PlankBevelen',
+      titleTemplate: '%s | PlankBevelen',
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'icon', type: 'image/webp', href: '/img/logo.webp' },
         { rel: 'apple-touch-icon', href: '/img/logo.webp' }
       ],
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'format-detection', content: 'telephone=no' },
-        { name: 'keywords', content: 'plankbevelen, plank, bevelen, PlankBevelen, 个人博客, 前端开发, Web 技术, 编程经验, 技术文章' },
-        { name: 'description', content: '个人技术博客，分享前端开发、Web 技术、编程经验和技术文章' },
+        { name: 'author', content: 'PlankBevelen' },
       ]
     }
   },

@@ -20,7 +20,7 @@
                 </div>
                 <MdPreview :modelValue="displayContent" :theme="currentTheme" :noMermaid="true" :noKatex="true" />
                 <div class="prev-next">
-                  <div class="item prev" v-if="article?.prev" >
+                  <div class="item prev" v-if="article?.prev">
                     <NuxtLink :to="{ path: '/article/' + article.prev.id }" class="link">{{ $t('pages.article.articleDetail.prev') }}：{{ article.prev.title }}</NuxtLink>
                   </div>
                   <div class="item next" v-if="article?.next">
@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useAsyncData, useHead, navigateTo, createError } from 'nuxt/app'
+import { useAsyncData, navigateTo, createError } from 'nuxt/app'
 import http from '~/utils/http'
 import Card from '@/components/cards/card.vue'
 import TwoColumnLayout from '@/components/layouts/TwoColumnLayout.vue'
@@ -48,16 +48,14 @@ import { formatDateTime } from '@/utils/format'
 import { useAdminStore } from '@/stores/admin.store'
 import Toc from '@/components/article/toc.vue'
 import articleService from '@/services/article.service'
+import { useArticleSeo } from '@/composables/useSeo'
 
-const { t } = useI18n() 
-
+const { t } = useI18n()
 const admin = useAdminStore()
 const currentTheme = computed(() => admin.getTheme)
-
 const route = useRoute()
-const id = computed(() => {
-  return String(route.params.id || '')
-})
+
+const id = computed(() => String(route.params.id || ''))
 if (!id.value) {
   await navigateTo('/article', { replace: true })
 }
@@ -66,25 +64,17 @@ const { data: detailData, pending } = await useAsyncData(
   'article-detail',
   async () => {
     const rid = id.value
-    if (!rid) {
-      throw createError({ statusCode: 400, statusMessage: '参数错误' })
-    }
-    // 统一使用 Service，由于 Service 内部已使用 $fetch 封装的 http 工具，
-    // 在 SSR 和客户端均可正常工作，无需 process.server 判断
+    if (!rid) throw createError({ statusCode: 400, statusMessage: '参数错误' })
     const res: any = await articleService.getArticle(rid)
-    if (res?.status === 200) {
-      return res.data
-    }
+    if (res?.status === 200) return res.data
     return null
   },
-  {
-    watch: [id]
-  }
+  { watch: [id] }
 )
 
 const article = computed(() => detailData.value || null)
 const timeText = computed(() => formatDateTime(article.value?.updateTime || article.value?.createTime || ''))
-const displayContent = computed(() =>  String(article.value?.content || '') )
+const displayContent = computed(() => String(article.value?.content || ''))
 
 const { data: homeData } = await useAsyncData('article-detail-home-data', async () => {
   const res: any = await http.get('/home.data')
@@ -100,82 +90,52 @@ const articleCategory = computed(() => {
   return c ? c.name : ''
 })
 
-useHead({
-  title: article.value?.title ? `${article.value.title}` : t('pages.article.articleDetail.fallback'),
-  meta: [
-    { name: 'description', content: (article.value?.content || '').slice(0, 120).replace(/[#*`]/g, '') || t('pages.article.articleDetail.meta.description') },
-    { name: 'keywords', content: (article.value?.tags || []).join(',') + ',plankbevelen, plank, bevelen, PlankBevelen' || t('pages.article.articleDetail.meta.keywords') }
-  ],
-  link: [
-    { rel: 'canonical', href: `https://plankbevelen.cn/article/${id.value}` }
-  ],
-  script: [
-    {
-      type: 'application/ld+json',
-      children: computed(() => JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'BlogPosting',
-        headline: article.value?.title,
-        image: [], 
-        datePublished: article.value?.createTime,
-        dateModified: article.value?.updateTime || article.value?.createTime,
-        author: [{
-          '@type': 'Person',
-          name: 'PlankBevelen', 
-          url: 'https://plankbevelen.cn'
-        }]
-      }))
-    }
-  ]
+// SEO：文章详情页使用专属 composable，处理动态数据 + ld+json + canonical 覆盖
+useArticleSeo({
+  id,
+  title: computed(() => article.value?.title),
+  content: computed(() => article.value?.content),
+  tags: computed(() => article.value?.tags || []),
+  createTime: computed(() => article.value?.createTime),
+  updateTime: computed(() => article.value?.updateTime),
 })
-
 </script>
 
 <style lang="less" scoped>
 .article-detail {
-    min-height: 100vh;
-    padding-top: @header-height;
-    .container {
-        padding: 40px 0;
-    }
+  min-height: 100vh;
+  padding-top: @header-height;
+  .container { padding: 40px 0; }
 }
 .detailCard {
-  :deep(.card-content) {
-    padding: 40px 40px 20px 40px;
-  }
+  :deep(.card-content) { padding: 40px 40px 20px 40px; }
 }
 .title {
-    font-size: @font-size-xxl;
-    font-weight: 700;
-    color: var(--text-color);
-    margin-bottom: 20px;
-    text-align: center;
+  font-size: @font-size-xxl;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 20px;
+  text-align: center;
 }
 .meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--secondary-color);
+  font-size: @font-size-sm;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+  .category { color: var(--primary-color); }
+  .dot { font-weight: bold; }
+  .tags {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 12px;
-    color: var(--secondary-color);
-    font-size: @font-size-sm;
-    margin-bottom: 40px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
-    .category {
-        color: var(--primary-color);
-    }
-    .dot {
-        font-weight: bold;
-    }
-    .tags {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        margin-left: 12px;
-        :deep(.nuxt-icon) {
-            font-size: @font-size-md;
-        }
-    }
+    gap: 4px;
+    margin-left: 12px;
+    :deep(.nuxt-icon) { font-size: @font-size-md; }
+  }
 }
 .prev-next {
   margin-top: 40px;
@@ -184,19 +144,14 @@ useHead({
   display: flex;
   width: 100%;
   justify-content: space-between;
-  
   .item {
     font-size: @font-size-sm;
     color: var(--secondary-color);
-    
     .link {
       color: var(--text-color);
       text-decoration: none;
       transition: color 0.3s;
-      
-      &:hover {
-        color: var(--primary-color);
-      }
+      &:hover { color: var(--primary-color); }
     }
   }
 }

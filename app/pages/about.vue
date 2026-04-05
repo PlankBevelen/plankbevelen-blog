@@ -55,12 +55,10 @@ const { data: aboutData } = await useAsyncData('about-md', async () => {
 }, { watch: [mdPath] })
 const aboutMd = computed(() => aboutData.value || '')
 
-useHead({
+// SEO：canonical 由 app.vue 统一处理，这里只补充页面自己的 title 和 description
+usePageSeo({
   title: t('pages.about.title'),
-  meta: [
-    { name: 'description', content: t('pages.about.meta.description') },
-    { name: 'keywords', content: t('pages.about.meta.keywords') }
-  ]
+  description: t('pages.about.meta.description'),
 })
 </script>
 
