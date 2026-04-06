@@ -33,22 +33,25 @@ const initThree = () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)) // 限制最高 1.5，防止高分屏爆炸
   container.value.appendChild(renderer.domElement)
 
-  const particleCount = 12000 
+  const isDark = admin.getTheme === 'dark'
+  const particleCount = isDark ? 12000 : 1200
   const geometry = new THREE.BufferGeometry()
   const positions = new Float32Array(particleCount * 3)
 
   for (let i = 0; i < particleCount * 3; i++) {
-    positions[i] = (Math.random() - 0.5) * 1000 // 随机位置
+    const i3 = i * 3
+    positions[i3] = (Math.random() - 0.5) * 1000  // x 不变
+    positions[i3 + 1] = (Math.random() - 0.5) * 1000  // y 不变
+    positions[i3 + 2] = (Math.random() - 0.5) * 1000 - 300  // z 整体往后偏移，远离摄像机
   }
 
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
 
-  const isDark = admin.getTheme === 'dark'
   const material = new THREE.PointsMaterial({
-    color: isDark ? 0x888888 : 0xcccccc,
+    color: isDark ? 0x888888 : 0x999999,
     size: isDark ? 1.2 : 2,
     transparent: true,
-    opacity: 0.6,
+    opacity: isDark ? 0.6 : 0.8,
     sizeAttenuation: true,
   })
 
@@ -94,7 +97,10 @@ const animate = (timestamp: number) => {
 
 watch(() => admin.getTheme, (newTheme) => {
   if (particles && particles.material instanceof THREE.PointsMaterial) {
-    particles.material.color.setHex(newTheme === 'dark' ? 0x888888 : 0xcccccc)
+    const isDark = newTheme === 'dark'
+    particles.material.color.setHex(isDark ? 0x888888 : 0x999999)
+    particles.material.opacity = isDark ? 0.6 : 0.8
+    particles.material.needsUpdate = true
   }
 })
 
