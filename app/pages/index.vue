@@ -1,11 +1,11 @@
 <template>
-  <div class="home">
-    <div class="container">
-      <h1 class="seo-hidden-title">PlankBevelen (Plank / Bevelen) 的个人博客</h1>
-      <ThreeColumnLayout :loading="pending">
+  <div class="min-h-screen pt-header">
+    <div class="container py-page">
+      <h1 class="sr-only">PlankBevelen (Plank / Bevelen) 的个人博客</h1>
+      <LayoutThreeColumn :loading="pending">
         <template #left class="left">
-          <BloggerCard :articleCount="homeData.stats?.articles " :categoryCount="homeData.stats?.categories" :tagCount="homeData.stats?.tags" />
-          <RecordLinkCard />
+          <WidgetBlogger :articleCount="homeData.stats?.articles " :categoryCount="homeData.stats?.categories" :tagCount="homeData.stats?.tags" />
+          <WidgetRecordLink />
         </template>
         <template #middle>
           <keep-alive>
@@ -13,23 +13,23 @@
           </keep-alive>
         </template>
         <template #right>
-          <LatestArticlesCard :articles="homeData.latestArticles" />
-          <CategoryCard :categories="homeData.categories" @select="onSelectCategory"/>
-          <TagCard :tags="homeData.tags" />
+          <WidgetLatest :articles="homeData.latestArticles" />
+          <WidgetCategory :categories="homeData.categories" @select="onSelectCategory"/>
+          <WidgetTag :tags="homeData.tags" />
         </template>
-      </ThreeColumnLayout>
+      </LayoutThreeColumn>
     </div>        
   </div>
 </template>
 
 <script setup lang="ts">
-import ThreeColumnLayout from '@/components/layouts/ThreeColumnLayout.vue'
-import BloggerCard from '@/components/cards/blogger.vue'
-import RecordLinkCard from '@/components/cards/recordLink.vue'
-import ArticleList from '@/components/article/articleList.vue'
-import CategoryCard from '@/components/cards/category.vue'
-import TagCard from '@/components/cards/tag.vue'
-import LatestArticlesCard from '@/components/article/latest.vue'
+
+
+
+
+
+
+
 import { useAsyncData } from 'nuxt/app'
 import http from '~/utils/http'
 import { SITE_URL, SITE_AUTHOR, usePageSeo } from '@/composables/useSeo'
@@ -112,24 +112,3 @@ useHead({
   ]
 })
 </script>
-
-<style lang="less" scoped>
-.home {
-    min-height: 100vh;
-    padding-top: @header-height;
-    .container {
-        padding: 40px 0;
-    }
-}
-.seo-hidden-title {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-</style>
