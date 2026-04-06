@@ -29,7 +29,7 @@ const initThree = () => {
   camera.position.z = 300
 
   renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false }) // antialias 关掉，背景粒子不需要
-  renderer.setSize(window.innerWidth, window.innerHeight)
+  renderer.setSize(window.innerWidth, window.innerHeight) 
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)) // 限制最高 1.5，防止高分屏爆炸
   container.value.appendChild(renderer.domElement)
 
@@ -37,8 +37,10 @@ const initThree = () => {
   const geometry = new THREE.BufferGeometry()
   const positions = new Float32Array(particleCount * 3)
 
-  for (let i = 0; i < particleCount * 3; i++) {
-    positions[i] = (Math.random() - 0.5) * 1000
+  for (let i = 0; i < particleCount; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 1000
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 1000
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 500
   }
 
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
@@ -46,7 +48,7 @@ const initThree = () => {
   const isDark = admin.getTheme === 'dark'
   const material = new THREE.PointsMaterial({
     color: isDark ? 0x888888 : 0xcccccc,
-    size: 2,
+    size: 1.2,
     transparent: true,
     opacity: 0.6,
     sizeAttenuation: true,
