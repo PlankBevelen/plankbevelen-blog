@@ -1,4 +1,7 @@
 <template>
+    <ClientOnly>
+        <BackgroundParticles />
+    </ClientOnly>
     <Header />
     <main id="main">
         <NuxtPage />
@@ -9,6 +12,7 @@
 <script setup lang="ts">
 import Header from './defaultLayout/Header.vue'
 import Footer from './defaultLayout/Footer.vue'
+import BackgroundParticles from '@/components/BackgroundParticles.vue'
 
 </script>
 

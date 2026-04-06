@@ -6,11 +6,11 @@
         <div class="meta">
             <span class="category">{{ article.category }}</span>
             <span class="dot">·</span>
-            <span class="create-time"><nuxt-icon name="article/create-time" /> {{ formatDateTime(article.createTime) }}</span>
-            <span class="update-time"><nuxt-icon name="article/update-time" /> {{ formatDateTime(article.updateTime) }}</span>
-            <div class="tags">
-                <nuxt-icon name="article/tag" />
-                <span v-for="tag in article.tags" :key="tag">{{ tag }}</span>
+            <span class="flex gap-1 items-center"><nuxt-icon name="article/create-time" /> {{ formatDateTime(article.createTime) }}</span>
+            <span class="flex gap-1 items-center"><nuxt-icon name="article/update-time" /> {{ formatDateTime(article.updateTime) }}</span>
+            <div class="flex gap-1 items-center">
+              <nuxt-icon name="article/tag" />
+              <span v-for="tag in article.tags" :key="tag">{{ tag }}</span>
             </div>
         </div>
         <div class="content">
@@ -80,16 +80,16 @@ const displayContent = computed(() => {
         &:hover { color: var(--primary-hover-color); }
     }
     .meta {
-        color: var(--tertiary-color);
-        font-size: @font-size-xs;
-        display: flex;
-        gap: 8px;
-        text-wrap: auto;
-        .tags {
-            display: flex;
-            gap: 4px;
-            font-size: @font-size-xs;
-        }
+      color: var(--tertiary-color);
+      font-size: @font-size-xs;
+      display: flex;
+      gap: 8px;
+      text-wrap: auto;
+      /* .tags {
+          display: flex;
+          gap: 4px;
+          font-size: @font-size-xs;
+      } */
     }    
     .content {
         display: flex;
