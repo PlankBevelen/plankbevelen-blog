@@ -1,5 +1,5 @@
 <template>
-  <Card class="toc-card" type="toc">
+  <BaseCard class="toc-card" type="toc">
     <template #header>{{ $t('toc.title') }}</template>
     <template v-if="tocItems.length > 0">
       <ul class="toc-list" >
@@ -13,11 +13,11 @@
         {{ $t('toc.toTop') }}
       </a>
     </template>
-  </Card>
+  </BaseCard>
 </template>
 
 <script setup lang="ts">
-import Card from '@/components/cards/card.vue'
+
 import { computed } from 'vue'
 
 const props = defineProps({

@@ -1,16 +1,15 @@
 import type { Article, NewArticle } from "@/types/article"
 import http from "~/utils/http"
 import type { ApiResponse } from "~/types/api"
-
 class ArticleService {
   async createArticle(article: NewArticle) {
     return await http.post<ApiResponse>('/article', article)
   }
   async getArticles(page: number = 1, limit: number = 10, q?: string, sort?: string) {
-    return await http.get<ApiResponse>('/article', { page, limit, q, sort })
+    return await http.get<ApiResponse<Article[]>>('/article', { page, limit, q, sort })
   }
   async getArticle(id: number | string) {
-    return await http.get<ApiResponse>(`/article/${id}`)
+    return await http.get<ApiResponse<Article>>(`/article/${id}`)
   }
   async updateArticle(id: number | string, article: NewArticle) {
     return await http.post<ApiResponse>(`/article/${id}`, article)

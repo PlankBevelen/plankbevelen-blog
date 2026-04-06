@@ -1,17 +1,17 @@
 <template>
   <div class="article-detail">
     <div class="container">
-      <TwoColumnLayout :loading="pending" type="rightbigger">
+      <LayoutTwoColumn :loading="pending" type="rightbigger">
         <template #left>
-          <BloggerCard
+          <WidgetBlogger
             :articleCount="stats?.articles || 0"
             :categoryCount="stats?.categories || 0"
             :tagCount="stats?.tags || 0"
           />
-          <Toc :content="article?.content || ''" />
+          <ArticleToc :content="article?.content || ''" />
         </template>
         <template #right>
-          <Card class="detailCard" tag="article">
+          <BaseCard class="detailCard" tag="article">
             <h1 class="title">{{ article?.title }}</h1>
             <div class="meta">
               <span class="category">{{ articleCategory }}</span>
@@ -50,9 +50,9 @@
                 >
               </div>
             </div>
-          </Card>
+          </BaseCard>
         </template>
-      </TwoColumnLayout>
+      </LayoutTwoColumn>
     </div>
   </div>
 </template>
@@ -62,14 +62,10 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useAsyncData, navigateTo, createError } from "nuxt/app";
 import http from "~/utils/http";
-import Card from "@/components/cards/card.vue";
-import TwoColumnLayout from "@/components/layouts/TwoColumnLayout.vue";
-import BloggerCard from "@/components/cards/blogger.vue";
 import { MdPreview } from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
 import { formatDateTime } from "@/utils/format";
 import { useAdminStore } from "@/stores/admin.store";
-import Toc from "@/components/article/toc.vue";
 import articleService from "@/services/article.service";
 import { useArticleSeo } from "@/composables/useSeo";
 
@@ -87,7 +83,9 @@ const { data: detailData, pending } = await useAsyncData(
   "article-detail",
   async () => {
     const rid = id.value;
-    if (!rid) throw createError({ statusCode: 400, statusMessage: "参数错误" });
+    if (!rid) {
+      throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "参数错误" });
+    }
     const res: any = await articleService.getArticle(rid);
     if (res?.status === 200) return res.data;
     return null;

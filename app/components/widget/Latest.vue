@@ -1,5 +1,5 @@
 <template>
-  <Card type="latest">
+  <BaseCard type="latest">
     <template #header>
       {{ $t('latest.title') }}
     </template>
@@ -12,12 +12,12 @@
         </NuxtLink>      
       </li>
     </ul>
-  </Card>
+  </BaseCard>
   
 </template>
 
 <script setup lang="ts">
-import Card from '@/components/cards/card.vue'
+
 import { ref, computed, onMounted } from 'vue'
 const localePath = useLocalePath()
 import { formatDateTime } from '@/utils/format'

@@ -24,7 +24,7 @@
             </div>
           </div>
           <div class="right">
-            <Card class="login-card">
+            <BaseCard class="login-card">
               <h2 class="title">欢迎回来</h2>
               <p class="subtitle">登录您的账户</p>
               <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="form">
@@ -39,7 +39,7 @@
                 </div>
                 <el-button type="primary" class="submit" :loading="loading" @click="onSubmit">登录</el-button>
               </el-form>
-            </Card>
+            </BaseCard>
           </div>
         </div>        
     </div>
@@ -50,7 +50,7 @@
 definePageMeta({ layout: 'admin' })
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { ElMessage } from 'element-plus'
-import Card from '@/components/cards/card.vue'
+
 import { useAdminStore } from '@/stores/admin.store'
 import { navigateTo } from 'nuxt/app'
 

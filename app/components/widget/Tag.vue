@@ -1,5 +1,5 @@
 <template>
-    <Card type="tag" class="tag-cloud-card">
+    <BaseCard type="tag" class="tag-cloud-card">
         <template #header>
             <div class="header-content">
                 {{ $t('tag.title') }}
@@ -22,14 +22,13 @@
                 </span>
             </div>
         </div>
-    </Card>
+    </BaseCard>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import type { Tag } from '@/types/tag'
 import tagService from '~/services/tag.service'
-import Card from './card.vue'
 import { useAdminStore } from '@/stores/admin.store'
 
 const props = defineProps({

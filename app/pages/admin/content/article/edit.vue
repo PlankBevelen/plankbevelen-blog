@@ -59,7 +59,7 @@ import 'md-editor-v3/lib/style.css'
 import { ref, computed, onMounted } from 'vue'
 import type { Ref } from 'vue'
 import { useRoute } from 'vue-router'
-import Card from '@/components/cards/card.vue'
+
 import { ElMessage } from 'element-plus'
 import articleService from '@/services/article.service'
 import type { NewArticle, Article } from '@/types/article'

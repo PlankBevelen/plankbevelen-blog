@@ -1,22 +1,22 @@
 <template>
     <div class="about">
         <div class="container">
-            <ThreeColumnLayout :loading="pending">
+            <LayoutThreeColumn :loading="pending">
                 <template #left>
-                    <BloggerCard :articleCount="stats?.articles || 0" :categoryCount="stats?.categories || 0" :tagCount="stats?.tags || 0" />
-                    <RecordLinkCard />
+                    <WidgetBlogger :articleCount="stats?.articles || 0" :categoryCount="stats?.categories || 0" :tagCount="stats?.tags || 0" />
+                    <WidgetRecordLink />
                 </template>
                 <template #middle>                    
-                    <Card class="aboutContent">
+                    <BaseCard class="aboutContent">
                         <h1 class="title">{{ $t('pages.about.title') }}</h1>
                         <MdPreview v-if="aboutMd" :modelValue="aboutMd" :theme="currentTheme" />
-                    </Card>
+                    </BaseCard>
                 </template>
                 <template #right>
-                    <CategoryCard />
-                    <TagCard />
+                    <WidgetCategory />
+                    <WidgetTag />
                 </template>
-            </ThreeColumnLayout>
+            </LayoutThreeColumn>
         </div>
     </div>
 </template>
@@ -24,12 +24,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAsyncData, useHead } from 'nuxt/app'
-import ThreeColumnLayout from '@/components/layouts/ThreeColumnLayout.vue'
-import BloggerCard from '@/components/cards/blogger.vue'
-import RecordLinkCard from '@/components/cards/recordLink.vue'
-import CategoryCard from '@/components/cards/category.vue'
-import TagCard from '@/components/cards/tag.vue'
-import Card from '@/components/cards/card.vue'
+
+
+
+
+
+
 import http from '~/utils/http'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'

@@ -1,6 +1,6 @@
 <!-- 分类卡片 -->
 <template>
-  <Card type="category">
+  <BaseCard type="category">
     <template #header>
       {{ $t('category.title') }}
     </template>
@@ -10,13 +10,12 @@
           <span class="count">{{ item.count }}</span>       
       </li>
     </ul>
-  </Card>
+  </BaseCard>
 </template>
 
 <script setup lang="ts"> 
 import type { Category } from '@/types/category'
 import categoryService from '~/services/category.service'
-import Card from './card.vue'
 import { ref, computed, onMounted } from 'vue'
 
 const emit = defineEmits(['select'])

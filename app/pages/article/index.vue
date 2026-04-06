@@ -1,13 +1,13 @@
 <template>
   <div class="article">
     <div class="container">
-      <ThreeColumnLayout :loading="homePending">
+      <LayoutThreeColumn :loading="homePending">
         <template #left>
-          <BloggerCard :articleCount="stats?.articles || 0" :categoryCount="stats?.categories || 0" :tagCount="stats?.tags || 0" />
-          <RecordLinkCard />
+          <WidgetBlogger :articleCount="stats?.articles || 0" :categoryCount="stats?.categories || 0" :tagCount="stats?.tags || 0" />
+          <WidgetRecordLink />
         </template>
         <template #middle>
-          <Card class="navBar">
+          <BaseCard class="navBar">
             <div class="breadcrumb">
               <NuxtLink :to="localePath('/article')">{{ $t('pages.article.title') }}</NuxtLink>
               <template v-if="breadcrumbSuffix">
@@ -19,14 +19,14 @@
               <el-input v-model="keyword" :placeholder="$t('pages.article.search.placeholder')" clearable />
               <el-button type="primary" @click="onSearch">{{ $t('pages.article.search.btn') }}</el-button>
             </div>
-          </Card>
+          </BaseCard>
           <ArticleList :q="currentQuery" />                    
         </template>
         <template #right>
-          <CategoryCard :categories="homeData?.categories" @select="onSelectCategory"/>
-          <TagCard :tags="homeData?.tags" />
+          <WidgetCategory :categories="homeData?.categories" @select="onSelectCategory"/>
+          <WidgetTag :tags="homeData?.tags" />
         </template>
-      </ThreeColumnLayout>
+      </LayoutThreeColumn>
     </div>
   </div>
 </template>
@@ -35,13 +35,13 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { navigateTo, useAsyncData } from 'nuxt/app'
-import Card from '@/components/cards/card.vue'
-import ArticleList from '@/components/article/articleList.vue'
-import CategoryCard from '@/components/cards/category.vue'
-import TagCard from '@/components/cards/tag.vue'
-import ThreeColumnLayout from '~/components/layouts/ThreeColumnLayout.vue'
-import BloggerCard from '@/components/cards/blogger.vue'
-import RecordLinkCard from '@/components/cards/recordLink.vue'
+
+
+
+
+
+
+
 import http from '~/utils/http'
 import { usePageSeo } from '@/composables/useSeo'
 

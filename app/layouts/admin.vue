@@ -1,7 +1,7 @@
 <template>
-  <Header v-if="!hidden" :collapsed="isCollapsed" :navTitle="navTitle" @toggle="toggleCollapsed" />
+  <LayoutAdminHeader v-if="!hidden" :collapsed="isCollapsed" :navTitle="navTitle" @toggle="toggleCollapsed" />
   <main id="main">
-    <SideBar :isCollapsed="isCollapsed" v-if="!hidden" />
+    <LayoutAdminSideBar :isCollapsed="isCollapsed" v-if="!hidden" />
     <template v-if="!hidden">
       <div class="content">
         <NuxtPage />
@@ -14,8 +14,8 @@
 </template>
 
 <script setup lang="ts">
-import Header from './adminLayout/Header.vue'
-import SideBar from './adminLayout/SideBar.vue'
+
+
 import { useRouter } from 'vue-router'
 import { ref, computed } from 'vue'
 const router = useRouter()

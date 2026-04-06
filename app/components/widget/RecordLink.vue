@@ -1,6 +1,6 @@
 <!-- 推荐网站链接 -->
 <template>
-  <Card type="record-link">
+  <BaseCard type="record-link">
     <template #header>
       {{ $t('recordLink.title') }}
     </template>
@@ -12,11 +12,10 @@
         </a>                    
       </li>
     </ul>
-  </Card>
+  </BaseCard>
 </template>
 
 <script setup lang="ts">
-import Card from './card.vue'
 import { ref } from 'vue'
 
 const recordLink = ref([

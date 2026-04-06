@@ -1,5 +1,5 @@
 <template>
-  <Card class="article-desc" tag="article">
+  <BaseCard class="article-desc" tag="article">
     <h2 class="title-wrapper">
       <NuxtLink :to="localePath('/article/' + article.id)" class="title">{{
         article.title
@@ -41,12 +41,12 @@
         >
       </div>
     </div>
-  </Card>
+  </BaseCard>
 </template>
 
 <script lang="ts" setup>
 import type { Article } from "@/types/article";
-import Card from "@/components/cards/card.vue";
+
 import { ref, computed, defineAsyncComponent } from "vue";
 const localePath = useLocalePath();
 const MdPreviewAsync = defineAsyncComponent({

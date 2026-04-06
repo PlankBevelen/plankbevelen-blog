@@ -1,9 +1,9 @@
 <template>
-  <Statistics />
+  <AdminStatistics />
 </template>
 
 <script setup lang="ts">
-import Statistics from '@/components/admin/statistics.vue'
+
 
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 </script>

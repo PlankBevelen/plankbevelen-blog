@@ -1,6 +1,6 @@
 <!-- 博主信息卡片 -->
 <template>    
-  <Card type="blogger" animation>
+  <BaseCard type="blogger" animation>
     <div class="blogger-avatar">
       <NuxtImg
         provider="ipx"
@@ -36,11 +36,10 @@
         </el-col>
       </el-row>
     </div>
-  </Card>    
+  </BaseCard>    
 </template>
 
 <script setup lang="ts">
-import Card from './card.vue'
 import { onMounted } from 'vue'
 import { useTransition } from '@vueuse/core'
 import articleService from '@/services/article.service'

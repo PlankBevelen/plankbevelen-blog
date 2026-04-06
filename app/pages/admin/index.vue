@@ -1,9 +1,9 @@
 <template>
-  <Dashboard />
+  <AdminDashboard />
 </template>
 
 <script setup lang="ts">
-import Dashboard from '@/components/admin/dashboard.vue'
+
 
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
