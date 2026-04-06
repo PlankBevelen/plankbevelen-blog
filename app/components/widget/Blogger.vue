@@ -1,38 +1,61 @@
 <!-- 博主信息卡片 -->
 <template>    
-  <BaseCard type="blogger" animation>
-    <div class="blogger-avatar">
+  <BaseCard type="blogger" animation class="text-center">
+    <div class="mx-auto mb-3 h-[140px] w-[140px] overflow-hidden rounded-card">
       <NuxtImg
         provider="ipx"
         src="/img/avatar.webp"
         alt="avatar"
-        class="avatar"
+        class="h-full w-full object-cover"
         loading="eager"
         fetchpriority="high"
-        quality="80"
+        quality="60"
         :width="140"
         :height="140"
       />
     </div>
-    <div class="blogger-name">
+    <div class="mb-3 text-title font-bold text-text">
       {{ name }}
     </div>
-    <div class="blogger-profession">
-      <nuxt-icon name="blogger/profession" />{{ $t('blogger.profession') }}
+    <div class="mb-3 flex items-center justify-center gap-1 text-sm text-text">
+      <nuxt-icon name="blogger/profession" class="text-title" />
+      <span>{{ $t('blogger.profession') }}</span>
     </div>
-    <div class="blogger-location">
-      <nuxt-icon name="blogger/location" />{{ $t('blogger.location') }}
+    <div class="mb-3 flex items-center justify-center gap-1 text-sm text-text">
+      <nuxt-icon name="blogger/location" class="text-title" />
+      <span>{{ $t('blogger.location') }}</span>
     </div>
-    <div class="blogger-article">
+    <div class="mb-3">
       <el-row :gutter="20">
         <el-col :span="8">
-          <el-statistic :title="$t('blogger.stats.articles')" :value="articleCountOutput"></el-statistic>
+          <el-statistic
+            :value="articleCountOutput"
+            :value-style="{ fontSize: '20px', color: 'var(--text-color)' }"
+          >
+            <template #title>
+              <span class="text-secondary">{{ $t('blogger.stats.articles') }}</span>
+            </template>
+          </el-statistic>
         </el-col>
         <el-col :span="8">
-          <el-statistic :title="$t('blogger.stats.categories')" :value="followCountOutput"></el-statistic>
+          <el-statistic
+            :value="followCountOutput"
+            :value-style="{ fontSize: '20px', color: 'var(--text-color)' }"
+          >
+            <template #title>
+              <span class="text-secondary">{{ $t('blogger.stats.categories') }}</span>
+            </template>
+          </el-statistic>
         </el-col>
         <el-col :span="8">
-          <el-statistic :title="$t('blogger.stats.tags')" :value="tagCountOutput"></el-statistic>
+          <el-statistic
+            :value="tagCountOutput"
+            :value-style="{ fontSize: '20px', color: 'var(--text-color)' }"
+          >
+            <template #title>
+              <span class="text-secondary">{{ $t('blogger.stats.tags') }}</span>
+            </template>
+          </el-statistic>
         </el-col>
       </el-row>
     </div>
@@ -94,53 +117,3 @@ onMounted(async () => {
   }
 })
 </script>
-
-<style scoped lang="less">
-.blogger {
-    text-align: center;
-    .blogger-avatar {
-        width: 140px;
-        height: 140px;
-        margin: 0 auto;
-        margin-bottom: 12px;
-        overflow: hidden;
-        border-radius: @base-border-radius;
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-    }
-    .blogger-name {
-        font-size: @font-size-lg;
-        font-weight: bold;
-        margin-bottom: 12px;
-    }
-    .blogger-profession {
-        font-size: @font-size-sm;
-        margin-bottom: 12px;        
-        .nuxt-icon {
-            margin-right: 4px;
-            font-size: @font-size-lg;
-        }
-    }
-    .blogger-location {
-        font-size: @font-size-sm;
-        margin-bottom: 12px;
-        .nuxt-icon {
-            margin-right: 4px;
-            font-size: @font-size-lg;
-        }
-    }
-    .blogger-article {
-        :deep(.el-statistic__content) {
-            font-size: @font-size-lg;
-            color: var(--text-color);
-        }
-        :deep(.el-statistic__head) {
-            color: var(--secondary-color) ;
-        }
-        margin-bottom: 12px;
-    }
-}
-</style>

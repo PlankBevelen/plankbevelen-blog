@@ -1,6 +1,6 @@
 <template>
   <ClientOnly>
-    <BaseParticles />
+    <BaseParticles v-if="admin.getTheme === 'dark'"/>
   </ClientOnly>
   <LayoutDefaultHeader />
   <main id="main">
@@ -10,9 +10,8 @@
 </template>
 
 <script setup lang="ts">
-
-
-
+import { useAdminStore } from '../../.nuxt/imports';
+const admin = useAdminStore()
 </script>
 
 <style lang="less">
