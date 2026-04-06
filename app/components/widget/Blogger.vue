@@ -1,4 +1,3 @@
-<!-- 博主信息卡片 -->
 <template>    
   <BaseCard type="blogger" animation class="text-center">
     <div class="mx-auto mb-3 h-[140px] w-[140px] overflow-hidden rounded-card">

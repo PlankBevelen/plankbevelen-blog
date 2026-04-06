@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAdminStore } from '../../.nuxt/imports';
+import { useAdminStore } from '~/stores/admin.store'
 const admin = useAdminStore()
 </script>
 
