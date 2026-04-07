@@ -1,6 +1,19 @@
 import { setResponseStatus, defineEventHandler } from 'h3'
 import { getDb, getCollections } from '../utils/mongo'
 
+// 按字符数截断，但保证不截断在代码块中间
+// 避免截出半个 ``` 导致 MdPreview 渲染异常
+function sliceMdSafely(content: string, length: number): string {
+  if (content.length <= length) return content
+  let sliced = content.slice(0, length)
+  // 统计截断后的代码块开合数量，奇数说明截在代码块内，补一个闭合
+  const fenceCount = (sliced.match(/```/g) || []).length
+  if (fenceCount % 2 !== 0) {
+    sliced += '\n```'
+  }
+  return sliced
+}
+
 async function getArticles(limit: number, sort: 'created' | 'updated' = 'updated') {
   const db = getDb()
   const { articles } = getCollections(db)
@@ -40,17 +53,25 @@ async function getArticles(limit: number, sort: 'created' | 'updated' = 'updated
     .toArray()
 
   return (rows || []).map((r: any) => ({
-    ...r,
     id: String(r.id),
-    tags: Array.isArray(r.tags) ? r.tags : []
+    title: r.title,
+    tags: Array.isArray(r.tags) ? r.tags : [],
+    category: r.category,
+    createTime: r.createTime,
+    updateTime: r.updateTime,
+    // 折叠态：前 600 字符，保证代码块不被截断
+    shortContent: sliceMdSafely(r.content || '', 600),
+    // 展开态：前 2000 字符
+    longContent: sliceMdSafely(r.content || '', 2000),
+    // 不返回完整 content，减少传输量
   }))
 }
 
-export default defineEventHandler(async (event) => {  
+export default defineEventHandler(async (event) => {
   try {
     const db = getDb()
     const { categories: categoriesCol, tags: tagsCol, articles: articlesCol } = getCollections(db)
-    // Parallel execution for better performance and reliability (no loopback http calls)
+
     const [articles, categories, tags, latestArticlesRaw, articleCountRes] = await Promise.all([
       getArticles(10, 'updated'),
       categoriesCol.find({}, { projection: { _id: 0 } }).sort({ id: 1 }).toArray(),
@@ -60,7 +81,7 @@ export default defineEventHandler(async (event) => {
     ])
 
     const articleCount = Number(articleCountRes || 0)
-    
+
     const latestArticles = latestArticlesRaw.map((r: any) => ({
       title: r.title,
       category: r.category,

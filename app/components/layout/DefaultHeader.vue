@@ -125,24 +125,7 @@ watch(isMobile, (val) => {
 })
 
 onMounted(()=>{
-  admin.initPreferences()  
-  /* let lastScrollY = 0;
-  window.addEventListener('scroll', () => {
-    const header = document.querySelector('.header');
-    const currentScrollY = window.scrollY;
-    mobileMenuOpen.value = false 
-    
-    // 向下滚动超过100px且继续向下滚动时隐藏
-    if (currentScrollY > 100 && currentScrollY > lastScrollY) {
-      header?.classList.add('hidden');      
-    } 
-    // 向上滚动时显示
-    else if (currentScrollY < lastScrollY) {
-      header?.classList.remove('hidden');
-    }
-    
-    lastScrollY = currentScrollY;
-  }) */
+  admin.initPreferences()
 })
 </script>
 

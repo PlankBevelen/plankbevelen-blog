@@ -15,9 +15,5 @@ const admin = useAdminStore()
 </script>
 
 <style lang="less">
-@media (max-width: @max-content-width) {
-  #main {
-    padding: 0 20px;
-  }
-}
+/* Removed #main padding to avoid double padding with .container */
 </style>

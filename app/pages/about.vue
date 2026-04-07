@@ -76,7 +76,10 @@ usePageSeo({
         display: block;
         &:hover { color: var(--primary-hover-color); }
     }
-    .container { padding: 40px 0; }
+    .container { 
+        padding-top: 40px; 
+        padding-bottom: 40px; 
+    }
 }
 
 

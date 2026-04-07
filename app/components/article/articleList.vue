@@ -1,16 +1,13 @@
 <template>
   <div class="article-list">
-    <div class="list" v-if="!loading">
+    <div class="list" v-if="!isLoading">
       <ArticleDesc v-for="item in articleList" :key="item.id" :article="item" />
     </div>
     <div class="list" v-else>
-      <BaseCard v-for="item in articleList" :key="item.id">
+      <BaseCard v-for="i in 5" :key="i">
         <el-skeleton animated>
           <template #template>
-            <el-skeleton-item
-              variant="h1"
-              style="width: 60%; margin-bottom: 12px"
-            />
+            <el-skeleton-item variant="h1" style="width: 60%; margin-bottom: 12px" />
             <div style="display: flex; gap: 8px; margin-bottom: 12px">
               <el-skeleton-item variant="text" style="width: 80px" />
               <el-skeleton-item variant="text" style="width: 120px" />
@@ -39,14 +36,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch, defineAsyncComponent } from "vue";
-import type { Article } from "@/types/article";
-import articleService from "@/services/article.service";
-
-const ArticleDesc = defineAsyncComponent({
-  loader: () => import("./ArticleDesc.vue"),
-  delay: 100,
-});
+import { ref, computed, onMounted, watch } from 'vue'
+import type { Article } from '@/types/article'
+import articleService from '@/services/article.service'
+import ArticleDesc from './ArticleDesc.vue'
 
 const props = defineProps({
   single: {
@@ -59,64 +52,80 @@ const props = defineProps({
   },
   q: {
     type: String,
-    default: "",
+    default: '',
   },
-});
+  // 首页传入外部 pending 状态，骨架屏跟随首页数据加载
+  externalLoading: {
+    type: Boolean,
+    default: false,
+  },
+})
 
-const single = props.single === true;
-const articleList = ref<Article[]>([]);
-const page = ref(1);
-const limit = ref(10);
-const total = ref(0);
-const loading = ref(false);
-let qTimer: any = null;
+const single = props.single === true
+const articleList = ref<Article[]>([])
+const page = ref(1)
+const limit = ref(10)
+const total = ref(0)
+const loading = ref(false)
+let qTimer: any = null
+
+// 合并外部和内部 loading
+const isLoading = computed(() => props.externalLoading || loading.value)
 
 const loadData = async () => {
-  loading.value = true;
+  loading.value = true
   try {
-    const res = await articleService.getArticles(
-      page.value,
-      limit.value,
-      props.q || undefined,
-    );
+    const res = await articleService.getArticles(page.value, limit.value, props.q || undefined)
     if (res.status === 200) {
-      articleList.value = res.data || [];
-      total.value = Number(res.total || 0);
+      articleList.value = res.data || []
+      total.value = Number(res.total || 0)
     }
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 const onPageSizeChange = async (val: number) => {
-  limit.value = val;
-  page.value = 1;
-  await loadData();
-};
+  limit.value = val
+  page.value = 1
+  await loadData()
+}
+
 const onPageChange = async (val: number) => {
-  page.value = val;
-  await loadData();
-};
+  page.value = val
+  await loadData()
+}
 
 onMounted(async () => {
   if (!props.articleList || props.articleList.length === 0) {
-    await loadData();
+    await loadData()
   } else {
-    articleList.value = props.articleList;
-    total.value = props.articleList.length;
+    articleList.value = props.articleList
+    total.value = props.articleList.length
   }
-});
+})
+
+// 首页外部数据更新时同步
+watch(
+  () => props.articleList,
+  (val) => {
+    if (val && val.length > 0) {
+      articleList.value = val
+      total.value = val.length
+    }
+  }
+)
 
 watch(
   () => props.q,
   async () => {
-    page.value = 1;
-    if (qTimer) clearTimeout(qTimer);
+    page.value = 1
+    if (qTimer) clearTimeout(qTimer)
     qTimer = setTimeout(async () => {
-      await loadData();
-    }, 250);
+      await loadData()
+    }, 250)
   },
-);
+)
 </script>
 
 <style scoped lang="less">

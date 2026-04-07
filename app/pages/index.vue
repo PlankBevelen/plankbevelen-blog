@@ -9,7 +9,7 @@
         </template>
         <template #middle>
           <keep-alive>
-            <ArticleList single :articleList="homeData.articles"/>
+            <ArticleList single :articleList="homeData.articles" />
           </keep-alive>
         </template>
         <template #right>
@@ -23,13 +23,6 @@
 </template>
 
 <script setup lang="ts">
-
-
-
-
-
-
-
 import { useAsyncData } from 'nuxt/app'
 import http from '~/utils/http'
 import { SITE_URL, SITE_AUTHOR, usePageSeo } from '@/composables/useSeo'

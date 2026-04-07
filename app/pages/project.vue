@@ -10,11 +10,11 @@
 
 <style lang="less" scoped>
 .project {
-    height: 100vh;
+    min-height: 100vh;
     padding-top: @header-height;
     display: flex;
     justify-content: center;
     align-items: center;
-
+    padding-bottom: 40px;
 }
 </style>

@@ -132,7 +132,8 @@ useArticleSeo({
   min-height: 100vh;
   padding-top: @header-height;
   .container {
-    padding: 40px 0;
+    padding-top: 40px;
+    padding-bottom: 40px;
   }
 }
 .detailCard {

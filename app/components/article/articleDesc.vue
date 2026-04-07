@@ -1,21 +1,21 @@
 <template>
   <BaseCard class="article-desc" tag="article">
     <h2 class="title-wrapper">
-      <NuxtLink :to="localePath('/article/' + article.id)" class="title">{{
-        article.title
-      }}</NuxtLink>
+      <NuxtLink :to="localePath('/article/' + article.id)" class="title">
+        {{ article.title }}
+      </NuxtLink>
     </h2>
     <div class="meta">
       <span class="category">{{ article.category }}</span>
       <span class="dot">·</span>
-      <span class="flex gap-1 items-center"
-        ><nuxt-icon name="article/create-time" />
-        {{ formatDateTime(article.createTime) }}</span
-      >
-      <span class="flex gap-1 items-center"
-        ><nuxt-icon name="article/update-time" />
-        {{ formatDateTime(article.updateTime) }}</span
-      >
+      <span class="flex gap-1 items-center">
+        <nuxt-icon name="article/create-time" />
+        {{ formatDateTime(article.createTime) }}
+      </span>
+      <span class="flex gap-1 items-center">
+        <nuxt-icon name="article/update-time" />
+        {{ formatDateTime(article.updateTime) }}
+      </span>
       <div class="flex gap-1 items-center">
         <nuxt-icon name="article/tag" />
         <span v-for="tag in article.tags" :key="tag">{{ tag }}</span>
@@ -23,7 +23,7 @@
     </div>
     <div class="content">
       <div class="md-wrapper" :class="{ 'is-collapsed': !isExpand }">
-        <MdPreviewAsync
+        <MdPreview
           :modelValue="displayContent"
           :theme="currentTheme"
           :noMermaid="true"
@@ -32,62 +32,58 @@
         />
       </div>
       <div class="ops">
-        <el-button
-          type="primary"
-          link
-          size="small"
-          @click="isExpand = !isExpand"
-          >{{ isExpand ? "收起" : "展开更多" }}</el-button
-        >
+        <el-button type="primary" link size="small" @click="isExpand = !isExpand">
+          {{ isExpand ? '收起' : '展开更多' }}
+        </el-button>
+        <NuxtLink :to="localePath('/article/' + article.id)">
+          <el-button type="primary" link size="small">阅读全文</el-button>
+        </NuxtLink>
       </div>
     </div>
   </BaseCard>
 </template>
 
 <script lang="ts" setup>
-import type { Article } from "@/types/article";
+import { ref, computed } from 'vue'
+import { MdPreview } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
+import type { Article } from '@/types/article'
+import { formatDateTime } from '@/utils/format'
+import { useAdminStore } from '@/stores/admin.store'
 
-import { ref, computed, defineAsyncComponent } from "vue";
-const localePath = useLocalePath();
-const MdPreviewAsync = defineAsyncComponent({
-  loader: () => import("md-editor-v3").then((m) => m.MdPreview),
-  delay: 100,
-});
-import "md-editor-v3/lib/style.css";
-import { formatDateTime } from "@/utils/format";
-import { useAdminStore } from "@/stores/admin.store";
-
-const admin = useAdminStore();
-const currentTheme = computed(() => admin.getTheme);
+const localePath = useLocalePath()
+const admin = useAdminStore()
+const currentTheme = computed(() => admin.getTheme)
 
 const props = defineProps({
   article: {
-    type: Object as () => Article,
+    type: Object as () => Article & { shortContent?: string; longContent?: string },
     required: true,
   },
-});
+})
 
-const atLeastLines = ref(20);
-const maxLines = ref(60);
-const isExpand = ref(false);
-const lines = computed(() => props.article.content.split("\n"));
-const displayContent = computed(() => {
-  if (isExpand.value) {
-    return lines.value.slice(0, maxLines.value).join("\n");
-  }
-  return lines.value.slice(0, atLeastLines.value).join("\n");
-});
+const isExpand = ref(false)
+
+// 折叠时展示 shortContent，展开后展示 longContent
+// 两份数据都从接口一次性拿好，不需要额外请求
+const displayContent = computed(() =>
+  isExpand.value
+    ? (props.article.longContent || props.article.shortContent || '')
+    : (props.article.shortContent || '')
+)
 </script>
 
 <style scoped lang="less">
 .article-desc {
   line-height: normal;
   height: auto;
+
   .title-wrapper {
     margin: 0;
     margin-bottom: 12px;
     line-height: normal;
   }
+
   .title {
     font-size: @font-size-xxl;
     font-weight: 500;
@@ -100,22 +96,21 @@ const displayContent = computed(() => {
       color: var(--primary-hover-color);
     }
   }
+
   .meta {
     color: var(--tertiary-color);
     font-size: @font-size-xs;
     display: flex;
     gap: 8px;
     text-wrap: auto;
-    /* .tags {
-          display: flex;
-          gap: 4px;
-          font-size: @font-size-xs;
-      } */
+    margin-bottom: 12px;
   }
+
   .content {
     display: flex;
     flex-direction: column;
     gap: 8px;
+
     :deep(.md-editor-preview) {
       font-size: @font-size-sm !important;
     }
@@ -125,12 +120,29 @@ const displayContent = computed(() => {
 .md-wrapper {
   position: relative;
   overflow: hidden;
+  // 展开态自然高度
 }
+
+// 折叠态限制最大高度，超出渐隐
 .md-wrapper.is-collapsed {
-  max-height: 280px;
+  max-height: 260px;
+
+  // 底部渐隐遮罩，提示用户有更多内容
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, var(--card-bg, #fff));
+    pointer-events: none;
+  }
 }
+
 .ops {
   display: flex;
   justify-content: flex-end;
+  gap: 4px;
 }
 </style>
