@@ -69,40 +69,14 @@ async function getArticles(limit: number, sort: 'created' | 'updated' = 'updated
 
 export default defineEventHandler(async (event) => {
   try {
-    const db = getDb()
-    const { categories: categoriesCol, tags: tagsCol, articles: articlesCol } = getCollections(db)
-
-    const [articles, categories, tags, latestArticlesRaw, articleCountRes] = await Promise.all([
-      getArticles(10, 'updated'),
-      categoriesCol.find({}, { projection: { _id: 0 } }).sort({ id: 1 }).toArray(),
-      tagsCol.find({}, { projection: { _id: 0, name: 1, count: 1 } }).sort({ count: -1, name: 1 }).toArray(),
-      getArticles(5, 'created'),
-      articlesCol.countDocuments({ $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }] })
-    ])
-
-    const articleCount = Number(articleCountRes || 0)
-
-    const latestArticles = latestArticlesRaw.map((r: any) => ({
-      title: r.title,
-      category: r.category,
-      createTime: r.createTime,
-      id: r.id
-    }))
+    const articles = await getArticles(10, 'updated')
 
     setResponseStatus(event, 200)
     return {
       status: 200,
       msg: '查询成功',
       data: {
-        articles,
-        categories: categories || [],
-        tags: tags || [],
-        latestArticles,
-        stats: {
-          articles: articleCount,
-          categories: (categories || []).length,
-          tags: (tags || []).length,
-        }
+        articles
       }
     }
   } catch (error: any) {

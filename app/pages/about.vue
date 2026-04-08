@@ -13,8 +13,8 @@
                     </BaseCard>
                 </template>
                 <template #right>
-                    <WidgetCategory />
-                    <WidgetTag />
+                    <WidgetCategory :categories="data?.categories" />
+                    <WidgetTag :tags="data?.tags" />
                 </template>
             </LayoutThreeColumn>
         </div>
@@ -24,11 +24,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAsyncData, useHead } from 'nuxt/app'
-
-
-
-
-
+import { useSidebarData } from '@/composables/useSidebarData'
 
 import http from '~/utils/http'
 import { MdPreview } from 'md-editor-v3'
@@ -37,13 +33,7 @@ import { useAdminStore } from '@/stores/admin.store'
 
 const { t, locale, setLocale } = useI18n() 
 
-const { data, pending } = await useAsyncData('about-home-data', async () => {
-    const res = await http.get('/api/home.data') as any
-    if (res.status === 200) {
-        return res.data
-    }
-    return null
-})
+const { data, pending } = await useSidebarData()
 
 const stats = computed(() => data.value?.stats || null)
 const admin = useAdminStore()

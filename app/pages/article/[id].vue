@@ -68,6 +68,7 @@ import { formatDateTime } from "@/utils/format";
 import { useAdminStore } from "@/stores/admin.store";
 import articleService from "@/services/article.service";
 import { useArticleSeo } from "@/composables/useSeo";
+import { useSidebarData } from "@/composables/useSidebarData";
 
 const { t } = useI18n();
 const admin = useAdminStore();
@@ -99,14 +100,7 @@ const timeText = computed(() =>
 );
 const displayContent = computed(() => String(article.value?.content || ""));
 
-const { data: homeData } = await useAsyncData(
-  "article-detail-home-data",
-  async () => {
-    const res: any = await http.get("/home.data");
-    if (res?.status === 200) return res.data;
-    return null;
-  },
-);
+const { data: homeData } = await useSidebarData();
 
 const stats = computed(() => homeData.value?.stats || null);
 const categories = computed(() => homeData.value?.categories || []);

@@ -26,6 +26,7 @@
 import { useAsyncData } from 'nuxt/app'
 import http from '~/utils/http'
 import { SITE_URL, SITE_AUTHOR, usePageSeo } from '@/composables/useSeo'
+import { useSidebarData } from '@/composables/useSidebarData'
 
 const localePath = useLocalePath()
 const { t } = useI18n()
@@ -37,6 +38,8 @@ const homeData = reactive({
   tags: [],
   stats: null
 })
+
+const { data: sidebarData } = await useSidebarData()
 
 const { data, pending } = await useAsyncData('home-data', async () => { 
   try {
@@ -56,13 +59,18 @@ const onSelectCategory = async (item: any) => {
   await navigateTo({ path: target, query: { category: item.name } })
 }
 
-watch(data, (newData) => {
+watch(sidebarData, (newData) => {
   if (newData) {
-    homeData.articles = newData.articles || []
     homeData.latestArticles = newData.latestArticles || []
     homeData.categories = newData.categories || []
     homeData.tags = newData.tags || []
     homeData.stats = newData.stats || null
+  }
+}, { immediate: true, deep: true })
+
+watch(data, (newData) => {
+  if (newData) {
+    homeData.articles = newData.articles || []
   }
 }, { immediate: true, deep: true })
 
