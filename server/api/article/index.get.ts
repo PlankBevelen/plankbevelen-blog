@@ -1,6 +1,16 @@
 import { defineEventHandler, getQuery, setResponseStatus } from 'h3'
 import { getDb, getCollections } from '../../utils/mongo'
 
+function sliceMdSafely(content: string, length: number): string {
+  if (content.length <= length) return content
+  let sliced = content.slice(0, length)
+  const fenceCount = (sliced.match(/```/g) || []).length
+  if (fenceCount % 2 !== 0) {
+    sliced += '\n```'
+  }
+  return sliced
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const q = getQuery(event) as any 
@@ -70,10 +80,16 @@ export default defineEventHandler(async (event) => {
     const aggRes = await articles.aggregate(pipeline).toArray()
     const res0: any = aggRes?.[0] || { data: [], total: [] }
     const total = Number(res0?.total?.[0]?.value || 0)
+
     const data = (res0?.data || []).map((r: any) => ({
-      ...r,
       id: String(r.id),
-      tags: Array.isArray(r.tags) ? r.tags : []
+      title: r.title,
+      tags: Array.isArray(r.tags) ? r.tags : [],
+      category: r.category,
+      createTime: r.createTime,
+      updateTime: r.updateTime,
+      shortContent: sliceMdSafely(r.content || '', 600),
+      longContent: sliceMdSafely(r.content || '', 2000),
     }))
 
     setResponseStatus(event, 200)
