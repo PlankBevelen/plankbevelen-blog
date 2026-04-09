@@ -1,86 +1,186 @@
 <template>
-  <header class="header" >
-    <div class="headerWrapper">
-      <div class="logo">
-        <NuxtImg
-          provider="ipx"
-          src="/img/logo.webp"
-          alt="logo"
-          quality="70"
-          loading="eager"
-          fetchpriority="high"
-          class="logo-img"
-          :width="40"
-          :height="40"
-        />
-        <span class="logo-text">{{ $t('site.name') }}</span>
-      </div>
-      <div class="navbar">
-        <div class="close" @click="$emit('toggle')"><nuxt-icon name="admin/close"></nuxt-icon></div>
-        <div class="title">{{ navTitle }}</div>
-      </div>
+  <header class="admin-header">
+    <!-- 左侧：折叠按钮 + 面包屑 -->
+    <div class="header-left">
+      <el-button
+        class="toggle-btn"
+        text
+        @click="$emit('toggle')"
+      >
+        <el-icon :size="18">
+          <Expand v-if="collapsed" />
+          <Fold v-else />
+        </el-icon>
+      </el-button>
+
+      <el-breadcrumb separator="/">
+        <el-breadcrumb-item :to="{ path: '/admin' }">控制台</el-breadcrumb-item>
+        <el-breadcrumb-item v-if="navTitle !== '控制台'">
+          {{ navTitle }}
+        </el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+
+    <!-- 右侧：主题切换 + 前台入口 + 头像 -->
+    <div class="header-right">
+      <!-- 前台入口 -->
+      <el-tooltip content="访问前台" placement="bottom">
+        <el-button text @click="openFrontend">
+          <el-icon :size="18"><Link /></el-icon>
+        </el-button>
+      </el-tooltip>
+
+      <!-- 主题切换 -->
+      <el-tooltip :content="isDark ? '切换浅色' : '切换深色'" placement="bottom">
+        <el-button text @click="toggleTheme">
+          <el-icon :size="18">
+            <Sunny v-if="isDark" />
+            <Moon v-else />
+          </el-icon>
+        </el-button>
+      </el-tooltip>
+
+      <!-- 头像下拉 -->
+      <el-dropdown trigger="click" @command="onCommand">
+        <div class="avatar">
+          <img src="/img/avatar.webp" alt="avatar" width="32" height="32" />
+        </div>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item disabled>
+              <span class="dropdown-name">PlankBevelen</span>
+            </el-dropdown-item>
+            <el-dropdown-item divided command="frontend">访问前台</el-dropdown-item>
+            <el-dropdown-item command="logout" style="color: var(--danger-color, #f56c6c)">
+              退出登录
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-defineProps<{ collapsed: boolean; navTitle: string }>()
+import { computed } from 'vue'
+import { Expand, Fold, Link, Sunny, Moon } from '@element-plus/icons-vue'
+import { ElMessageBox } from 'element-plus'
+import { useAdminStore } from '@/stores/admin.store'
+
+const props = defineProps<{ collapsed: boolean; navTitle: string }>()
 defineEmits<{ (e: 'toggle'): void }>()
+
+const adminStore = useAdminStore()
+const isDark = computed(() => adminStore.getTheme === 'dark')
+
+const toggleTheme = () => {
+  adminStore.setTheme(isDark.value ? 'light' : 'dark')
+}
+
+const openFrontend = () => {
+  window.open('/', '_blank')
+}
+
+const onCommand = async (cmd: string) => {
+  if (cmd === 'frontend') {
+    openFrontend()
+  } else if (cmd === 'logout') {
+    await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+      confirmButtonText: '退出',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }).catch(() => {})
+    await adminStore.logout?.()
+    navigateTo('/admin/login', { replace: true })
+  }
+}
 </script>
 
-<style lang="less" scoped>
-.header {
-  position: relative;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: @header-height;
-  background-color: var(--header-color);
-  color: var(--text-color);
-  z-index: 1000;
+<style scoped lang="less">
+.admin-header {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background-color: var(--card-color);
   border-bottom: 1px solid var(--border-color);
-  .headerWrapper {
-    display: flex;
-    align-items: center;
-    height: 100%;
-    padding: 0 60px;
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      .logo-img {
-        width: 40px;
-        height: 40px;
-        object-fit: cover;        
-        border-radius: @small-border-radius;
-      }
-    }
-    .navbar {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-left: 24px;
-      .close {
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid var(--border-color);
-        border-radius: @base-border-radius;
-        cursor: pointer;
-        background-color: var(--card-color);
-        color: var(--text-color);
-      }
-      .close:hover { background-color: var(--shallow-hover-bg-color); }
-      .close:active { background-color: var(--shallow-active-bg-color); }
-      .close .nuxt-icon { color: var(--text-color); }
-      .title {
-        font-size: 16px;
-        color: var(--text-color);
-      }
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggle-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: @base-border-radius;
+  color: var(--secondary-color);
+
+  &:hover {
+    background-color: var(--shallow-hover-bg-color);
+    color: var(--text-color);
+  }
+}
+
+:deep(.el-breadcrumb__inner) {
+  font-size: @font-size-sm;
+  color: var(--secondary-color);
+}
+
+:deep(.el-breadcrumb__item:last-child .el-breadcrumb__inner) {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  .el-button {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: @base-border-radius;
+    color: var(--secondary-color);
+
+    &:hover {
+      background-color: var(--shallow-hover-bg-color);
+      color: var(--text-color);
     }
   }
 }
-</style>
 
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  margin-left: 4px;
+  border: 2px solid var(--border-color);
+  transition: border-color 0.2s;
+
+  &:hover { border-color: var(--primary-color); }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.dropdown-name {
+  font-size: @font-size-sm;
+  color: var(--text-color);
+  font-weight: 500;
+}
+</style>

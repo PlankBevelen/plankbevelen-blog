@@ -1,60 +1,62 @@
 <template>
-    <div class="login">
-        <canvas class="bg-canvas" ref="canvasRef"></canvas>
-        <div class="login-wrapper">
-          <div class="left">
-            <div class="left-wrapper">
-              <NuxtImg
-                src="/img/logo.webp"
-                alt="logo"
-                quality="70"
-                loading="eager"
-                fetchpriority="high"
-                class="logo"
-                :width="40"
-                :height="40"
-              />
-              <h1 class="title">PlankBevelen Blog Admin</h1>
-              <p class="subtitle">后台管理系统</p>
-              <ul class="feature-list">
-                <li class="feature-item"><div class="feature-icon"><nuxt-icon name="global/check" /></div>现代化UI设计</li>
-                <li class="feature-item"><div class="feature-icon"><nuxt-icon name="global/check" /></div>响应式布局</li>
-                <li class="feature-item"><div class="feature-icon"><nuxt-icon name="global/check" /></div>开箱即用</li>
-              </ul>
-            </div>
-          </div>
-          <div class="right">
-            <BaseCard class="login-card">
-              <h2 class="title">欢迎回来</h2>
-              <p class="subtitle">登录您的账户</p>
-              <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="form">
-                <el-form-item prop="account" class="form-item">
-                    <el-input v-model="form.account" placeholder="请输入账号" clearable />
-                </el-form-item>
-                <el-form-item prop="password" class="form-item">
-                    <el-input v-model="form.password" type="password" placeholder="请输入密码" show-password />
-                </el-form-item>
-                <div class="form-item extras">
-                    <el-checkbox v-model="form.remember">记住我</el-checkbox>
-                </div>
-                <el-button type="primary" class="submit" :loading="loading" @click="onSubmit">登录</el-button>
-              </el-form>
-            </BaseCard>
-          </div>
-        </div>        
+  <div class="h-full w-full flex items-center justify-center bg-[--bg-color]">
+    <div class="login-box">
+      <div class="login-header">
+        <img src="/img/logo.webp" alt="logo" class="logo" width="48" height="48" />
+        <h1 class="title">PlankBevelen</h1>
+        <p class="subtitle">后台管理系统</p>
+      </div>
+
+      <el-form
+        ref="formRef"
+        :model="form"
+        :rules="rules"
+        label-position="top"
+        class="form"
+        @keyup.enter="onSubmit"
+      >
+        <el-form-item prop="account">
+          <el-input
+            v-model="form.account"
+            placeholder="账号"
+            size="large"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input
+            v-model="form.password"
+            type="password"
+            placeholder="密码"
+            size="large"
+            show-password
+          />
+        </el-form-item>
+        <div class="remember-row">
+          <el-checkbox v-model="form.remember">记住我</el-checkbox>
+        </div>
+        <el-button
+          type="primary"
+          class="submit-btn"
+          size="large"
+          :loading="loading"
+          @click="onSubmit"
+        >
+          登录
+        </el-button>
+      </el-form>
     </div>
-    
+  </div>
 </template>
 
 <script setup lang="ts">
 definePageMeta({ layout: 'admin' })
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-
+import type { FormInstance } from 'element-plus'
 import { useAdminStore } from '@/stores/admin.store'
-import { navigateTo } from 'nuxt/app'
 
-const formRef = ref()
+const formRef = ref<FormInstance>()
 const loading = ref(false)
 const form = ref({ account: '', password: '', remember: true })
 const rules = {
@@ -63,225 +65,106 @@ const rules = {
 }
 
 const onSubmit = async () => {
-  (formRef.value as any)?.validate(async (valid: boolean) => {
-    if (!valid) return
-    loading.value = true
-    try {      
-      const success = await useAdminStore().login(form.value.account, form.value.password, form.value.remember)
-      if(success) {
-        navigateTo('/admin', { replace: true })
-      } else {
-        ElMessage.error('登录失败，请检查账号或密码')
-      }      
-    } catch (e: any) {
-      const msg = e?.data?.message || '登录失败，请检查账号或密码'
-      ElMessage.error(msg)
-    } finally {
-      loading.value = false
+  const valid = await formRef.value?.validate().catch(() => false)
+  if (!valid) return
+  loading.value = true
+  try {
+    const success = await useAdminStore().login(
+      form.value.account,
+      form.value.password,
+      form.value.remember
+    )
+    if (success) {
+      navigateTo('/admin', { replace: true })
+    } else {
+      ElMessage.error('账号或密码错误')
     }
-  })
-}
-
-// canvas背景
-const canvasRef = ref<HTMLCanvasElement>()
-function hexToRGBA(hex: string, alpha = 1) {
-  const h = hex.replace('#', '').trim()
-  const r = parseInt(h.length === 3 ? h[0] + h[0] : h.slice(0, 2), 16)
-  const g = parseInt(h.length === 3 ? h[1] + h[1] : h.slice(2, 4), 16)
-  const b = parseInt(h.length === 3 ? h[2] + h[2] : h.slice(4, 6), 16)
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`
-}
-function drawGrid() {
-  const canvas = canvasRef.value
-  if (!canvas) return
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return
-  const dpr = window.devicePixelRatio || 1
-  const w = window.innerWidth
-  const h = window.innerHeight
-  canvas.width = Math.floor(w * dpr)
-  canvas.height = Math.floor(h * dpr)
-  canvas.style.width = w + 'px'
-  canvas.style.height = h + 'px'
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-  ctx.clearRect(0, 0, w, h)
-  const style = getComputedStyle(document.documentElement)
-  const minor = hexToRGBA(style.getPropertyValue('--border-color') || '#e5e5e5', 0.25)
-  const major = hexToRGBA(style.getPropertyValue('--active-color') || '#007bff', 0.15)
-  const size = 32
-  const majorStep = 5
-  ctx.lineWidth = 1
-  for (let x = 0; x <= w; x += size) {
-    ctx.beginPath()
-    ctx.strokeStyle = ((x / size) % majorStep === 0) ? major : minor
-    ctx.moveTo(x, 0)
-    ctx.lineTo(x, h)
-    ctx.stroke()
-  }
-  for (let y = 0; y <= h; y += size) {
-    ctx.beginPath()
-    ctx.strokeStyle = ((y / size) % majorStep === 0) ? major : minor
-    ctx.moveTo(0, y)
-    ctx.lineTo(w, y)
-    ctx.stroke()
+  } catch (e: any) {
+    ElMessage.error(e?.data?.message || '登录失败，请稍后重试')
+  } finally {
+    loading.value = false
   }
 }
-onMounted(() => {
-  drawGrid()
-  window.addEventListener('resize', drawGrid)
-})
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', drawGrid)
-})
 </script>
 
 <style scoped lang="less">
-.login {
-  height: 100vh;
-  width: 100vw;
-  .login-wrapper {
-    height: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    .left {
-      height: 100%;
-      width: 100%;
-      background: #282828;
-      display: flex;
-      justify-content: center;
-      flex-direction: column;
-      text-align: center;
-      .left-wrapper { width: fit-content; margin: 0 auto; }
-      .logo {
-        height: 120px;
-        width: auto;
-        margin: 0 auto;
-        display: block;
-        object-fit: cover;
-        border-radius: @small-border-radius;
-        animation: float 4s ease-in-out infinite;
-        margin-bottom: 60px;
-      }
-      .title {
-        color: #fff;
-        font-size: @font-size-xxl;
-        font-weight: bold;
-        background: linear-gradient(90deg, #007bff, #00c6ff);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        line-height: normal;
-        margin-bottom: 24px;
-      }
-      .subtitle {
-        color: #fff;
-        font-size: @font-size-xl;
-        font-weight: normal;
-        line-height: normal;
-        margin-bottom: 48px;
-      }
-      .feature-list {        
-        font-size: @font-size-md;
-        font-weight: normal;
-        margin-top: 30px;
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        line-height: normal;
-        text-align: left;
-      }
-      .feature-item {
-        margin-bottom: 10px;
-        color: #fff;
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        &:not(:last-child) { margin-bottom: 20px; }
-        .feature-icon {
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          background: var(--primary-color);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-      }
-    }
-    .right {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      .login-card {
-        width: 50%;
-        height: auto;
-        padding: 40px 60px;
-        .title {
-          font-size: @font-size-xxl;
-          font-weight: bold;
-          line-height: normal;
-          text-align: center;
-          margin-bottom: 8px;
-        }
-        .subtitle {
-          font-size: @font-size-md;
-          font-weight: normal;
-          line-height: normal;
-          text-align: center;
-          color: var(--mute-color);
-          margin-bottom: 24px;
-        }
-        .form-item {
-          &:not(:last-child) { margin-bottom: 32px; }
-          &.extras {
-            border: 1px solid var(--border-color);
-            border-radius: @base-border-radius;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            padding: 8px 12px;
-          }
-        }
-        :deep(.el-button.submit) {
-          width: 100%;
-          border-radius: @base-border-radius;
-          background: var(--primary-color);
-          padding: 12px 12px;          
-          border: none;
-          line-height: normal;
-          height: auto;
-          span { color: #fff; }
-        }
-        :deep(.el-button.submit:hover) {
-          filter: brightness(1.05);
-          box-shadow: 0 6px 12px rgba(0,0,0,0.12);
-          background: var(--primary-color-03);
-        }
-        :deep(.el-button.submit:active) {
-          filter: brightness(0.95);
-          background: var(--primary-color-06);
-        }
-        :deep(.el-input__wrapper) {
-          background-color: transparent;
-          box-shadow: none;
-          border: 1px solid var(--border-color);
-          border-radius: @base-border-radius;
-          padding: 8px 12px;
-        }
-        :deep(.el-input__inner) {
-          background: transparent;
-        }
-      }
-    }
+.login-box {
+  width: 380px;
+  padding: 48px 40px;
+  background-color: var(--card-color);
+  border: 1px solid var(--border-color);
+  border-radius: @base-border-radius;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 36px;
+
+  .logo {
+    display: block;
+    margin: 0 auto 16px;
+    border-radius: @small-border-radius;
+    object-fit: cover;
+  }
+
+  .title {
+    font-size: @font-size-xxl;
+    font-weight: 700;
+    color: var(--text-color);
+    line-height: normal;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: @font-size-sm;
+    color: var(--tertiary-color);
+    line-height: normal;
   }
 }
-.bg-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  :deep(.el-form-item) {
+    margin-bottom: 16px;
+  }
+
+  :deep(.el-input__wrapper) {
+    border-radius: @base-border-radius;
+    box-shadow: 0 0 0 1px var(--border-color);
+    background-color: transparent;
+    padding: 4px 12px;
+
+    &:hover {
+      box-shadow: 0 0 0 1px var(--primary-color);
+    }
+
+    &.is-focus {
+      box-shadow: 0 0 0 1px var(--primary-color);
+    }
+  }
+
+  :deep(.el-input__inner) {
+    background: transparent;
+    height: 36px;
+  }
+}
+
+.remember-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.submit-btn {
+  width: 100%;
+  border-radius: @base-border-radius;
+  height: 44px;
+  font-size: @font-size-md;
+  font-weight: 500;
+  letter-spacing: 2px;
 }
 </style>
