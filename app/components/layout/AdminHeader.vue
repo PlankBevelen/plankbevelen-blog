@@ -67,7 +67,7 @@ import { Expand, Fold, Link, Sunny, Moon } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 import { useAdminStore } from '@/stores/admin.store'
 
-const props = defineProps<{ collapsed: boolean; navTitle: string }>()
+defineProps<{ collapsed: boolean; navTitle: string }>()
 defineEmits<{ (e: 'toggle'): void }>()
 
 const adminStore = useAdminStore()
@@ -85,11 +85,12 @@ const onCommand = async (cmd: string) => {
   if (cmd === 'frontend') {
     openFrontend()
   } else if (cmd === 'logout') {
-    await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+    const confirmed = await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
       confirmButtonText: '退出',
       cancelButtonText: '取消',
       type: 'warning',
-    }).catch(() => {})
+    }).then(() => true).catch(() => false)
+    if (!confirmed) return
     await adminStore.logout?.()
     navigateTo('/admin/login', { replace: true })
   }

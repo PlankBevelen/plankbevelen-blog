@@ -1,183 +1,414 @@
 <template>
-  <div class="dashboard">
-    <div class="header">
-      <h2 class="title">仪表盘</h2>
-      <div class="actions">
-        <el-button type="primary" @click="navigateTo('/admin/content/article/edit')">
-          写文章
-        </el-button>
-      </div>
+  <div class="space-y-6">
+    <div class="flex items-center justify-end gap-3">
+      <div class="text-xs text-mute">最后更新：{{ lastUpdatedText }}</div>
+      <el-button :loading="loading" @click="fetchData">刷新</el-button>
+      <el-button type="primary" @click="navigateTo('/admin/content/article/edit')">新建文章</el-button>
     </div>
 
-    <!-- 概览卡片 -->
-    <div class="overview-cards">
-      <el-card shadow="hover" class="stat-card">
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <BaseCard v-for="item in overviewItems" :key="item.key">
         <template #header>
-          <div class="card-header">
-            <span>文章总数</span>
-            <el-tag type="success">Total</el-tag>
+          <div class="flex items-center justify-between gap-3">
+            <span class="truncate">{{ item.title }}</span>
+            <el-tag :type="item.tagType">{{ item.tagText }}</el-tag>
           </div>
         </template>
-        <div class="card-content">
-          <div class="number">{{ stats.totalArticles }}</div>
-          <div class="desc">篇已发布文章</div>
-        </div>
-      </el-card>
-
-      <el-card shadow="hover" class="stat-card">
-        <template #header>
-          <div class="card-header">
-            <span>分类总数</span>
-            <el-tag type="warning">Category</el-tag>
+        <div class="flex items-end justify-between gap-4">
+          <div>
+            <div class="text-h1 font-semibold text-text">{{ item.value }}</div>
+            <div class="mt-1 text-xs text-mute">{{ item.desc }}</div>
           </div>
-        </template>
-        <div class="card-content">
-          <div class="number">{{ stats.totalCategories }}</div>
-          <div class="desc">个活跃分类</div>
+          <el-button link type="primary" @click="item.onClick">查看</el-button>
         </div>
-      </el-card>
-
-      <el-card shadow="hover" class="stat-card">
-        <template #header>
-          <div class="card-header">
-            <span>标签总数</span>
-            <el-tag type="info">Tags</el-tag>
-          </div>
-        </template>
-        <div class="card-content">
-          <div class="number">{{ stats.totalTags }}</div>
-          <div class="desc">个内容标签</div>
-        </div>
-      </el-card>
+      </BaseCard>
     </div>
 
-    <div class="dashboard-grid">
-      <!-- 发布趋势图 -->
-      <el-card shadow="hover" class="chart-card">
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+      <BaseCard class="xl:col-span-2">
         <template #header>
-          <div class="card-header">
-            <span>发布趋势 (近6个月)</span>
+          <div class="flex items-center justify-between gap-3">
+            <span>发布趋势（近 6 个月）</span>
+            <el-button link type="primary" @click="navigateTo('/admin/content/statistics')">更多</el-button>
           </div>
         </template>
-        <div ref="trendChartRef" class="chart-container"></div>
-      </el-card>
+        <div ref="trendChartRef" class="h-72 w-full"></div>
+      </BaseCard>
 
-      <!-- 最新文章列表 -->
-      <el-card shadow="hover" class="list-card">
+      <BaseCard>
         <template #header>
-          <div class="card-header">
+          <div class="flex items-center justify-between gap-3">
+            <span>快捷操作</span>
+          </div>
+        </template>
+        <div class="grid grid-cols-2 gap-3">
+          <el-button
+            v-for="action in quickActions"
+            :key="action.key"
+            :type="action.type"
+            plain
+            @click="action.onClick"
+          >
+            {{ action.label }}
+          </el-button>
+        </div>
+      </BaseCard>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+      <BaseCard class="xl:col-span-2">
+        <template #header>
+          <div class="flex items-center justify-between gap-3">
             <span>最新文章</span>
             <el-button link type="primary" @click="navigateTo('/admin/content/article')">全部</el-button>
           </div>
         </template>
-        <el-table :data="stats.recentArticles" style="width: 100%" :show-header="false">
+        <el-table
+          :data="stats.recentArticles"
+          :show-header="false"
+          style="width: 100%"
+          v-loading="loading"
+          @row-click="onRowClick"
+        >
           <el-table-column prop="title" label="标题" show-overflow-tooltip>
             <template #default="{ row }">
-              <span class="article-title">{{ row.title }}</span>
+              <span class="text-sm font-medium text-text">{{ row.title }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="created_at" label="时间" width="120" align="right">
             <template #default="{ row }">
-              <span class="text-gray-400 text-xs">{{ formatDate(row.created_at) }}</span>
+              <span class="text-xs text-mute">{{ formatDate(row.created_at) }}</span>
             </template>
           </el-table-column>
+          <template #empty>
+            <el-empty description="暂无文章"></el-empty>
+          </template>
         </el-table>
-      </el-card>
+      </BaseCard>
+
+      <BaseCard>
+        <template #header>
+          <div class="flex items-center justify-between gap-3">
+            <span>内容分布</span>
+            <el-button link type="primary" @click="navigateTo('/admin/content/statistics')">更多</el-button>
+          </div>
+        </template>
+        <el-tabs v-model="activeDistTab" @tab-change="onDistTabChange">
+          <el-tab-pane label="分类" name="category">
+            <div ref="categoryChartRef" class="h-64 w-full"></div>
+          </el-tab-pane>
+          <el-tab-pane label="标签" name="tag">
+            <div ref="tagChartRef" class="h-64 w-full"></div>
+          </el-tab-pane>
+        </el-tabs>
+      </BaseCard>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as echarts from 'echarts'
-import dayjs from 'dayjs'
 import { navigateTo } from '#app'
 import { http } from '@/utils/http'
+import { formatDate } from '@/utils/format'
+import { useAdminStore } from '@/stores/admin.store'
+import { ElMessage } from 'element-plus'
 
-// 状态数据
-const stats = ref({
+type DashboardTrendItem = { date: string; count: number }
+type DashboardStatItem = { name: string; value: number }
+type DashboardRecentArticle = { id: string | number; title: string; created_at: string; category_id?: number }
+type DashboardData = {
+  totalArticles: number
+  totalCategories: number
+  totalTags: number
+  recentArticles: DashboardRecentArticle[]
+  publishTrend: DashboardTrendItem[]
+  categoryStats: DashboardStatItem[]
+  tagStats: DashboardStatItem[]
+}
+
+const stats = ref<DashboardData>({
   totalArticles: 0,
   totalCategories: 0,
   totalTags: 0,
   recentArticles: [],
-  publishTrend: []
+  publishTrend: [],
+  categoryStats: [],
+  tagStats: []
 })
 
 const trendChartRef = ref<HTMLElement>()
-let chartInstance: echarts.ECharts | null = null
+const categoryChartRef = ref<HTMLElement>()
+const tagChartRef = ref<HTMLElement>()
 
-// 格式化日期
-const formatDate = (date: string) => dayjs(date).format('YYYY-MM-DD')
+let trendChart: echarts.ECharts | null = null
+let categoryChart: echarts.ECharts | null = null
+let tagChart: echarts.ECharts | null = null
 
-// 初始化图表
-const initChart = () => {
+const adminStore = useAdminStore()
+const themeKey = computed(() => adminStore.getTheme)
+
+const loading = ref(false)
+const lastUpdatedAt = ref<number | null>(null)
+const lastUpdatedText = computed(() => {
+  if (!lastUpdatedAt.value) return '—'
+  return formatDate(new Date(lastUpdatedAt.value))
+})
+
+const activeDistTab = ref<'category' | 'tag'>('category')
+
+const cssVar = (name: string, fallback: string) => {
+  if (typeof window === 'undefined') return fallback
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+  return value || fallback
+}
+
+const disposeCharts = () => {
+  trendChart?.dispose()
+  categoryChart?.dispose()
+  tagChart?.dispose()
+  trendChart = null
+  categoryChart = null
+  tagChart = null
+}
+
+const initTrendChart = () => {
   if (!trendChartRef.value) return
-  
-  chartInstance = echarts.init(trendChartRef.value)
-  
-  const dates = stats.value.publishTrend.map((item: any) => item.date)
-  const counts = stats.value.publishTrend.map((item: any) => item.count)
 
-  const option = {
-    tooltip: {
-      trigger: 'axis'
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '3%',
-      containLabel: true
-    },
+  const primary = cssVar('--primary-color', '#0069d9')
+  const primary06 = cssVar('--primary-color-06', 'rgba(0, 105, 217, 0.6)')
+  const border = cssVar('--border-color', '#dee2e6')
+  const text = cssVar('--text-color', '#212529')
+  const mute = cssVar('--mute-color', '#6c757d')
+
+  const dates = stats.value.publishTrend.map(item => item.date)
+  const counts = stats.value.publishTrend.map(item => item.count)
+
+  if (!trendChart) {
+    trendChart = echarts.init(trendChartRef.value)
+  }
+
+  trendChart.setOption({
+    tooltip: { trigger: 'axis' },
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
     xAxis: {
       type: 'category',
       boundaryGap: false,
       data: dates,
-      axisLine: { lineStyle: { color: '#ddd' } },
-      axisLabel: { color: '#666' }
+      axisLine: { lineStyle: { color: border } },
+      axisLabel: { color: mute }
     },
     yAxis: {
       type: 'value',
-      splitLine: { lineStyle: { type: 'dashed', color: '#eee' } }
+      splitLine: { lineStyle: { type: 'dashed', color: border } },
+      axisLabel: { color: mute }
     },
     series: [
       {
         name: '发布数量',
         type: 'line',
         smooth: true,
+        showSymbol: false,
+        lineStyle: { color: primary, width: 2 },
+        itemStyle: { color: primary },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(64, 158, 255, 0.5)' },
-            { offset: 1, color: 'rgba(64, 158, 255, 0.05)' }
+            { offset: 0, color: primary06 },
+            { offset: 1, color: 'transparent' }
           ])
         },
-        itemStyle: { color: '#409EFF' },
         data: counts
       }
-    ]
-  }
-  
-  chartInstance.setOption(option)
+    ],
+    textStyle: { color: text }
+  })
 }
 
-// 获取数据
+const initCategoryChart = () => {
+  if (!categoryChartRef.value) return
+
+  const cardBg = cssVar('--card-color', '#fff')
+  const border = cssVar('--border-color', '#dee2e6')
+  const text = cssVar('--text-color', '#212529')
+  const secondary = cssVar('--secondary-color', '#495057')
+
+  if (!categoryChart) {
+    categoryChart = echarts.init(categoryChartRef.value)
+  }
+
+  categoryChart.setOption({
+    tooltip: { trigger: 'item' },
+    legend: { bottom: '4%', left: 'center', textStyle: { color: secondary } },
+    series: [
+      {
+        name: '分类',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: cardBg,
+          borderWidth: 2
+        },
+        label: { show: false, position: 'center' },
+        emphasis: {
+          label: { show: true, fontSize: 18, fontWeight: 'bold', color: text }
+        },
+        data: stats.value.categoryStats
+      }
+    ],
+    textStyle: { color: text },
+    backgroundColor: 'transparent'
+  })
+}
+
+const initTagChart = () => {
+  if (!tagChartRef.value) return
+
+  const primary = cssVar('--primary-color', '#0069d9')
+  const border = cssVar('--border-color', '#dee2e6')
+  const mute = cssVar('--mute-color', '#6c757d')
+  const text = cssVar('--text-color', '#212529')
+
+  const tagNames = stats.value.tagStats.map(t => t.name).reverse()
+  const tagValues = stats.value.tagStats.map(t => t.value).reverse()
+
+  if (!tagChart) {
+    tagChart = echarts.init(tagChartRef.value)
+  }
+
+  tagChart.setOption({
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: '2%', right: '6%', bottom: '3%', containLabel: true },
+    xAxis: {
+      type: 'value',
+      axisLine: { lineStyle: { color: border } },
+      axisLabel: { color: mute },
+      splitLine: { lineStyle: { type: 'dashed', color: border } }
+    },
+    yAxis: {
+      type: 'category',
+      data: tagNames,
+      axisLine: { lineStyle: { color: border } },
+      axisLabel: { color: mute }
+    },
+    series: [
+      {
+        name: '使用次数',
+        type: 'bar',
+        data: tagValues,
+        itemStyle: { color: primary },
+        barMaxWidth: 18
+      }
+    ],
+    textStyle: { color: text }
+  })
+}
+
+const renderCharts = async () => {
+  await nextTick()
+  initTrendChart()
+  if (activeDistTab.value === 'category') initCategoryChart()
+  if (activeDistTab.value === 'tag') initTagChart()
+}
+
 const fetchData = async () => {
+  loading.value = true
   try {
     const res: any = await http.get('/admin/dashboard')
-    // 后端返回格式为 { status: 200, msg: '...', data: { ... } }
-    // http 工具返回的就是整个响应体
     if (res?.data) {
-      stats.value = res.data
-      setTimeout(initChart, 100)
+      stats.value = res.data as DashboardData
+      lastUpdatedAt.value = Date.now()
+      await renderCharts()
     }
-  } catch (error) {
-    console.error('Failed to fetch dashboard data:', error)
+  } catch (error: any) {
+    ElMessage.error(error?.message || '获取仪表盘数据失败')
+  } finally {
+    loading.value = false
   }
 }
 
-// 监听窗口大小变化
-const handleResize = () => {
-  chartInstance?.resize()
+const onRowClick = (row: DashboardRecentArticle) => {
+  navigateTo({
+    path: '/admin/content/article/edit',
+    query: { mode: 'update', id: row.id }
+  })
 }
+
+const onDistTabChange = async () => {
+  await nextTick()
+  if (activeDistTab.value === 'category') initCategoryChart()
+  if (activeDistTab.value === 'tag') initTagChart()
+  categoryChart?.resize()
+  tagChart?.resize()
+}
+
+const handleResize = () => {
+  trendChart?.resize()
+  categoryChart?.resize()
+  tagChart?.resize()
+}
+
+const overviewItems = computed(() => [
+  {
+    key: 'articles',
+    title: '文章总数',
+    tagText: 'Total',
+    tagType: 'success' as const,
+    value: stats.value.totalArticles,
+    desc: '篇已发布文章',
+    onClick: () => navigateTo('/admin/content/article')
+  },
+  {
+    key: 'categories',
+    title: '分类总数',
+    tagText: 'Category',
+    tagType: 'warning' as const,
+    value: stats.value.totalCategories,
+    desc: '个活跃分类',
+    onClick: () => navigateTo('/admin/content/category')
+  },
+  {
+    key: 'tags',
+    title: '标签总数',
+    tagText: 'Tags',
+    tagType: 'info' as const,
+    value: stats.value.totalTags,
+    desc: '个内容标签',
+    onClick: () => navigateTo('/admin/content/statistics')
+  }
+])
+
+const quickActions = computed(() => [
+  {
+    key: 'create-article',
+    label: '新建文章',
+    type: 'primary' as const,
+    onClick: () => navigateTo('/admin/content/article/edit')
+  },
+  {
+    key: 'manage-article',
+    label: '文章管理',
+    onClick: () => navigateTo('/admin/content/article')
+  },
+  {
+    key: 'manage-category',
+    label: '分类管理',
+    onClick: () => navigateTo('/admin/content/category')
+  },
+  {
+    key: 'statistics',
+    label: '数据统计',
+    onClick: () => navigateTo('/admin/content/statistics')
+  }
+])
+
+watch(themeKey, async () => {
+  if (typeof window === 'undefined') return
+  disposeCharts()
+  await renderCharts()
+})
 
 onMounted(() => {
   fetchData()
@@ -186,111 +417,8 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
-  chartInstance?.dispose()
+  disposeCharts()
 })
 </script>
 
-<style scoped lang="less">
-.dashboard {
-  padding: 0 0 24px 0;
-  
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    
-    .title {
-      font-size: 24px;
-      font-weight: 600;
-      color: var(--text-color);
-      margin: 0;
-    }
-  }
-
-  .overview-cards {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    margin-bottom: 24px;
-
-    .stat-card {
-      .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-weight: 500;
-      }
-      .card-content {
-        text-align: center;
-        padding: 10px 0;
-        .number {
-          font-size: 32px;
-          font-weight: bold;
-          color: var(--primary-color);
-          line-height: 1.2;
-        }
-        .desc {
-          color: var(--text-secondary);
-          font-size: 14px;
-          margin-top: 4px;
-        }
-      }
-    }
-  }
-
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 24px;
-
-    .chart-card {
-      height: 400px;
-      display: flex;
-      flex-direction: column;
-      
-      :deep(.el-card__body) {
-        flex: 1;
-        padding: 10px;
-      }
-      
-      .chart-container {
-        width: 100%;
-        height: 100%;
-        min-height: 300px;
-      }
-    }
-
-    .list-card {
-      height: 400px;
-      display: flex;
-      flex-direction: column;
-      
-      :deep(.el-card__body) {
-        flex: 1;
-        overflow-y: auto;
-      }
-
-      .article-title {
-        font-weight: 500;
-        color: var(--text-color);
-        &:hover {
-          color: var(--primary-color);
-          cursor: pointer;
-        }
-      }
-    }
-  }
-}
-
-@media (max-width: 1024px) {
-  .dashboard {
-    .overview-cards {
-      grid-template-columns: 1fr;
-    }
-    .dashboard-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-}
-</style>
+<style scoped lang="less"></style>

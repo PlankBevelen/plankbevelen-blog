@@ -43,8 +43,13 @@
     </el-menu>
 
     <!-- 底部退出 -->
-    <div class="sidebar-footer" v-show="!isCollapsed">
-      <el-button link class="logout-btn" @click="onLogout">
+    <div class="sidebar-footer">
+      <el-tooltip v-if="isCollapsed" content="退出登录" placement="right">
+        <el-button link class="logout-icon-btn" @click="onLogout">
+          <el-icon><SwitchButton /></el-icon>
+        </el-button>
+      </el-tooltip>
+      <el-button v-else link class="logout-btn" @click="onLogout">
         <el-icon><SwitchButton /></el-icon>
         退出登录
       </el-button>
@@ -75,11 +80,12 @@ const activeIndex = computed(() => {
 })
 
 const onLogout = async () => {
-  await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+  const confirmed = await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
     confirmButtonText: '退出',
     cancelButtonText: '取消',
     type: 'warning',
-  }).catch(() => {})
+  }).then(() => true).catch(() => false)
+  if (!confirmed) return
   await adminStore.logout?.()
   navigateTo('/admin/login', { replace: true })
 }
@@ -194,6 +200,22 @@ const onLogout = async () => {
   border-top: 1px solid var(--border-color);
   flex-shrink: 0;
 
+  .logout-icon-btn {
+    width: 100%;
+    height: 36px;
+    padding: 0;
+    border-radius: @base-border-radius;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--tertiary-color);
+
+    &:hover {
+      color: var(--danger-color, #f56c6c);
+      background-color: var(--shallow-hover-bg-color);
+    }
+  }
+
   .logout-btn {
     width: 100%;
     justify-content: flex-start;
@@ -207,6 +229,62 @@ const onLogout = async () => {
       color: var(--danger-color, #f56c6c);
       background-color: var(--shallow-hover-bg-color);
     }
+  }
+}
+
+.sidebar.collapsed {
+  .sidebar-logo {
+    justify-content: center;
+    padding: 0;
+    gap: 0;
+  }
+
+  .sidebar-footer {
+    padding: 12px 4px;
+  }
+}
+
+.sidebar-menu.el-menu--collapse {
+  :deep(.el-menu-item),
+  :deep(.el-sub-menu__title) {
+    padding: 0 !important;
+    justify-content: center;
+  }
+
+  :deep(.el-menu-item .el-icon),
+  :deep(.el-sub-menu__title .el-icon) {
+    margin-right: 0 !important;
+  }
+
+  :deep(.el-sub-menu__icon-arrow) {
+    display: none;
+  }
+}
+
+:deep(.el-menu--popup) {
+  background-color: var(--card-color) !important;
+  border: 1px solid var(--border-color);
+  padding: 8px;
+  border-radius: @base-border-radius;
+}
+
+:deep(.el-menu--popup .el-menu-item) {
+  height: 38px;
+  line-height: 38px;
+  border-radius: @base-border-radius;
+  padding: 0 12px;
+  margin-bottom: 4px;
+  color: var(--secondary-color);
+
+  &:hover {
+    background-color: var(--shallow-hover-bg-color);
+    color: var(--primary-color);
+  }
+
+  &.is-active {
+    background-color: var(--shallow-active-bg-color);
+    color: var(--primary-color);
+    font-weight: 500;
   }
 }
 </style>
