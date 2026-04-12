@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
     const pageSize = Math.max(1, Number(q.limit || 10))
     const keyword = String(q.q || '').trim()  // 搜索关键词，根据标题、标签、分类名称进行搜索
     const sort = String(q.sort || 'created').toLowerCase() // 排序方式：updated|created
+    const categoryId = Number(q.categoryId || 0)
     const offset = (pageNum - 1) * pageSize
 
     const db = getDb()
@@ -37,6 +38,10 @@ export default defineEventHandler(async (event) => {
       },
       { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } }
     ]
+
+    if (categoryId) {
+      pipeline.push({ $match: { categoryId } })
+    }
 
     if (keyword) {
       const rx = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')

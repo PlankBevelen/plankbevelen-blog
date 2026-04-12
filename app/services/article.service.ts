@@ -5,8 +5,14 @@ class ArticleService {
   async createArticle(article: NewArticle) {
     return await http.post<ApiResponse>('/article', article)
   }
-  async getArticles(page: number = 1, limit: number = 10, q?: string, sort?: string) {
-    return await http.get<ApiResponse<Article[]>>('/article', { page, limit, q, sort })
+  async getArticles(
+    page: number = 1,
+    limit: number = 10,
+    q?: string,
+    sort?: string,
+    categoryId?: number | string
+  ) {
+    return await http.get<ApiResponse<Article[]>>('/article', { page, limit, q, sort, categoryId })
   }
   async getArticle(id: number | string) {
     return await http.get<ApiResponse<Article>>(`/article/${id}`)

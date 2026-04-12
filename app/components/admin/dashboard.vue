@@ -1,25 +1,38 @@
 <template>
   <div class="space-y-6">
-    <div class="flex items-center justify-end gap-3">
-      <div class="text-xs text-mute">最后更新：{{ lastUpdatedText }}</div>
-      <el-button :loading="loading" @click="fetchData">刷新</el-button>
-      <el-button type="primary" @click="navigateTo('/admin/content/article/edit')">新建文章</el-button>
-    </div>
+    <section class="hero-panel">
+      <div>
+        <p class="hero-kicker">内容运营概览</p>
+        <h1 class="hero-title">欢迎回来，今天也来整理一下博客内容吧。</h1>
+        <p class="hero-desc">
+          这里汇总了文章、分类、标签和最近发布趋势，方便你快速掌握后台状态。
+        </p>
+      </div>
 
-    <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div class="hero-actions">
+        <div class="hero-meta">
+          <span>最后更新</span>
+          <strong>{{ lastUpdatedText }}</strong>
+        </div>
+        <el-button :loading="loading" @click="fetchData">刷新数据</el-button>
+        <el-button type="primary" @click="navigateTo('/admin/content/article/edit')">
+          新建文章
+        </el-button>
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
       <BaseCard v-for="item in overviewItems" :key="item.key">
-        <template #header>
-          <div class="flex items-center justify-between gap-3">
-            <span class="truncate">{{ item.title }}</span>
-            <el-tag :type="item.tagType">{{ item.tagText }}</el-tag>
-          </div>
-        </template>
-        <div class="flex items-end justify-between gap-4">
+        <div class="flex items-start justify-between gap-4">
           <div>
-            <div class="text-h1 font-semibold text-text">{{ item.value }}</div>
+            <p class="text-xs text-mute">{{ item.title }}</p>
+            <div class="mt-2 text-h1 font-semibold text-text">{{ item.value }}</div>
             <div class="mt-1 text-xs text-mute">{{ item.desc }}</div>
           </div>
-          <el-button link type="primary" @click="item.onClick">查看</el-button>
+          <el-tag :type="item.tagType">{{ item.tagText }}</el-tag>
+        </div>
+        <div class="mt-4">
+          <el-button link type="primary" @click="item.onClick">立即查看</el-button>
         </div>
       </BaseCard>
     </div>
@@ -28,8 +41,10 @@
       <BaseCard class="xl:col-span-2">
         <template #header>
           <div class="flex items-center justify-between gap-3">
-            <span>发布趋势（近 6 个月）</span>
-            <el-button link type="primary" @click="navigateTo('/admin/content/statistics')">更多</el-button>
+            <span>近 6 个月发布趋势</span>
+            <el-button link type="primary" @click="navigateTo('/admin/content/statistics')">
+              查看详情
+            </el-button>
           </div>
         </template>
         <div ref="trendChartRef" class="h-72 w-full"></div>
@@ -37,9 +52,7 @@
 
       <BaseCard>
         <template #header>
-          <div class="flex items-center justify-between gap-3">
-            <span>快捷操作</span>
-          </div>
+          <span>快捷操作</span>
         </template>
         <div class="grid grid-cols-2 gap-3">
           <el-button
@@ -59,8 +72,10 @@
       <BaseCard class="xl:col-span-2">
         <template #header>
           <div class="flex items-center justify-between gap-3">
-            <span>最新文章</span>
-            <el-button link type="primary" @click="navigateTo('/admin/content/article')">全部</el-button>
+            <span>最近更新的文章</span>
+            <el-button link type="primary" @click="navigateTo('/admin/content/article')">
+              全部文章
+            </el-button>
           </div>
         </template>
         <el-table
@@ -81,7 +96,7 @@
             </template>
           </el-table-column>
           <template #empty>
-            <el-empty description="暂无文章"></el-empty>
+            <el-empty description="还没有文章，先去写一篇吧" />
           </template>
         </el-table>
       </BaseCard>
@@ -90,7 +105,9 @@
         <template #header>
           <div class="flex items-center justify-between gap-3">
             <span>内容分布</span>
-            <el-button link type="primary" @click="navigateTo('/admin/content/statistics')">更多</el-button>
+            <el-button link type="primary" @click="navigateTo('/admin/content/statistics')">
+              更多图表
+            </el-button>
           </div>
         </template>
         <el-tabs v-model="activeDistTab" @tab-change="onDistTabChange">
@@ -109,15 +126,15 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as echarts from 'echarts'
-import { navigateTo } from '#app'
-import { http } from '@/utils/http'
-import { formatDate } from '@/utils/format'
-import { useAdminStore } from '@/stores/admin.store'
 import { ElMessage } from 'element-plus'
+import { navigateTo } from '#app'
+import { useAdminStore } from '@/stores/admin.store'
+import { formatDate } from '@/utils/format'
+import { http } from '@/utils/http'
 
 type DashboardTrendItem = { date: string; count: number }
 type DashboardStatItem = { name: string; value: number }
-type DashboardRecentArticle = { id: string | number; title: string; created_at: string; category_id?: number }
+type DashboardRecentArticle = { id: string | number; title: string; created_at: string }
 type DashboardData = {
   totalArticles: number
   totalCategories: number
@@ -151,12 +168,15 @@ const themeKey = computed(() => adminStore.getTheme)
 
 const loading = ref(false)
 const lastUpdatedAt = ref<number | null>(null)
-const lastUpdatedText = computed(() => {
-  if (!lastUpdatedAt.value) return '—'
-  return formatDate(new Date(lastUpdatedAt.value))
-})
-
 const activeDistTab = ref<'category' | 'tag'>('category')
+
+const lastUpdatedText = computed(() => {
+  if (!lastUpdatedAt.value) return '尚未刷新'
+  return `${formatDate(new Date(lastUpdatedAt.value))} ${new Date(lastUpdatedAt.value).toLocaleTimeString('zh-CN', {
+    hour: '2-digit',
+    minute: '2-digit'
+  })}`
+})
 
 const cssVar = (name: string, fallback: string) => {
   if (typeof window === 'undefined') return fallback
@@ -181,7 +201,6 @@ const initTrendChart = () => {
   const border = cssVar('--border-color', '#dee2e6')
   const text = cssVar('--text-color', '#212529')
   const mute = cssVar('--mute-color', '#6c757d')
-
   const dates = stats.value.publishTrend.map(item => item.date)
   const counts = stats.value.publishTrend.map(item => item.count)
 
@@ -229,7 +248,6 @@ const initCategoryChart = () => {
   if (!categoryChartRef.value) return
 
   const cardBg = cssVar('--card-color', '#fff')
-  const border = cssVar('--border-color', '#dee2e6')
   const text = cssVar('--text-color', '#212529')
   const secondary = cssVar('--secondary-color', '#495057')
 
@@ -270,7 +288,6 @@ const initTagChart = () => {
   const border = cssVar('--border-color', '#dee2e6')
   const mute = cssVar('--mute-color', '#6c757d')
   const text = cssVar('--text-color', '#212529')
-
   const tagNames = stats.value.tagStats.map(t => t.name).reverse()
   const tagValues = stats.value.tagStats.map(t => t.value).reverse()
 
@@ -357,7 +374,7 @@ const overviewItems = computed(() => [
     tagText: 'Total',
     tagType: 'success' as const,
     value: stats.value.totalArticles,
-    desc: '篇已发布文章',
+    desc: '累计已收录的文章数量',
     onClick: () => navigateTo('/admin/content/article')
   },
   {
@@ -366,7 +383,7 @@ const overviewItems = computed(() => [
     tagText: 'Category',
     tagType: 'warning' as const,
     value: stats.value.totalCategories,
-    desc: '个活跃分类',
+    desc: '内容分类结构一目了然',
     onClick: () => navigateTo('/admin/content/category')
   },
   {
@@ -375,7 +392,16 @@ const overviewItems = computed(() => [
     tagText: 'Tags',
     tagType: 'info' as const,
     value: stats.value.totalTags,
-    desc: '个内容标签',
+    desc: '标签覆盖了不同主题与关键词',
+    onClick: () => navigateTo('/admin/content/statistics')
+  },
+  {
+    key: 'recent',
+    title: '近 6 月产出',
+    tagText: 'Trend',
+    tagType: 'primary' as const,
+    value: stats.value.publishTrend.reduce((sum, item) => sum + item.count, 0),
+    desc: '最近半年新增文章总量',
     onClick: () => navigateTo('/admin/content/statistics')
   }
 ])
@@ -401,6 +427,16 @@ const quickActions = computed(() => [
     key: 'statistics',
     label: '数据统计',
     onClick: () => navigateTo('/admin/content/statistics')
+  },
+  {
+    key: 'site-info',
+    label: '网站信息',
+    onClick: () => navigateTo('/admin/site/info')
+  },
+  {
+    key: 'site-data',
+    label: '网站数据',
+    onClick: () => navigateTo('/admin/site/data')
   }
 ])
 
@@ -421,4 +457,78 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+.hero-panel {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 28px;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 105, 217, 0.12);
+  background:
+    radial-gradient(circle at top right, rgba(0, 105, 217, 0.12), transparent 28%),
+    radial-gradient(circle at bottom left, rgba(25, 135, 84, 0.12), transparent 22%),
+    linear-gradient(135deg, var(--card-color), color-mix(in srgb, var(--card-color) 88%, #eaf2ff));
+}
+
+.hero-kicker {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--primary-color);
+}
+
+.hero-title {
+  margin: 0;
+  font-size: clamp(26px, 4vw, 34px);
+  line-height: 1.15;
+  color: var(--text-color);
+}
+
+.hero-desc {
+  margin: 12px 0 0;
+  max-width: 680px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--secondary-color);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.hero-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 128px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.52);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: var(--secondary-color);
+  font-size: 12px;
+
+  strong {
+    margin-top: 4px;
+    color: var(--text-color);
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 960px) {
+  .hero-panel {
+    flex-direction: column;
+  }
+
+  .hero-actions {
+    justify-content: flex-start;
+  }
+}
+</style>

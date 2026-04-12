@@ -11,6 +11,10 @@
 export const SITE_URL = 'https://plankbevelen.cn'
 export const SITE_IMAGE = `${SITE_URL}/img/logo.webp`
 export const SITE_AUTHOR = 'PlankBevelen'
+export const SITE_NAME = 'PlankBevelen 的个人博客'
+export const SITE_DESCRIPTION =
+  'plankbevelen 的个人博客，记录前端、创作和个人项目的持续实践。'
+export const SITE_LOCALE = 'zh'
 
 /**
  * 提取文章纯文本摘要（去除 Markdown 符号）

@@ -1,12 +1,13 @@
 <template>
   <aside class="sidebar" :class="{ collapsed: isCollapsed }">
-    <!-- Logo 区域 -->
     <div class="sidebar-logo">
       <img src="/img/logo.webp" alt="logo" class="logo-img" width="32" height="32" />
-      <span class="logo-text" v-show="!isCollapsed">PlankBevelen</span>
+      <div v-show="!isCollapsed" class="logo-copy">
+        <span class="logo-text">PlankBevelen</span>
+        <span class="logo-subtitle">管理后台</span>
+      </div>
     </div>
 
-    <!-- 菜单 -->
     <el-menu
       :collapse="isCollapsed"
       :default-active="activeIndex"
@@ -29,20 +30,25 @@
         <el-menu-item index="2-2" @click="navigateTo('/admin/content/category')">
           分类管理
         </el-menu-item>
+        <el-menu-item index="2-3" @click="navigateTo('/admin/content/statistics')">
+          数据统计
+        </el-menu-item>
       </el-sub-menu>
 
-      <el-menu-item index="3" @click="navigateTo('/admin/setting')">
-        <el-icon><Setting /></el-icon>
-        <template #title>网站设置</template>
-      </el-menu-item>
-
-      <el-menu-item index="4" @click="navigateTo('/admin/system')">
-        <el-icon><Monitor /></el-icon>
-        <template #title>系统信息</template>
-      </el-menu-item>
+      <el-sub-menu index="3">
+        <template #title>
+          <el-icon><Monitor /></el-icon>
+          <span>网站管理</span>
+        </template>
+        <el-menu-item index="3-1" @click="navigateTo('/admin/site/info')">
+          网站信息
+        </el-menu-item>
+        <el-menu-item index="3-2" @click="navigateTo('/admin/site/data')">
+          网站数据
+        </el-menu-item>
+      </el-sub-menu>
     </el-menu>
 
-    <!-- 底部退出 -->
     <div class="sidebar-footer">
       <el-tooltip v-if="isCollapsed" content="退出登录" placement="right">
         <el-button link class="logout-icon-btn" @click="onLogout">
@@ -60,9 +66,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { Odometer, Files, Setting, Monitor, SwitchButton } from '@element-plus/icons-vue'
-import { useAdminStore } from '@/stores/admin.store'
+import { Files, Monitor, Odometer, SwitchButton } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
+import { useAdminStore } from '@/stores/admin.store'
 
 defineProps<{ isCollapsed: boolean }>()
 
@@ -74,17 +80,21 @@ const activeIndex = computed(() => {
   if (path === '/admin' || path === '/admin/') return '1'
   if (path.startsWith('/admin/content/article')) return '2-1'
   if (path.startsWith('/admin/content/category')) return '2-2'
-  if (path.startsWith('/admin/setting')) return '3'
-  if (path.startsWith('/admin/system')) return '4'
+  if (path.startsWith('/admin/content/statistics')) return '2-3'
+  if (path.startsWith('/admin/site/info')) return '3-1'
+  if (path.startsWith('/admin/site/data')) return '3-2'
   return '1'
 })
 
 const onLogout = async () => {
-  const confirmed = await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+  const confirmed = await ElMessageBox.confirm('确定要退出当前后台账号吗？', '退出登录', {
     confirmButtonText: '退出',
     cancelButtonText: '取消',
-    type: 'warning',
-  }).then(() => true).catch(() => false)
+    type: 'warning'
+  })
+    .then(() => true)
+    .catch(() => false)
+
   if (!confirmed) return
   await adminStore.logout?.()
   navigateTo('/admin/login', { replace: true })
@@ -92,7 +102,6 @@ const onLogout = async () => {
 </script>
 
 <style scoped lang="less">
-// 侧边栏宽度常量，和 admin.vue 保持一致
 @sidebar-width: 220px;
 @sidebar-collapsed-width: 64px;
 
@@ -115,7 +124,6 @@ const onLogout = async () => {
   }
 }
 
-// Logo
 .sidebar-logo {
   height: 60px;
   display: flex;
@@ -133,17 +141,27 @@ const onLogout = async () => {
     object-fit: cover;
     flex-shrink: 0;
   }
-
-  .logo-text {
-    font-size: @font-size-md;
-    font-weight: 700;
-    color: var(--text-color);
-    white-space: nowrap;
-    overflow: hidden;
-  }
 }
 
-// 菜单
+.logo-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.logo-text {
+  font-size: @font-size-md;
+  font-weight: 700;
+  color: var(--text-color);
+  white-space: nowrap;
+}
+
+.logo-subtitle {
+  font-size: 12px;
+  color: var(--tertiary-color);
+  white-space: nowrap;
+}
+
 .sidebar-menu {
   flex: 1;
   border: none !important;
@@ -152,7 +170,6 @@ const onLogout = async () => {
   overflow-y: auto;
   overflow-x: hidden;
 
-  // 折叠时居中图标
   &.el-menu--collapse {
     padding: 12px 4px;
     width: @sidebar-collapsed-width !important;
@@ -194,7 +211,6 @@ const onLogout = async () => {
   }
 }
 
-// 底部退出
 .sidebar-footer {
   padding: 12px 8px;
   border-top: 1px solid var(--border-color);

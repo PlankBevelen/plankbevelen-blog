@@ -20,31 +20,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
 const isLoginPage = computed(() => route.path === '/admin/login')
 const isCollapsed = ref(false)
-const toggleCollapsed = () => { isCollapsed.value = !isCollapsed.value }
 
 const navTitleMap: Record<string, string> = {
   '/admin': '控制台',
   '/admin/content/article': '文章管理',
   '/admin/content/article/edit': '编辑文章',
   '/admin/content/category': '分类管理',
-  '/admin/setting': '网站设置',
-  '/admin/system': '系统信息',
+  '/admin/content/statistics': '数据统计',
+  '/admin/site/info': '网站信息',
+  '/admin/site/data': '网站数据'
+}
+
+const toggleCollapsed = () => {
+  isCollapsed.value = !isCollapsed.value
 }
 
 const navTitle = computed(() => navTitleMap[route.path] || '管理后台')
 </script>
 
 <style scoped lang="less">
-@sidebar-width: 220px;
-@sidebar-collapsed-width: 64px;
-
 .admin-layout {
   display: flex;
   height: 100vh;
