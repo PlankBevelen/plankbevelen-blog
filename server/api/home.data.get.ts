@@ -1,5 +1,35 @@
 import { setResponseStatus, defineEventHandler } from 'h3'
 import { getDb, getCollections } from '../utils/mongo'
+import MarkdownIt from 'markdown-it'
+import sanitizeHtml from 'sanitize-html'
+
+const md = new MarkdownIt({ html: false, linkify: true, typographer: true })
+
+function mdToHtml(content: string) {
+  const raw = md.render(content || '')
+  const clean = sanitizeHtml(raw, {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
+    allowedAttributes: {
+      a: ['href', 'name', 'target', 'rel'],
+      img: ['src', 'alt', 'title', 'loading', 'width', 'height'],
+      '*': ['class']
+    },
+    allowedSchemesByTag: {
+      img: ['http', 'https', 'data']
+    },
+    transformTags: {
+      a: (tagName, attribs) => ({
+        tagName: 'a',
+        attribs: {
+          ...attribs,
+          rel: 'noopener noreferrer',
+          target: '_blank'
+        }
+      })
+    }
+  })
+  return clean
+}
 
 // 按字符数截断，但保证不截断在代码块中间
 // 避免截出半个 ``` 导致 MdPreview 渲染异常
@@ -63,6 +93,9 @@ async function getArticles(limit: number, sort: 'created' | 'updated' = 'updated
     shortContent: sliceMdSafely(r.content || '', 600),
     // 展开态：前 2000 字符
     longContent: sliceMdSafely(r.content || '', 2000),
+    // 渲染为安全 HTML，前端可直接使用 v-html 渲染，降低客户端包体积
+    shortHtml: mdToHtml(sliceMdSafely(r.content || '', 600)),
+    longHtml: mdToHtml(sliceMdSafely(r.content || '', 2000)),
     // 不返回完整 content，减少传输量
   }))
 }

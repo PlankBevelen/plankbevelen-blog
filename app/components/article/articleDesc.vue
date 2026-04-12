@@ -23,13 +23,20 @@
     </div>
     <div class="content">
       <div class="md-wrapper" :class="{ 'is-collapsed': !isExpand }">
-        <MdPreview
-          :modelValue="displayContent"
-          :theme="currentTheme"
-          :noMermaid="true"
-          :noKatex="true"
-          previewOnly
-        />
+        <Suspense>
+          <template #default>
+            <AsyncMdPreview
+              :modelValue="displayContent"
+              :theme="currentTheme"
+              :noMermaid="true"
+              :noKatex="true"
+              previewOnly
+            />
+          </template>
+          <template #fallback>
+            <div class="md-editor-preview" v-html="displayHtml"></div>
+          </template>
+        </Suspense>
       </div>
       <div class="ops">
         <el-button type="primary" link size="small" @click="isExpand = !isExpand">
@@ -44,9 +51,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
-import { MdPreview } from 'md-editor-v3'
-import 'md-editor-v3/lib/style.css'
+import { ref, computed, defineAsyncComponent } from 'vue'
 import type { Article } from '@/types/article'
 import { formatDateTime } from '@/utils/format'
 import { useAdminStore } from '@/stores/admin.store'
@@ -57,7 +62,7 @@ const currentTheme = computed(() => admin.getTheme)
 
 const props = defineProps({
   article: {
-    type: Object as () => Article & { shortContent?: string; longContent?: string },
+    type: Object as () => Article & { shortContent?: string; longContent?: string; shortHtml?: string; longHtml?: string },
     required: true,
   },
 })
@@ -66,11 +71,32 @@ const isExpand = ref(false)
 
 // 折叠时展示 shortContent，展开后展示 longContent
 // 两份数据都从接口一次性拿好，不需要额外请求
+// markdown 字符串用于 MdPreview 的 modelValue
 const displayContent = computed(() =>
   isExpand.value
     ? (props.article.longContent || props.article.shortContent || '')
     : (props.article.shortContent || '')
 )
+
+// 回退使用服务端渲染的 HTML（已在服务端 sanitize）
+const displayHtml = computed(() =>
+  isExpand.value
+    ? (props.article.longHtml || '')
+    : (props.article.shortHtml || '')
+)
+
+// 异步加载 MdPreview 与样式，使用全局缓存避免重复加载
+const AsyncMdPreview = defineAsyncComponent(() => {
+  const key = '__md_preview_loader'
+  if (!(globalThis as any)[key]) {
+    ;(globalThis as any)[key] = (async () => {
+      const mod = await import('md-editor-v3')
+      await import('md-editor-v3/lib/style.css')
+      return mod.MdPreview || mod.default?.MdPreview || mod
+    })()
+  }
+  return (globalThis as any)[key]
+})
 </script>
 
 <style scoped lang="less">

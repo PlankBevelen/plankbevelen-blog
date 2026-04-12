@@ -14,7 +14,14 @@
         <template #middle>
           <BaseCard class="about-content">
             <h1 class="title">{{ $t('pages.about.title') }}</h1>
-            <MdPreview v-if="aboutMd" :modelValue="aboutMd" :theme="currentTheme" />
+            <Suspense v-if="aboutMd">
+              <template #default>
+                <AsyncMdPreview :modelValue="aboutMd" :theme="currentTheme" />
+              </template>
+              <template #fallback>
+                <el-skeleton rows="6" animated />
+              </template>
+            </Suspense>
             <el-empty v-else description="暂时还没有关于页内容" />
           </BaseCard>
         </template>
@@ -29,12 +36,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { useAsyncData } from 'nuxt/app'
 import { useSidebarData } from '@/composables/useSidebarData'
 import siteService from '@/services/site.service'
-import { MdPreview } from 'md-editor-v3'
-import 'md-editor-v3/lib/style.css'
 import { useAdminStore } from '@/stores/admin.store'
 
 const { t, locale } = useI18n()
@@ -58,6 +63,19 @@ const aboutMd = computed(() => {
   const about = contentData.value?.about
   if (!about) return ''
   return locale.value === 'en' ? about.en || about.zh || '' : about.zh || about.en || ''
+})
+
+// 按需加载 MdPreview 与样式
+const AsyncMdPreview = defineAsyncComponent(() => {
+  const key = '__md_preview_loader'
+  if (!(globalThis as any)[key]) {
+    ;(globalThis as any)[key] = (async () => {
+      const mod = await import('md-editor-v3')
+      await import('md-editor-v3/lib/style.css')
+      return mod.MdPreview || mod.default?.MdPreview || mod
+    })()
+  }
+  return (globalThis as any)[key]
 })
 
 usePageSeo({

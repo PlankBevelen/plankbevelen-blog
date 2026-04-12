@@ -24,12 +24,19 @@
                 }}</span>
               </div>
             </div>
-            <MdPreview
-              :modelValue="displayContent"
-              :theme="currentTheme"
-              :noMermaid="true"
-              :noKatex="true"
-            />
+            <Suspense>
+              <template #default>
+                <AsyncMdPreview
+                  :modelValue="displayContent"
+                  :theme="currentTheme"
+                  :noMermaid="true"
+                  :noKatex="true"
+                />
+              </template>
+              <template #fallback>
+                <el-skeleton rows="10" animated />
+              </template>
+            </Suspense>
             <div class="prev-next">
               <div class="item prev" v-if="article?.prev">
                 <NuxtLink
@@ -58,12 +65,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, defineAsyncComponent } from "vue";
 import { useRoute } from "vue-router";
 import { useAsyncData, navigateTo, createError } from "nuxt/app";
 import http from "~/utils/http";
-import { MdPreview } from "md-editor-v3";
-import "md-editor-v3/lib/style.css";
+// 按需加载 MdPreview 与样式，避免在首页主包中引入 md-editor
+const AsyncMdPreview = defineAsyncComponent(() => {
+  const key = '__md_preview_loader'
+  if (!(globalThis as any)[key]) {
+    ;(globalThis as any)[key] = (async () => {
+      const mod = await import('md-editor-v3')
+      await import('md-editor-v3/lib/style.css')
+      return mod.MdPreview || mod.default?.MdPreview || mod
+    })()
+  }
+  return (globalThis as any)[key]
+})
 import { formatDateTime } from "@/utils/format";
 import { useAdminStore } from "@/stores/admin.store";
 import articleService from "@/services/article.service";

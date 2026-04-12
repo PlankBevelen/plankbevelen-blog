@@ -46,7 +46,6 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
-import * as echarts from 'echarts'
 import { ElMessage } from 'element-plus'
 import { http } from '@/utils/http'
 
@@ -64,6 +63,10 @@ type DashboardData = {
 const categoryChartRef = ref<HTMLElement>()
 const tagChartRef = ref<HTMLElement>()
 const trendChartRef = ref<HTMLElement>()
+let echarts: any = null
+const loadEcharts = async () => {
+  if (!echarts) echarts = await import('echarts')
+}
 const loading = ref(false)
 
 const data = ref<DashboardData>({
@@ -75,9 +78,9 @@ const data = ref<DashboardData>({
   publishTrend: []
 })
 
-let categoryChart: echarts.ECharts | null = null
-let tagChart: echarts.ECharts | null = null
-let trendChart: echarts.ECharts | null = null
+let categoryChart: any = null
+let tagChart: any = null
+let trendChart: any = null
 
 const cssVar = (name: string, fallback: string) => {
   if (typeof window === 'undefined') return fallback
@@ -114,6 +117,7 @@ const summaryCards = computed(() => {
 
 const initCharts = async () => {
   await nextTick()
+  await loadEcharts()
 
   const primary = cssVar('--primary-color', '#0069d9')
   const success = '#67c23a'

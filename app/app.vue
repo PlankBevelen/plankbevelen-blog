@@ -7,21 +7,32 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAdminStore } from '@/stores/admin.store'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import en from 'element-plus/es/locale/lang/en'
-import { config } from 'md-editor-v3'
 import { SITE_URL, SITE_IMAGE } from '@/composables/useSeo'
 
-// 禁用 md-editor-v3 自动加载 CDN 资源
-config({
-  editorExtensions: {
-    highlight: { js: '' },
-    echarts: { js: '' },
-    katex: { js: '', css: '' },
-    cropper: { js: '', css: '' },
+// 仅在管理员路由需要时动态加载并配置 md-editor，避免将其拉入首页主包
+onMounted(async () => {
+  try {
+    const route = useRoute()
+    if (route.path.startsWith('/admin')) {
+      const md = await import('md-editor-v3')
+      if (md?.config) {
+        md.config({
+          editorExtensions: {
+            highlight: { js: '' },
+            echarts: { js: '' },
+            katex: { js: '', css: '' },
+            cropper: { js: '', css: '' },
+          }
+        })
+      }
+    }
+  } catch (e) {
+    // 忽略动态加载失败，不影响首页渲染
   }
 })
 

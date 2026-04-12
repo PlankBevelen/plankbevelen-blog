@@ -4,14 +4,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
-import * as THREE from 'three'
 import { useAdminStore } from '@/stores/admin.store'
 
 const container = ref<HTMLElement | null>(null)
-let scene: THREE.Scene
-let camera: THREE.PerspectiveCamera
-let renderer: THREE.WebGLRenderer
-let particles: THREE.Points
+let scene: any
+let camera: any
+let renderer: any
+let particles: any
 let animationFrameId: number
 let lastFrameTime = 0
 
@@ -20,8 +19,11 @@ const FRAME_INTERVAL = 1000 / TARGET_FPS
 
 const admin = useAdminStore()
 
-const initThree = () => {
+const initThree = async () => {
   if (!container.value) return
+
+  // 动态加载 three，避免将其拉入首页主包
+  const THREE = await import('three')
 
   scene = new THREE.Scene()
 
@@ -29,7 +31,7 @@ const initThree = () => {
   camera.position.z = 300
 
   renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false }) // antialias 关掉，背景粒子不需要
-  renderer.setSize(window.innerWidth, window.innerHeight) 
+  renderer.setSize(window.innerWidth, window.innerHeight)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)) // 限制最高 1.5，防止高分屏爆炸
   container.value.appendChild(renderer.domElement)
 
@@ -40,9 +42,9 @@ const initThree = () => {
 
   for (let i = 0; i < particleCount * 3; i++) {
     const i3 = i * 3
-    positions[i3] = (Math.random() - 0.5) * 1000  // x 不变
-    positions[i3 + 1] = (Math.random() - 0.5) * 1000  // y 不变
-    positions[i3 + 2] = (Math.random() - 0.5) * 1000 - 300  // z 整体往后偏移，远离摄像机
+    positions[i3] = (Math.random() - 0.5) * 1000 // x 不变
+    positions[i3 + 1] = (Math.random() - 0.5) * 1000 // y 不变
+    positions[i3 + 2] = (Math.random() - 0.5) * 1000 - 300 // z 整体往后偏移，远离摄像机
   }
 
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
@@ -96,9 +98,11 @@ const animate = (timestamp: number) => {
 }
 
 watch(() => admin.getTheme, (newTheme) => {
-  if (particles && particles.material instanceof THREE.PointsMaterial) {
+  if (particles && particles.material) {
     const isDark = newTheme === 'dark'
-    particles.material.color.setHex(isDark ? 0x888888 : 0x999999)
+    if (typeof particles.material.color?.setHex === 'function') {
+      particles.material.color.setHex(isDark ? 0x888888 : 0x999999)
+    }
     particles.material.opacity = isDark ? 0.6 : 0.8
     particles.material.needsUpdate = true
   }

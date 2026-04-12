@@ -96,6 +96,7 @@ export default defineNuxtConfig({
         algorithm: 'gzip',
         ext: '.gz',
       })
+      
     ],
     css: {
       preprocessorMaxWorkers: 0,  // 禁用预处理器多线程，避免在服务器端运行时出现问题
@@ -112,9 +113,12 @@ export default defineNuxtConfig({
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
-              if (id.includes('md-editor-v3')) {
-                return 'md-editor-v3'
-              }
+              if (id.includes('md-editor-v3')) return 'md-editor-v3'
+              if (id.includes('element-plus')) return 'element-plus'
+              if (id.includes('echarts')) return 'echarts'
+              if (id.includes('three')) return 'three'
+              if (id.includes('gsap')) return 'gsap'
+              if (id.includes('lodash-es')) return 'lodash-es'
             }
           }
         }

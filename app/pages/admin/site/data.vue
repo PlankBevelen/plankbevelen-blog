@@ -76,7 +76,6 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
-import * as echarts from 'echarts'
 import { ElMessage } from 'element-plus'
 import siteService from '@/services/site.service'
 
@@ -116,8 +115,15 @@ const browserPerformance = ref({
   transferSize: 0
 })
 
-let trendChart: echarts.ECharts | null = null
-let assetChart: echarts.ECharts | null = null
+let echarts: any = null
+const loadEcharts = async () => {
+  if (!echarts) {
+    echarts = await import('echarts')
+  }
+}
+
+let trendChart: any = null
+let assetChart: any = null
 
 const formatBytes = (bytes: number) => {
   if (!bytes) return '0 B'
@@ -183,6 +189,7 @@ const browserPerformanceCards = computed(() => [
 
 const initCharts = async () => {
   await nextTick()
+  await loadEcharts()
   const primary = '#0069d9'
   const success = '#198754'
   const warning = '#e6a23c'

@@ -125,7 +125,6 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import * as echarts from 'echarts'
 import { ElMessage } from 'element-plus'
 import { navigateTo } from '#app'
 import { useAdminStore } from '@/stores/admin.store'
@@ -159,9 +158,14 @@ const trendChartRef = ref<HTMLElement>()
 const categoryChartRef = ref<HTMLElement>()
 const tagChartRef = ref<HTMLElement>()
 
-let trendChart: echarts.ECharts | null = null
-let categoryChart: echarts.ECharts | null = null
-let tagChart: echarts.ECharts | null = null
+let echarts: any = null
+const loadEcharts = async () => {
+  if (!echarts) echarts = await import('echarts')
+}
+
+let trendChart: any = null
+let categoryChart: any = null
+let tagChart: any = null
 
 const adminStore = useAdminStore()
 const themeKey = computed(() => adminStore.getTheme)
@@ -193,8 +197,9 @@ const disposeCharts = () => {
   tagChart = null
 }
 
-const initTrendChart = () => {
+const initTrendChart = async () => {
   if (!trendChartRef.value) return
+  await loadEcharts()
 
   const primary = cssVar('--primary-color', '#0069d9')
   const primary06 = cssVar('--primary-color-06', 'rgba(0, 105, 217, 0.6)')
@@ -244,8 +249,9 @@ const initTrendChart = () => {
   })
 }
 
-const initCategoryChart = () => {
+const initCategoryChart = async () => {
   if (!categoryChartRef.value) return
+  await loadEcharts()
 
   const cardBg = cssVar('--card-color', '#fff')
   const text = cssVar('--text-color', '#212529')
@@ -281,8 +287,9 @@ const initCategoryChart = () => {
   })
 }
 
-const initTagChart = () => {
+const initTagChart = async () => {
   if (!tagChartRef.value) return
+  await loadEcharts()
 
   const primary = cssVar('--primary-color', '#0069d9')
   const border = cssVar('--border-color', '#dee2e6')
@@ -325,9 +332,9 @@ const initTagChart = () => {
 
 const renderCharts = async () => {
   await nextTick()
-  initTrendChart()
-  if (activeDistTab.value === 'category') initCategoryChart()
-  if (activeDistTab.value === 'tag') initTagChart()
+  await initTrendChart()
+  if (activeDistTab.value === 'category') await initCategoryChart()
+  if (activeDistTab.value === 'tag') await initTagChart()
 }
 
 const fetchData = async () => {
@@ -355,8 +362,8 @@ const onRowClick = (row: DashboardRecentArticle) => {
 
 const onDistTabChange = async () => {
   await nextTick()
-  if (activeDistTab.value === 'category') initCategoryChart()
-  if (activeDistTab.value === 'tag') initTagChart()
+  if (activeDistTab.value === 'category') await initCategoryChart()
+  if (activeDistTab.value === 'tag') await initTagChart()
   categoryChart?.resize()
   tagChart?.resize()
 }
