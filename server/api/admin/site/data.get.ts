@@ -3,6 +3,7 @@ import { readdir, stat } from 'node:fs/promises'
 import { join } from 'node:path'
 import dayjs from 'dayjs'
 import { getDb, getCollections } from '../../../utils/mongo'
+import { getVisitLogSummary } from '../../../utils/visit-log'
 
 type DirectoryStats = {
   files: number
@@ -44,49 +45,58 @@ export default defineEventHandler(async (event) => {
     const notDeleted: any = { $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }] }
     const thirtyDaysAgo = dayjs().subtract(29, 'day').startOf('day').toDate()
 
-    const [totalArticles, categoriesList, contentMetrics, trendStats, publicStats, uploadStats, bundleStats] =
-      await Promise.all([
-        articles.countDocuments(notDeleted),
-        categories
-          .find({}, { projection: { _id: 0, name: 1, count: 1 } })
-          .sort({ count: -1, id: 1 })
-          .limit(8)
-          .toArray(),
-        articles
-          .aggregate([
-            { $match: notDeleted },
-            {
-              $group: {
-                _id: null,
-                articlesLast30Days: {
-                  $sum: {
-                    $cond: [{ $gte: ['$createdAt', thirtyDaysAgo] }, 1, 0]
-                  }
-                },
-                averageContentLength: {
-                  $avg: { $strLenCP: { $ifNull: ['$content', ''] } }
+    const [
+      totalArticles,
+      categoriesList,
+      contentMetrics,
+      trendStats,
+      publicStats,
+      uploadStats,
+      bundleStats,
+      visitSummary
+    ] = await Promise.all([
+      articles.countDocuments(notDeleted),
+      categories
+        .find({}, { projection: { _id: 0, name: 1, count: 1 } })
+        .sort({ count: -1, id: 1 })
+        .limit(8)
+        .toArray(),
+      articles
+        .aggregate([
+          { $match: notDeleted },
+          {
+            $group: {
+              _id: null,
+              articlesLast30Days: {
+                $sum: {
+                  $cond: [{ $gte: ['$createdAt', thirtyDaysAgo] }, 1, 0]
                 }
+              },
+              averageContentLength: {
+                $avg: { $strLenCP: { $ifNull: ['$content', ''] } }
               }
             }
-          ])
-          .toArray(),
-        articles
-          .aggregate([
-            { $match: { ...notDeleted, createdAt: { $gte: thirtyDaysAgo } } },
-            {
-              $group: {
-                _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: '+08:00' } },
-                count: { $sum: 1 }
-              }
-            },
-            { $project: { _id: 0, date: '$_id', count: 1 } },
-            { $sort: { date: 1 } }
-          ])
-          .toArray(),
-        getDirectoryStats(join(process.cwd(), 'public')),
-        getDirectoryStats(join(process.cwd(), 'public', 'uploads')),
-        getDirectoryStats(join(process.cwd(), '.output', 'public', '_nuxt'))
-      ])
+          }
+        ])
+        .toArray(),
+      articles
+        .aggregate([
+          { $match: { ...notDeleted, createdAt: { $gte: thirtyDaysAgo } } },
+          {
+            $group: {
+              _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: '+08:00' } },
+              count: { $sum: 1 }
+            }
+          },
+          { $project: { _id: 0, date: '$_id', count: 1 } },
+          { $sort: { date: 1 } }
+        ])
+        .toArray(),
+      getDirectoryStats(join(process.cwd(), 'public')),
+      getDirectoryStats(join(process.cwd(), 'public', 'uploads')),
+      getDirectoryStats(join(process.cwd(), '.output', 'public', '_nuxt')),
+      getVisitLogSummary({ days: 7 }, db)
+    ])
 
     const trendMap = new Map(trendStats.map((item: any) => [item.date, item.count]))
     const publishTrend = Array.from({ length: 30 }, (_, index) => {
@@ -108,11 +118,19 @@ export default defineEventHandler(async (event) => {
       msg: 'success',
       data: {
         traffic: {
-          analyticsEnabled: false,
-          statusText: '未接入实时访问埋点',
-          source: '当前项目暂无 PV / UV 数据源，可后续接入 GA、Umami 或自建统计。',
-          pv: null,
-          uv: null
+          analyticsEnabled: true,
+          statusText: visitSummary.totalVisits
+            ? '已接入服务端访问日志'
+            : '访问日志已启用，等待站点访问数据',
+          source: visitSummary.topPaths.length
+            ? `近 7 天高频页面：${visitSummary.topPaths
+                .map((item: any) => `${item.path} (${item.count})`)
+                .join(' / ')}`
+            : '当前正在自动记录公开页面访问，产生访问后会在这里显示 PV / UV 概览。',
+          pv: visitSummary.totalVisits,
+          uv: visitSummary.uniqueVisitors,
+          latestVisitedAt: visitSummary.latestVisitedAt,
+          topPaths: visitSummary.topPaths
         },
         content: {
           totalArticles,

@@ -40,11 +40,17 @@
           <el-icon><Monitor /></el-icon>
           <span>网站管理</span>
         </template>
+        <el-menu-item index="3-0" @click="navigateTo('/admin/site/content')">
+          站点内容
+        </el-menu-item>
         <el-menu-item index="3-1" @click="navigateTo('/admin/site/info')">
           网站信息
         </el-menu-item>
         <el-menu-item index="3-2" @click="navigateTo('/admin/site/data')">
           网站数据
+        </el-menu-item>
+        <el-menu-item index="3-3" @click="navigateTo('/admin/site/logs')">
+          访问日志
         </el-menu-item>
       </el-sub-menu>
     </el-menu>
@@ -81,8 +87,10 @@ const activeIndex = computed(() => {
   if (path.startsWith('/admin/content/article')) return '2-1'
   if (path.startsWith('/admin/content/category')) return '2-2'
   if (path.startsWith('/admin/content/statistics')) return '2-3'
+  if (path.startsWith('/admin/site/content')) return '3-0'
   if (path.startsWith('/admin/site/info')) return '3-1'
   if (path.startsWith('/admin/site/data')) return '3-2'
+  if (path.startsWith('/admin/site/logs')) return '3-3'
   return '1'
 })
 

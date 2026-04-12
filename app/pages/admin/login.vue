@@ -1,5 +1,5 @@
 <template>
-  <div class="login-page">
+  <div class="min-h-screen flex items-center justify-center px-5 py-8 bg-gradient-to-br from-gray-50 to-gray-100">
     <div class="login-shell">
       <section class="brand-panel">
         <img src="/img/logo.webp" alt="logo" class="brand-logo" width="56" height="56" />
@@ -75,7 +75,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { useAdminStore } from '@/stores/admin.store'
 
-definePageMeta({ layout: 'admin' })
+definePageMeta({ layout: false })
 
 const adminStore = useAdminStore()
 const formRef = ref<FormInstance>()

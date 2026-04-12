@@ -42,6 +42,31 @@ export type TagDoc = {
   updatedAt: Date
 }
 
+export type SiteConfigDoc = {
+  _id: string
+  type: string
+  data: Record<string, any>
+  createdAt: Date
+  updatedAt: Date
+}
+
+export type VisitLogDoc = {
+  requestId: string
+  path: string
+  fullPath: string
+  method: string
+  statusCode: number
+  ip: string
+  userAgent: string
+  referer: string
+  acceptLanguage: string
+  browser: string
+  os: string
+  deviceType: 'desktop' | 'mobile' | 'tablet' | 'bot' | 'unknown'
+  durationMs: number
+  visitedAt: Date
+}
+
 type CounterDoc = {
   _id: string
   seq: number
@@ -77,12 +102,14 @@ export function getCollections(dbInstance?: Db) {
     articles: d.collection<ArticleDoc>('articles'),
     categories: d.collection<CategoryDoc>('categories'),
     tags: d.collection<TagDoc>('tags'),
-    counters: d.collection<CounterDoc>('counters')
+    counters: d.collection<CounterDoc>('counters'),
+    siteConfigs: d.collection<SiteConfigDoc>('site_configs'),
+    visitLogs: d.collection<VisitLogDoc>('visit_logs')
   }
 }
 
 async function ensureIndexes(dbInstance: Db) {
-  const { articles, categories, tags, counters } = getCollections(dbInstance)
+  const { articles, categories, tags, siteConfigs, visitLogs } = getCollections(dbInstance)
   await Promise.all([
     articles.createIndex({ id: 1 }, { unique: true, name: 'uniq_id' }),
     articles.createIndex({ deletedAt: 1, createdAt: -1, id: -1 }, { name: 'by_created' }),
@@ -90,7 +117,13 @@ async function ensureIndexes(dbInstance: Db) {
     articles.createIndex({ categoryId: 1 }, { name: 'by_category' }),
     articles.createIndex({ title: 'text', tags: 'text' }, { name: 'text_title_tags' }),
     categories.createIndex({ id: 1 }, { unique: true, name: 'uniq_id' }),
-    tags.createIndex({ name: 1 }, { unique: true, name: 'uniq_name' })
+    tags.createIndex({ name: 1 }, { unique: true, name: 'uniq_name' }),
+    siteConfigs.createIndex({ type: 1 }, { name: 'by_type' }),
+    visitLogs.createIndex({ requestId: 1 }, { unique: true, name: 'uniq_request_id' }),
+    visitLogs.createIndex({ visitedAt: -1 }, { name: 'by_visited_at' }),
+    visitLogs.createIndex({ path: 1, visitedAt: -1 }, { name: 'by_path_visited_at' }),
+    visitLogs.createIndex({ ip: 1, visitedAt: -1 }, { name: 'by_ip_visited_at' }),
+    visitLogs.createIndex({ deviceType: 1, visitedAt: -1 }, { name: 'by_device_visited_at' })
   ])
 }
 
