@@ -114,7 +114,7 @@ onMounted(() => {
   }, 100)
 })
 
-onBeforeUnmount(() => {
+onBeforeUnmount(async () => {
   cancelAnimationFrame(animationFrameId)
   window.removeEventListener('resize', onWindowResize)
   document.removeEventListener('visibilitychange', onVisibilityChange)
@@ -125,6 +125,7 @@ onBeforeUnmount(() => {
   }
   if (particles) {
     particles.geometry.dispose()
+    const THREE = await import('three')
     if (particles.material instanceof THREE.Material) {
       particles.material.dispose()
     }
