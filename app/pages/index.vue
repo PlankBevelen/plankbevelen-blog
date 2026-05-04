@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen pt-header">
     <div class="container py-page">
-      <h1 class="sr-only">PlankBevelen (Plank / Bevelen) 的个人博客</h1>
+      <h1 class="sr-only">PlankBevelen (Plank / Bevelen) </h1>
       <LayoutThreeColumn :loading="pending">
         <template #left class="left">
           <WidgetBlogger :articleCount="homeData.stats?.articles " :categoryCount="homeData.stats?.categories" :tagCount="homeData.stats?.tags" />

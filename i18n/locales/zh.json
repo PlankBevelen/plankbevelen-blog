@@ -1,11 +1,11 @@
 {
   "site": {
-    "name": "PlankBevelen的博客",
+    "name": "PlankBevelen",
     "description": "个人技术博客，分享前端开发、Web 技术、编程经验和技术文章",
     "keywords": "plankbevelen, plank, bevelen, PlankBevelen, Plank, Bevelen, 个人博客, 前端开发, Web 技术, 编程经验, 技术文章"
   },
   "header": {
-    "title": "PlankBevelen的博客",
+    "title": "PlankBevelen",
     "nav": {
       "home": "首页",
       "article": "文章",
@@ -14,7 +14,7 @@
     }
   },
   "footer": {
-    "title": "PlankBevelen的博客",
+    "title": "PlankBevelen",
     "description": "记录生活，分享技术，追求美好",
     "copyright": "PlankBevelen. 保留所有权利",
     "beian": "蜀ICP备2024114585号"  
@@ -54,7 +54,7 @@
   },
   "pages": {
     "home": {
-      "title": "PlankBevelen Blog",
+      "title": "PlankBevelen",
       "meta": {
         "description": "PlankBevelen的个人技术博客 - 分享编程教程、开发经验和科技见解",
         "keywords": "plankbevelen, plank, bevelen, PlankBevelen, Web开发教程, 编程博客, 编码经验, 前端开发, 后端开发, 软件工程, 技术博客, 个人博客"

@@ -1,11 +1,11 @@
 {
   "site": {
-    "name": "PlankBevelen's Blog",
+    "name": "PlankBevelen",
     "description": "Personal tech blog sharing coding experience and articles",
     "keywords": "plankbevelen, plank, bevelen, PlankBevelen, Web development tutorials, programming blog, coding experiences, frontend development, backend development, software engineering, tech blog, personal blog"
   },
   "header": {
-    "title": "PlankBevelen's Blog",
+    "title": "PlankBevelen",
     "nav": {
       "home": "Home",
       "article": "Articles",
@@ -14,7 +14,7 @@
     }
   },
   "footer": {
-    "title": "PlankBevelen's Blog",
+    "title": "PlankBevelen",
     "description": "Personal tech blog sharing coding experience and articles",
     "copyright": "PlankBevelen. All Rights Reserved.",
     "beian": "蜀ICP备2024114585号"  
@@ -54,7 +54,7 @@
   },
   "pages": {
     "home": {
-      "title": "PlankBevelen Blog",
+      "title": "PlankBevelen",
       "meta": {
         "description": "Personal tech blog by PlankBevelen - Sharing coding tutorials, development experiences and tech insights",
         "keywords": "plankbevelen, plank, bevelen, PlankBevelen, web development tutorials, programming blog, coding experiences, frontend development, backend development, software engineering"

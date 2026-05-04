@@ -13,7 +13,7 @@
           width="40"
           height="40"
         />
-        <span class="logo-text">{{ $t('site.name') }}</span>
+        <span class="logo-text cursor-pointer hover:scale-105 transition-transform duration-300" @click="navigateTo('/')">{{ $t('site.name') }}</span>
       </div>
       
       <ul class="nav-menu" v-if="!isMobile">
