@@ -2,7 +2,7 @@
   <div class="min-h-screen pt-header">
     <div class="container py-page">
       <h1 class="sr-only">PlankBevelen (Plank / Bevelen) </h1>
-      <LayoutThreeColumn :loading="pending">
+      <!-- <LayoutThreeColumn :loading="pending">
         <template #left class="left">
           <WidgetBlogger :articleCount="homeData.stats?.articles " :categoryCount="homeData.stats?.categories" :tagCount="homeData.stats?.tags" />
           <WidgetRecordLink />
@@ -17,7 +17,15 @@
           <WidgetCategory :categories="homeData.categories" @select="onSelectCategory"/>
           <WidgetTag :tags="homeData.tags" />
         </template>
-      </LayoutThreeColumn>
+      </LayoutThreeColumn> -->
+      <LayoutTwoColumn :loading="pending">
+        <template #left>
+          <WidgetBlogger :articleCount="homeData.stats?.articles " :categoryCount="homeData.stats?.categories" :tagCount="homeData.stats?.tags" />
+        </template>
+        <template #right>
+
+        </template>
+      </LayoutTwoColumn>
     </div>        
   </div>
 </template>

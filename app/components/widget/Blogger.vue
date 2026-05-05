@@ -24,6 +24,15 @@
       <nuxt-icon name="blogger/location" class="text-title" />
       <span>{{ $t('blogger.location') }}</span>
     </div>
+    <div class="mb-3 flex items-center justify-between max-w-[75%] mx-auto text-sm text-text py-1 px-4">
+      <nuxt-icon 
+        v-for="link in links"
+        :key="link.icon"
+        :name="link.icon"
+        class="text-title hover:text-[var(--active-color)] cursor-pointer"
+        @click="handleClick(link.url)"
+      />
+    </div>
     <div class="mb-3">
       <el-row :gutter="20">
         <el-col :span="8">
@@ -80,6 +89,19 @@ watch(() => props.tagCount, (v) => { tagCount.value = v || 0 }, { immediate: tru
 const articleCountOutput = useTransition(articleCount, { duration: 1000 })
 const followCountOutput = useTransition(followCount, { duration: 1000 })
 const tagCountOutput = useTransition(tagCount, { duration: 1000 })
+
+const links = ref([
+  { icon: 'github', url: 'https://github.com/PlankBevelen' },
+  { icon: 'juejin', url: 'https://juejin.cn/user/1057085717486684' },
+  { icon: 'gmail', url: 'mailto:plankbevelen@gmail.com' }
+])
+function handleClick(url: string) {
+  if (url.startsWith('mailto')) {
+    window.location.href = url
+  } else {
+    window.open(url, '_blank')
+  }
+}
 
 onMounted(async () => {
   const needArticle = !props.articleCount || props.articleCount === 0
