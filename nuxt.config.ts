@@ -61,6 +61,8 @@ export default defineNuxtConfig({
     authSecret: process.env.NUXT_AUTH_SECRET || 'dev-secret',
     public: {
       baseUrl: process.env.NUXT_BASE_URL || '/',
+      agentHealthUrl: process.env.NUXT_PUBLIC_AGENT_HEALTH_URL || 'http://127.0.0.1:6543/health',
+      agentChatUrl: process.env.NUXT_PUBLIC_AGENT_CHAT_URL || 'http://127.0.0.1:6543/chat',
       cookiePrefix: process.env.NUXT_PUBLIC_COOKIE_PREFIX || '',
       expirationTime: process.env.NUXT_EXPIRATION_TIME || '432000',
       keepAliveTime: process.env.NUXT_KEEP_ALIVE_TIME || '432000',

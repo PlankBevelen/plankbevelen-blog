@@ -14,34 +14,20 @@
         <template #middle>
           <div v-if="projects.length" class="project-list">
             <BaseCard v-for="project in projects" :key="project.id" class="project-card">
-              <div class="project-card__head">
-                <div class="project-accent" :style="{ background: project.accentColor }"></div>
-                <div class="project-headline">
-                  <div class="project-title-row">
-                    <h2>{{ project.title }}</h2>
-                    <el-tag effect="plain" round>{{ project.status }}</el-tag>
-                  </div>
-                  <p>{{ project.summary }}</p>
+              <div class="project-top">
+                <div class="project-title-wrap">
+                  <h2>{{ project.title }}</h2>
+                  <el-tag effect="plain" round>{{ project.status || '持续迭代' }}</el-tag>
+                </div>
+                <div class="project-stats">
+                  <span>{{ project.period || '长期维护' }}</span>
+                  <span>{{ project.tags.length }} 项技术栈</span>
+                  <span>{{ project.highlights.length }} 个能力点</span>
                 </div>
               </div>
 
-              <div class="project-meta">
-                <span>{{ project.period || '时间待补充' }}</span>
-                <span>{{ project.tags.length }} 个标签</span>
-              </div>
-
+              <p class="project-summary">{{ project.summary }}</p>
               <p class="project-description">{{ project.description }}</p>
-
-              <div v-if="project.tags.length" class="project-tags">
-                <el-tag
-                  v-for="tag in project.tags"
-                  :key="`${project.id}-${tag}`"
-                  effect="light"
-                  round
-                >
-                  {{ tag }}
-                </el-tag>
-              </div>
 
               <div v-if="project.highlights.length" class="project-highlights">
                 <div v-for="highlight in project.highlights" :key="highlight" class="highlight-item">
@@ -49,11 +35,17 @@
                 </div>
               </div>
 
+              <div v-if="project.tags.length" class="project-tags">
+                <el-tag v-for="tag in project.tags" :key="`${project.id}-${tag}`" effect="light" round>
+                  {{ tag }}
+                </el-tag>
+              </div>
+
               <div v-if="project.links.repoUrl || project.links.demoUrl" class="project-links">
-                <a v-if="project.links.repoUrl" :href="project.links.repoUrl" target="_blank">
-                  查看仓库
+                <a v-if="project.links.repoUrl" :href="project.links.repoUrl" target="_blank" rel="noopener noreferrer">
+                  仓库地址
                 </a>
-                <a v-if="project.links.demoUrl" :href="project.links.demoUrl" target="_blank">
+                <a v-if="project.links.demoUrl" :href="project.links.demoUrl" target="_blank" rel="noopener noreferrer">
                   在线预览
                 </a>
               </div>
@@ -61,7 +53,7 @@
           </div>
 
           <BaseCard v-else>
-            <el-empty description="暂时还没有项目介绍内容" />
+            <el-empty description="暂时还没有项目内容" />
           </BaseCard>
         </template>
 
@@ -92,19 +84,9 @@ const projects = computed(() =>
   [...(contentData.value?.projects || [])].sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0))
 )
 
-const uniqueTags = computed(() => {
-  const tagSet = new Set<string>()
-  for (const project of projects.value) {
-    for (const tag of project.tags || []) {
-      tagSet.add(tag)
-    }
-  }
-  return Array.from(tagSet)
-})
-
 usePageSeo({
-  title: '项目介绍',
-  description: '查看个人项目、实验作品与持续迭代中的站点建设内容。'
+  title: '项目',
+  description: '这里展示我在持续维护与迭代的重点项目，包括目标、技术栈与核心能力。'
 })
 </script>
 
@@ -127,60 +109,73 @@ usePageSeo({
 
 .project-card {
   overflow: hidden;
+  border-radius: 12px;
 }
 
-.project-card__head {
-  display: flex;
-  gap: 18px;
-  align-items: flex-start;
+.project-top {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.project-accent {
-  width: 12px;
-  min-width: 12px;
-  height: 96px;
-  border-radius: 999px;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
-}
-
-.project-headline {
-  flex: 1;
-
-  h2 {
-    margin: 0;
-    font-size: 24px;
-    color: var(--text-color);
-  }
-
-  p {
-    margin: 10px 0 0;
-    font-size: 15px;
-    line-height: 1.8;
-    color: var(--secondary-color);
-  }
-}
-
-.project-title-row {
+.project-title-wrap {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
+
+  h2 {
+    margin: 0;
+    font-size: 32px;
+    letter-spacing: 0.01em;
+    color: var(--text-color);
+  }
 }
 
-.project-meta {
+.project-stats {
+  margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
-  margin: 18px 0 0;
-  font-size: 13px;
-  color: var(--tertiary-color);
+  gap: 10px;
+
+  span {
+    font-size: @font-size-xs;
+    color: var(--tertiary-color);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    padding: 5px 10px;
+    background: color-mix(in srgb, var(--card-color) 74%, #f5f8fd);
+  }
+}
+
+.project-summary {
+  margin: 16px 0 0;
+  font-size: 18px;
+  color: var(--secondary-color);
+  line-height: 1.8;
 }
 
 .project-description {
-  margin: 16px 0 0;
-  font-size: 14px;
+  margin: 12px 0 0;
+  font-size: @font-size-sm;
   line-height: 1.9;
   color: var(--text-color);
+}
+
+.project-highlights {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.highlight-item {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--card-color) 72%, #f6f9ff);
+  line-height: 1.75;
+  font-size: @font-size-sm;
+  color: var(--secondary-color);
 }
 
 .project-tags {
@@ -190,32 +185,16 @@ usePageSeo({
   margin-top: 16px;
 }
 
-.project-highlights {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 18px;
-}
-
-.highlight-item {
-  padding: 14px 16px;
-  border-radius: 18px;
-  background: color-mix(in srgb, var(--card-color) 70%, #f7f8fb);
-  border: 1px solid var(--border-color);
-  color: var(--secondary-color);
-  line-height: 1.7;
-}
-
 .project-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 18px;
+  gap: 14px;
+  margin-top: 16px;
 
   a {
-    font-size: 14px;
-    color: var(--primary-color);
     text-decoration: none;
+    font-size: @font-size-sm;
+    color: var(--primary-color);
 
     &:hover {
       color: var(--primary-hover-color);
@@ -224,20 +203,17 @@ usePageSeo({
 }
 
 @media (max-width: 960px) {
-  .project-hero-stats,
-  .project-highlights {
-    grid-template-columns: 1fr;
-  }
-
-  .project-title-row,
-  .project-card__head {
+  .project-title-wrap {
     flex-direction: column;
     align-items: flex-start;
+
+    h2 {
+      font-size: 28px;
+    }
   }
 
-  .project-accent {
-    width: 96px;
-    height: 12px;
+  .project-highlights {
+    grid-template-columns: 1fr;
   }
 }
 </style>
