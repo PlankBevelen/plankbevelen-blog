@@ -93,8 +93,8 @@ export default defineEventHandler(async (event) => {
       category: r.category,
       createTime: r.createTime,
       updateTime: r.updateTime,
-      shortContent: sliceMdSafely(r.content || '', 600),
-      longContent: sliceMdSafely(r.content || '', 2000),
+      shortContent: sliceMdSafely(r.content || '', 300),
+      longContent: sliceMdSafely(r.content || '', 600),
     }))
 
     setResponseStatus(event, 200)

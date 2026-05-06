@@ -1,59 +1,21 @@
-import { setResponseStatus, defineEventHandler } from 'h3'
-import { getDb, getCollections } from '../utils/mongo'
-import MarkdownIt from 'markdown-it'
-import sanitizeHtml from 'sanitize-html'
+import { defineEventHandler, setResponseStatus } from 'h3'
+import { getCollections, getDb } from '../utils/mongo'
+import { getSiteContent } from '../utils/site-content'
 
-const md = new MarkdownIt({ html: false, linkify: true, typographer: true })
-
-function mdToHtml(content: string) {
-  const raw = md.render(content || '')
-  const clean = sanitizeHtml(raw, {
-    allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
-    allowedAttributes: {
-      a: ['href', 'name', 'target', 'rel'],
-      img: ['src', 'alt', 'title', 'loading', 'width', 'height'],
-      '*': ['class']
-    },
-    allowedSchemesByTag: {
-      img: ['http', 'https', 'data']
-    },
-    transformTags: {
-      a: (tagName, attribs) => ({
-        tagName: 'a',
-        attribs: {
-          ...attribs,
-          rel: 'noopener noreferrer',
-          target: '_blank'
-        }
-      })
-    }
-  })
-  return clean
+type HomeArticle = {
+  id: string
+  title: string
+  tags: string[]
+  category: string
+  createTime: Date | string
+  updateTime: Date | string
 }
 
-// 按字符数截断，但保证不截断在代码块中间
-// 避免截出半个 ``` 导致 MdPreview 渲染异常
-function sliceMdSafely(content: string, length: number): string {
-  if (content.length <= length) return content
-  let sliced = content.slice(0, length)
-  // 统计截断后的代码块开合数量，奇数说明截在代码块内，补一个闭合
-  const fenceCount = (sliced.match(/```/g) || []).length
-  if (fenceCount % 2 !== 0) {
-    sliced += '\n```'
-  }
-  return sliced
-}
-
-async function getArticles(limit: number, sort: 'created' | 'updated' = 'updated') {
+async function getLatestArticles(limit: number): Promise<HomeArticle[]> {
   const db = getDb()
   const { articles } = getCollections(db)
 
-  const sortStage =
-    sort === 'created'
-      ? { createdAt: -1, id: -1 }
-      : { updatedAt: -1, createdAt: -1, id: -1 }
-
-  const rows: any = await articles
+  const rows = await articles
     .aggregate([
       { $match: { $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }] } },
       {
@@ -65,7 +27,7 @@ async function getArticles(limit: number, sort: 'created' | 'updated' = 'updated
         }
       },
       { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
-      { $sort: sortStage },
+      { $sort: { updatedAt: -1, createdAt: -1, id: -1 } },
       { $limit: limit },
       {
         $project: {
@@ -74,7 +36,6 @@ async function getArticles(limit: number, sort: 'created' | 'updated' = 'updated
           title: 1,
           tags: 1,
           category: { $ifNull: ['$category.name', ''] },
-          content: 1,
           createTime: '$createdAt',
           updateTime: '$updatedAt'
         }
@@ -82,39 +43,57 @@ async function getArticles(limit: number, sort: 'created' | 'updated' = 'updated
     ])
     .toArray()
 
-  return (rows || []).map((r: any) => ({
-    id: String(r.id),
-    title: r.title,
-    tags: Array.isArray(r.tags) ? r.tags : [],
-    category: r.category,
-    createTime: r.createTime,
-    updateTime: r.updateTime,
-    // 折叠态：前 600 字符，保证代码块不被截断
-    shortContent: sliceMdSafely(r.content || '', 600),
-    // 展开态：前 2000 字符
-    longContent: sliceMdSafely(r.content || '', 2000),
-    // 渲染为安全 HTML，前端可直接使用 v-html 渲染，降低客户端包体积
-    shortHtml: mdToHtml(sliceMdSafely(r.content || '', 600)),
-    longHtml: mdToHtml(sliceMdSafely(r.content || '', 2000)),
-    // 不返回完整 content，减少传输量
+  return (rows || []).map((item: any) => ({
+    id: String(item.id),
+    title: String(item.title || ''),
+    tags: Array.isArray(item.tags) ? item.tags : [],
+    category: String(item.category || ''),
+    createTime: item.createTime,
+    updateTime: item.updateTime
   }))
 }
 
 export default defineEventHandler(async (event) => {
   try {
-    const articles = await getArticles(10, 'updated')
+    const db = getDb()
+    const { categories, tags, articles } = getCollections(db)
+
+    const [latestArticles, categoryRows, tagRows, articleCount, siteContent] = await Promise.all([
+      getLatestArticles(5),
+      categories.find({}, { projection: { _id: 0 } }).sort({ id: 1 }).toArray(),
+      tags.find({}, { projection: { _id: 0, name: 1, count: 1 } }).sort({ count: -1, name: 1 }).toArray(),
+      articles.countDocuments({ $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }] }),
+      getSiteContent(db)
+    ])
+
+    const featuredProjects = (siteContent.data?.projects || [])
+      .slice()
+      .sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0))
+      .slice(0, 4)
 
     setResponseStatus(event, 200)
     return {
       status: 200,
-      msg: '查询成功',
+      msg: 'success',
       data: {
-        articles
+        latestArticles,
+        featuredProjects,
+        categories: categoryRows || [],
+        tags: tagRows || [],
+        stats: {
+          articles: Number(articleCount || 0),
+          categories: (categoryRows || []).length,
+          tags: (tagRows || []).length
+        }
       }
     }
   } catch (error: any) {
     console.error('Home data error:', error)
     setResponseStatus(event, 500)
-    return { status: 500, msg: '服务器错误: ' + (error?.message || '未知错误'), data: null }
+    return {
+      status: 500,
+      msg: 'server error',
+      data: null
+    }
   }
 })

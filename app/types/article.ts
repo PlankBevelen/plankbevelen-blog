@@ -4,8 +4,8 @@ export interface Article {
   tags: string[]
   category: string
   content?: string
-  shortContent?: string // 600个字符
-  longContent?: string // 2000个字符
+  shortContent?: string // 300个字符
+  longContent?: string // 600个字符
   // 服务端渲染的安全 HTML（可直接 v-html）
   shortHtml?: string
   longHtml?: string

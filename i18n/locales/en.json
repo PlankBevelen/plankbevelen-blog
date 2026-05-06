@@ -40,7 +40,14 @@
     "title": "Categories"
   },
   "latest": {
-    "title": "Latest Articles"
+    "title": "Latest Articles",
+    "empty": "No articles yet"
+  },
+  "home": {
+    "featuredProjects": {
+      "title": "Featured Projects",
+      "empty": "No projects yet"
+    }
   },
   "recordLink": {
     "title": "Recommended Websites"

@@ -3,7 +3,7 @@
     <template #header>
       {{ $t('latest.title') }}
     </template>
-    <ul class="latestList">
+    <ul v-if="latestList.length" class="latestList">
       <li v-for="item in latestList" :key="item.id" class="latest-item">  
         <NuxtLink :to="localePath('/article/' + item.id)">
           <div class="time">{{ formatDateTime(item.createTime) }}</div>
@@ -12,16 +12,16 @@
         </NuxtLink>      
       </li>
     </ul>
+    <div v-else class="latest-empty">{{ $t('latest.empty') }}</div>
   </BaseCard>
   
 </template>
 
 <script setup lang="ts">
 
-import { ref, computed, onMounted } from 'vue'
+import { computed } from 'vue'
 const localePath = useLocalePath()
 import { formatDateTime } from '@/utils/format'
-import articleService from '@/services/article.service'
 import type { Article } from '@/types/article'
 
 const props = defineProps({
@@ -32,22 +32,13 @@ const props = defineProps({
 })
 
 type LatestItem = Pick<Article, 'id' | 'title' | 'category' | 'createTime'>
-const fallback = ref<LatestItem[]>([])
 const latestList = computed<LatestItem[]>(() => {
-  if (props.articles && props.articles.length > 0) {
-    return props.articles.map((a) => ({ id: a.id, title: a.title, category: a.category, createTime: a.createTime }))
-  }
-  return fallback.value
-})
-
-onMounted(async () => {
-  if (!props.articles || props.articles.length === 0) {
-    const res = await articleService.getArticles(1, 5, undefined, 'created')
-    if (res.status === 200 && res.data.status === 200) {
-      const list: Article[] = res.data.data || []
-      fallback.value = list.slice(0, 5).map((a) => ({ id: a.id, title: a.title, category: a.category, createTime: a.createTime }))
-    }
-  }
+  return (props.articles || []).map((a) => ({
+    id: a.id,
+    title: a.title,
+    category: a.category,
+    createTime: a.createTime
+  }))
 })
 
 </script>
@@ -80,6 +71,11 @@ onMounted(async () => {
       color: var(--tertiary-color);
     }
   }
+}
+
+.latest-empty {
+  font-size: @font-size-sm;
+  color: var(--tertiary-color);
 }
 
 </style>
