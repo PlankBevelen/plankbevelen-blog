@@ -161,7 +161,7 @@ const AsyncMdPreview = defineAsyncComponent(() => {
     left: 0;
     right: 0;
     height: 60px;
-    background: linear-gradient(to bottom, transparent, var(--card-bg, #fff));
+    background: linear-gradient(to bottom, transparent, var(--card-color));
     pointer-events: none;
   }
 }
