@@ -2,22 +2,22 @@
   <BaseCard class="hero-card">
     <div class="hero-grid-bg"></div>
     <div class="hero-content">
-      <p class="hero-kicker">你好，欢迎来到我的站点</p>
-      <h2 class="hero-title">
-        构建有趣且
+      <p class="hero-kicker">{{ $t("hero.kicker") }}</p>
+      <h2 class="hero-title" :style="{ fontSize: heroTitleFontSize }">
+        {{ $t("hero.title1") }}
         <br />
-        实用的东西
+        {{ $t("hero.title2") }}
       </h2>
       <p class="hero-desc">
-        一个热爱技术的开发者，专注于有趣且实用的产品。在这里分享我的项目、想法和学习笔记。
+        {{ $t("hero.desc") }}
       </p>
-      <p class="hero-stack">Vue · Nuxt · Node.js · GSAP · Three.js</p>
+      <!-- <p class="hero-stack">Vue · Nuxt · Node.js · GSAP · Three.js</p> -->
       <div class="hero-actions">
         <NuxtLink class="hero-btn hero-btn--primary" :to="localePath('/article')">
-          浏览文章
+          {{ $t("hero.article") }}
         </NuxtLink>
         <NuxtLink class="hero-btn hero-btn--ghost" :to="localePath('/project')">
-          查看项目
+          {{ $t("hero.project") }}
         </NuxtLink>
       </div>
     </div>
@@ -25,8 +25,16 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from 'vue'
 
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
+
+const heroTitleFontSize = computed(() => (
+  locale.value.startsWith('en')
+    ? 'clamp(30px, 5.2vw, 58px)'
+    : 'clamp(40px, 6vw, 80px)'
+))
 
 </script>
 

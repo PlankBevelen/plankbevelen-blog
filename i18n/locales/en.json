@@ -82,18 +82,26 @@
         "meta": {
         "description": "Article Detail",
         "keywords": "plankbevelen, plank, bevelen, PlankBevelen"
-      },
-      "prev": "Previous Article",
-      "next": "Next Article"
+        },
+        "prev": "Previous Article",
+        "next": "Next Article"
+      }
+    },
+    "about": {
+      "title": "About",
+      "meta": {
+        "description": "Learn more about PlankBevelen - A developer passionate about sharing knowledge and coding experiences",
+        "keywords": "about, plankbevelen, plank, bevelen, PlankBevelen, developer introduction, tech blogger, programming background"
+      }
     }
   },
-  "about": {
-    "title": "About",
-    "meta": {
-      "description": "Learn more about PlankBevelen - A developer passionate about sharing knowledge and coding experiences",
-      "keywords": "about, plankbevelen, plank, bevelen, PlankBevelen, developer introduction, tech blogger, programming background"
-    }
+  "hero": {
+    "kicker": "Hello, Welcome to My Site",
+    "title1": "Build Fun and Useful Things",
+    "title2": "With a Focus on Fun and Useful Products",
+    "desc": "A Developer Passionate About Technology, Focused on Fun and Useful Products. Share My Projects, Ideas, and Learning Notes Here.",
+    "article": "Browse Articles",
+    "project": "View Projects"
   }
-}
 }
 
