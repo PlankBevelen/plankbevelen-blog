@@ -102,6 +102,11 @@
     "desc": "A Developer Passionate About Technology, Focused on Fun and Useful Products. Share My Projects, Ideas, and Learning Notes Here.",
     "article": "Browse Articles",
     "project": "View Projects"
+  },
+  "contact": {
+    "title": "Contact Me",
+    "email": "Email",
+    "wechat": "Wechat"
   }
 }
 

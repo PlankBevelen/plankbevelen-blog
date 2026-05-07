@@ -1,7 +1,7 @@
 <template>
-  <div class="about">
+  <div class="timeline-page">
     <div class="container">
-      <LayoutThreeColumn :loading="pending || contentPending">
+      <LayoutThreeColumn :loading="pending">
         <template #left>
           <WidgetBlogger
             :articleCount="stats?.articles || 0"
@@ -12,9 +12,7 @@
         </template>
 
         <template #middle>
-          <WidgetAboutContent :aboutMd="aboutMd" />
-          <WidgetContact />
-          <WidgetTimeline :timeline="growthTimeline" compact clickableCard />
+          <WidgetAboutTimelineCard :timeline="growthTimeline" />
         </template>
 
         <template #right>
@@ -28,41 +26,21 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useAsyncData } from 'nuxt/app'
 import { useSidebarData } from '@/composables/useSidebarData'
 import { useGrowthTimeline } from '@/composables/useGrowthTimeline'
-import siteService from '@/services/site.service'
-
-const { t, locale } = useI18n()
 
 const { data, pending } = await useSidebarData()
 const stats = computed(() => data.value?.stats || null)
 const { growthTimeline } = useGrowthTimeline()
 
-const { data: contentData, pending: contentPending } = await useAsyncData('site-content-public', async () => {
-  const res: any = await siteService.getContent()
-  return (
-    res?.data || {
-      about: { zh: '', en: '' },
-      projects: []
-    }
-  )
-})
-
-const aboutMd = computed(() => {
-  const about = contentData.value?.about
-  if (!about) return ''
-  return locale.value === 'en' ? about.en || about.zh || '' : about.zh || about.en || ''
-})
-
 usePageSeo({
-  title: t('pages.about.title'),
-  description: t('pages.about.meta.description')
+  title: '成长时间线',
+  description: '记录 PlankBevelen 在技术学习与产品实践中的阶段成长。'
 })
 </script>
 
-<style lang="less" scoped>
-.about {
+<style scoped lang="less">
+.timeline-page {
   min-height: 100vh;
   padding-top: @header-height;
 
