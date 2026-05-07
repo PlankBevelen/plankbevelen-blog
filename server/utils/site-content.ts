@@ -3,6 +3,11 @@ import { join } from 'node:path'
 import type { Db } from 'mongodb'
 import { getCollections, getDb } from './mongo'
 
+export type SiteLocalizedText = {
+  zh: string
+  en: string
+}
+
 export type SiteProjectLink = {
   repoUrl: string
   demoUrl: string
@@ -22,61 +27,113 @@ export type SiteProjectItem = {
   sort: number
 }
 
+export type SiteTimelineItem = {
+  id: string
+  year: string
+  title: SiteLocalizedText
+  desc: SiteLocalizedText
+  sort: number
+}
+
+export type SitePageContent = {
+  about: SiteLocalizedText
+  timeline: SiteLocalizedText
+  project: SiteLocalizedText
+}
+
 export type SiteContentData = {
-  about: {
-    zh: string
-    en: string
-  }
+  about: SiteLocalizedText
+  pages: SitePageContent
+  timeline: SiteTimelineItem[]
   projects: SiteProjectItem[]
 }
 
 const SITE_CONTENT_DOC_ID = 'site-content'
 
-const ABOUT_ZH_FALLBACK = `# 关于我
+const DEFAULT_PAGE_CONTENT: SitePageContent = {
+  about: {
+    zh: '这里可以放一段关于页导语，帮助读者快速理解这个页面的主题。',
+    en: 'Use this area for a short about-page intro that helps readers understand the page at a glance.'
+  },
+  timeline: {
+    zh: '时间线会展示我的关键节点和阶段性成长，便于按时间顺序回顾。',
+    en: 'The timeline highlights milestones and growth moments in chronological order.'
+  },
+  project: {
+    zh: '项目页会持续更新，记录正在做、已经完成和仍值得打磨的内容。',
+    en: 'The projects page keeps evolving with work in progress, shipped work, and ideas worth polishing.'
+  }
+}
 
-这里是关于页的默认内容，你现在可以直接在后台进行维护。
-
-## 我在做什么
-
-- 持续更新博客内容
-- 记录前端、设计与产品实践
-- 把个人项目做成可展示、可复盘的作品
-
-## 我希望这里是什么
-
-这不是单纯的文章仓库，而是一份持续迭代的个人数字工作台。
-`
-
-const ABOUT_EN_FALLBACK = `# About Me
-
-This is the default about page content. You can now manage it directly from the admin panel.
-
-## What I am building
-
-- A blog that keeps growing
-- A place to document frontend, design, and product work
-- A portfolio of projects that can actually be reviewed later
-
-## What this site should become
-
-More than a content archive, it should feel like a living personal studio on the web.
-`
+const DEFAULT_TIMELINE: SiteTimelineItem[] = [
+  {
+    id: 'frontend-foundation',
+    year: '2022',
+    title: {
+      zh: '前端入门',
+      en: 'Frontend Foundation'
+    },
+    desc: {
+      zh: '系统学习 HTML、CSS、JavaScript 和 Vue，完成第一个可交付项目。',
+      en: 'Learned HTML, CSS, JavaScript, and Vue, then shipped the first small production project.'
+    },
+    sort: 1
+  },
+  {
+    id: 'full-stack-practice',
+    year: '2023',
+    title: {
+      zh: '全栈实践',
+      en: 'Full-Stack Practice'
+    },
+    desc: {
+      zh: '开始深入 Node.js 和 API 设计，尝试独立完成前后端闭环。',
+      en: 'Went deeper into Node.js and API design, building end-to-end features independently.'
+    },
+    sort: 2
+  },
+  {
+    id: 'engineering-upgrade',
+    year: '2024',
+    title: {
+      zh: '工程化升级',
+      en: 'Engineering Upgrade'
+    },
+    desc: {
+      zh: '把重心放在性能、组件架构和可维护性上，让项目更适合长期迭代。',
+      en: 'Focused on performance, component architecture, and long-term maintainability.'
+    },
+    sort: 3
+  },
+  {
+    id: 'ai-product-exploration',
+    year: '2025 - Present',
+    title: {
+      zh: 'AI 与产品探索',
+      en: 'AI + Product Exploration'
+    },
+    desc: {
+      zh: '围绕 AI Agent 与内容平台持续试验，希望提升协作体验与整体效率。',
+      en: 'Iterating on AI agent and content platform ideas to improve collaboration and UX.'
+    },
+    sort: 4
+  }
+]
 
 const DEFAULT_PROJECTS: SiteProjectItem[] = [
   {
     id: 'plankbevelen-blog',
     title: 'PlankBevelen Blog',
-    summary: '一个把博客、作品集和后台管理整合在一起的个人站点。',
-    description:
-      '这个项目的目标不是只写文章，而是把内容管理、个人展示和访问数据沉淀放进同一套系统里，让站点本身也成为长期作品。',
-    period: '2025 - 至今',
-    status: '持续迭代',
+    summary: '个人博客和内容管理平台',
+    description: '基于 Nuxt、MongoDB 和 Element Plus 的个人博客与内容管理站点。',
+    period: '2025 - Present',
+    status: 'In progress',
     accentColor: '#0f766e',
     tags: ['Nuxt', 'MongoDB', 'Element Plus', 'SSR'],
     highlights: [
-      '支持文章、分类和标签的后台管理',
-      '关于页与项目页改为后台可维护内容',
-      '访问日志从服务端自动采集并可在后台查看'
+      '支持后台内容管理',
+      '前后端数据统一存储',
+      '适合持续迭代的个人站点结构'
     ],
     links: {
       repoUrl: '',
@@ -87,17 +144,16 @@ const DEFAULT_PROJECTS: SiteProjectItem[] = [
   {
     id: 'motion-showcase',
     title: 'Motion Showcase',
-    summary: '一个偏视觉实验方向的前端动效作品集合。',
-    description:
-      '我把页面转场、滚动叙事和局部交互动画集中到同一个展示项目里，用来沉淀更完整的动效表达方式。',
+    summary: '动画和交互实验集合',
+    description: '用于整理动画实验、交互组件和视觉探索的小型作品集。',
     period: '2024 - 2025',
-    status: '概念验证',
+    status: 'Archived',
     accentColor: '#b45309',
     tags: ['GSAP', 'Three.js', 'Interaction'],
     highlights: [
-      '尝试将内容页做成更有节奏感的观看体验',
-      '沉淀可复用的动画片段与版式模式',
-      '兼顾移动端和桌面端的动效表现'
+      '适合展示动效能力',
+      '为复杂交互提供实验场',
+      '可以持续补充新的案例'
     ],
     links: {
       repoUrl: '',
@@ -108,17 +164,16 @@ const DEFAULT_PROJECTS: SiteProjectItem[] = [
   {
     id: 'notes-lab',
     title: 'Notes Lab',
-    summary: '一个用于整理灵感、草稿和技术卡片的轻量知识实验室。',
-    description:
-      '这类项目更像内部工作台，重点不是对外展示，而是把碎片笔记、路线草稿和可实践的方案整理成真正可回看的资料。',
-    period: '2024 - 至今',
-    status: '内部使用',
+    summary: '知识整理与记录工具',
+    description: '把零散笔记、想法和研究过程集中管理起来，方便后续复用。',
+    period: '2024 - Present',
+    status: 'Active',
     accentColor: '#1d4ed8',
     tags: ['Content', 'Knowledge Base', 'Workflow'],
     highlights: [
-      '围绕“轻量记录 + 快速回看”设计内容结构',
-      '更关注积累和检索，而不是复杂的功能堆叠',
-      '适合作为博客内容的前置草稿池'
+      '适合记录知识碎片',
+      '方便按主题整理内容',
+      '可作为后续产品的原型库'
     ],
     links: {
       repoUrl: '',
@@ -127,6 +182,16 @@ const DEFAULT_PROJECTS: SiteProjectItem[] = [
     sort: 3
   }
 ]
+
+const DEFAULT_SITE_CONTENT: SiteContentData = {
+  about: {
+    zh: '# 关于我\n\n这里是默认的关于页内容。你可以直接在后台编辑它。',
+    en: '# About Me\n\nThis is the default about page content. You can edit it directly from the admin panel.'
+  },
+  pages: DEFAULT_PAGE_CONTENT,
+  timeline: DEFAULT_TIMELINE,
+  projects: DEFAULT_PROJECTS
+}
 
 async function readMarkdownFile(filename: string, fallback: string) {
   try {
@@ -138,16 +203,16 @@ async function readMarkdownFile(filename: string, fallback: string) {
 
 async function buildDefaultSiteContent(): Promise<SiteContentData> {
   const [zh, en] = await Promise.all([
-    readMarkdownFile('about.md', ABOUT_ZH_FALLBACK),
-    readMarkdownFile('about-en.md', ABOUT_EN_FALLBACK)
+    readMarkdownFile('about.md', DEFAULT_SITE_CONTENT.about.zh),
+    readMarkdownFile('about-en.md', DEFAULT_SITE_CONTENT.about.en)
   ])
 
   return {
+    ...DEFAULT_SITE_CONTENT,
     about: {
       zh,
       en
-    },
-    projects: DEFAULT_PROJECTS
+    }
   }
 }
 
@@ -157,6 +222,17 @@ function cleanString(value: unknown) {
 
 function createProjectId(index: number) {
   return `project-${Date.now()}-${index + 1}`
+}
+
+function createTimelineId(index: number) {
+  return `timeline-${Date.now()}-${index + 1}`
+}
+
+function normalizeLocalizedText(value: any, fallback: SiteLocalizedText): SiteLocalizedText {
+  return {
+    zh: cleanString(value?.zh) || fallback.zh,
+    en: cleanString(value?.en) || fallback.en
+  }
 }
 
 function normalizeProject(project: any, index: number): SiteProjectItem {
@@ -173,7 +249,7 @@ function normalizeProject(project: any, index: number): SiteProjectItem {
     summary: cleanString(project?.summary),
     description: cleanString(project?.description),
     period: cleanString(project?.period),
-    status: cleanString(project?.status) || '规划中',
+    status: cleanString(project?.status) || 'In progress',
     accentColor: cleanString(project?.accentColor) || '#0f766e',
     tags,
     highlights,
@@ -185,16 +261,40 @@ function normalizeProject(project: any, index: number): SiteProjectItem {
   }
 }
 
+function normalizeTimelineItem(item: any, index: number): SiteTimelineItem {
+  return {
+    id: cleanString(item?.id) || createTimelineId(index),
+    year: cleanString(item?.year),
+    title: normalizeLocalizedText(item?.title, {
+      zh: DEFAULT_TIMELINE[index]?.title.zh || '',
+      en: DEFAULT_TIMELINE[index]?.title.en || ''
+    }),
+    desc: normalizeLocalizedText(item?.desc, {
+      zh: DEFAULT_TIMELINE[index]?.desc.zh || '',
+      en: DEFAULT_TIMELINE[index]?.desc.en || ''
+    }),
+    sort: Number(item?.sort) > 0 ? Number(item.sort) : index + 1
+  }
+}
+
 export function normalizeSiteContentInput(input: any): SiteContentData {
   const projects = Array.isArray(input?.projects)
     ? input.projects.map((item: any, index: number) => normalizeProject(item, index))
     : []
+  const timeline = Array.isArray(input?.timeline)
+    ? input.timeline.map((item: any, index: number) => normalizeTimelineItem(item, index))
+    : []
 
   return {
-    about: {
-      zh: String(input?.about?.zh || ''),
-      en: String(input?.about?.en || '')
+    about: normalizeLocalizedText(input?.about, DEFAULT_SITE_CONTENT.about),
+    pages: {
+      about: normalizeLocalizedText(input?.pages?.about, DEFAULT_PAGE_CONTENT.about),
+      timeline: normalizeLocalizedText(input?.pages?.timeline, DEFAULT_PAGE_CONTENT.timeline),
+      project: normalizeLocalizedText(input?.pages?.project, DEFAULT_PAGE_CONTENT.project)
     },
+    timeline: timeline
+      .sort((a, b) => a.sort - b.sort)
+      .map((item, index) => ({ ...item, sort: index + 1 })),
     projects: projects
       .sort((a, b) => a.sort - b.sort)
       .map((project, index) => ({ ...project, sort: index + 1 }))

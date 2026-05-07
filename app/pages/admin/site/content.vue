@@ -3,14 +3,14 @@
     <section class="content-hero">
       <div>
         <p class="content-kicker">Site Content Studio</p>
-        <h1 class="content-title">站点内容</h1>
+        <h1 class="content-title">站点内容管理</h1>
         <p class="content-desc">
-          这里统一维护关于页和项目介绍内容。关于页支持中英文 Markdown，项目介绍支持卡片化编辑，方便你后续继续删改。
+          在这里统一管理关于页、页面导语、时间线卡片和项目内容。保存后，前台页面会直接读取这份数据。
         </p>
       </div>
       <div class="content-actions">
-        <span class="content-updated">最近保存：{{ updatedAtText }}</span>
-        <el-button :loading="loading" @click="fetchContent">刷新内容</el-button>
+        <span class="content-updated">最后更新：{{ updatedAtText }}</span>
+        <el-button :loading="loading" @click="fetchContent">重新加载</el-button>
         <el-button type="primary" :loading="saving" @click="onSave">保存内容</el-button>
       </div>
     </section>
@@ -25,36 +25,99 @@
 
     <div v-loading="loading">
       <el-tabs v-model="activeTab">
-        <el-tab-pane label="关于页" name="about">
-          <div class="editor-grid">
-            <BaseCard>
-              <template #header>
-                <span>关于页（中文）</span>
-              </template>
-              <MdEditor v-model="form.about.zh" class="content-editor" />
-            </BaseCard>
+        <el-tab-pane label="页面导语" name="pages">
+          <BaseCard>
+            <div class="page-intro-toolbar">
+              <span class="text-sm text-mute">选择要编辑的页面导语</span>
+              <el-select v-model="selectedPageIntro" style="width: 220px">
+                <el-option
+                  v-for="option in pageIntroOptions"
+                  :key="option.value"
+                  :label="option.label"
+                  :value="option.value"
+                />
+              </el-select>
+            </div>
 
-            <BaseCard>
-              <template #header>
-                <span>About（English）</span>
-              </template>
-              <MdEditor v-model="form.about.en" class="content-editor" />
-            </BaseCard>
-          </div>
+            <div class="editor-grid mt-4">
+              <MdEditor v-model="form.pages[selectedPageIntro].zh" class="content-editor content-editor-sm" />
+              <MdEditor v-model="form.pages[selectedPageIntro].en" class="content-editor content-editor-sm" />
+            </div>
+          </BaseCard>
         </el-tab-pane>
 
-        <el-tab-pane label="项目介绍" name="projects">
-          <div class="project-toolbar">
-            <p>项目数据会直接驱动前台 `/project` 页面展示，当前已预置一批示例内容。</p>
+        <el-tab-pane label="时间线" name="timeline">
+          <div class="section-toolbar">
+            <p>时间线卡片会显示在 `/timeline` 页面，也会在 About 页的时间线模块中复用。</p>
+            <el-button type="primary" plain @click="addTimelineItem">新增时间线</el-button>
+          </div>
+
+          <div v-if="form.timeline.length" class="item-list">
+            <BaseCard v-for="(item, index) in form.timeline" :key="item.id" class="item-card">
+              <template #header>
+                <div class="item-card-header">
+                  <span>时间线 {{ index + 1 }}</span>
+                  <div class="item-card-actions">
+                    <el-button link :disabled="index === 0" @click="moveTimeline(index, -1)">上移</el-button>
+                    <el-button
+                      link
+                      :disabled="index === form.timeline.length - 1"
+                      @click="moveTimeline(index, 1)"
+                    >
+                      下移
+                    </el-button>
+                    <el-button link type="danger" @click="removeTimeline(index)">删除</el-button>
+                  </div>
+                </div>
+              </template>
+
+              <el-form label-position="top">
+                <div class="inline-grid">
+                  <el-form-item label="年份">
+                    <el-input v-model="item.year" placeholder="2025 / 2025 - Present" />
+                  </el-form-item>
+                  <el-form-item label="排序">
+                    <el-input-number v-model="item.sort" :min="1" :max="999" />
+                  </el-form-item>
+                </div>
+
+                <div class="inline-grid">
+                  <el-form-item label="标题（中文）">
+                    <el-input v-model="item.title.zh" placeholder="前端入门" />
+                  </el-form-item>
+                  <el-form-item label="Title (EN)">
+                    <el-input v-model="item.title.en" placeholder="Frontend Foundation" />
+                  </el-form-item>
+                </div>
+
+                <el-form-item label="描述（中文）">
+                  <el-input v-model="item.desc.zh" type="textarea" :rows="3" placeholder="时间线说明" />
+                </el-form-item>
+
+                <el-form-item label="Description (EN)">
+                  <el-input v-model="item.desc.en" type="textarea" :rows="3" placeholder="Timeline description" />
+                </el-form-item>
+              </el-form>
+            </BaseCard>
+          </div>
+
+          <BaseCard v-else>
+            <el-empty description="暂无时间线内容" />
+          </BaseCard>
+        </el-tab-pane>
+
+        <el-tab-pane label="项目" name="projects">
+          <div class="section-toolbar">
+            <p>项目内容会用于首页精选项目和项目页列表。</p>
             <el-button type="primary" plain @click="addProject">新增项目</el-button>
           </div>
 
-          <div v-if="form.projects.length" class="project-editor-list">
-            <BaseCard v-for="(project, index) in form.projects" :key="project.id" class="project-editor-card">
+          <div v-if="form.projects.length" class="item-list">
+            <BaseCard v-for="(project, index) in form.projects" :key="project.id" class="item-card">
               <template #header>
-                <div class="project-card-header">
+                <div class="item-card-header">
                   <span>项目 {{ index + 1 }}</span>
-                  <div class="project-card-actions">
+                  <div class="item-card-actions">
                     <el-button link :disabled="index === 0" @click="moveProject(index, -1)">上移</el-button>
                     <el-button
                       link
@@ -68,88 +131,86 @@
                 </div>
               </template>
 
-              <div class="project-form-grid">
-                <el-form label-position="top">
-                  <el-form-item label="项目标题">
-                    <el-input v-model="project.title" placeholder="例如：PlankBevelen Blog" />
-                  </el-form-item>
+              <el-form label-position="top">
+                <el-form-item label="标题">
+                  <el-input v-model="project.title" placeholder="PlankBevelen Blog" />
+                </el-form-item>
 
-                  <el-form-item label="一句话简介">
-                    <el-input v-model="project.summary" placeholder="一句话告诉访客这个项目是什么" />
-                  </el-form-item>
+                <el-form-item label="摘要">
+                  <el-input v-model="project.summary" placeholder="项目简述" />
+                </el-form-item>
 
-                  <el-form-item label="项目描述">
-                    <el-input
-                      v-model="project.description"
-                      type="textarea"
-                      :rows="4"
-                      placeholder="补充这个项目的目标、定位和背景"
+                <el-form-item label="描述">
+                  <el-input
+                    v-model="project.description"
+                    type="textarea"
+                    :rows="4"
+                    placeholder="项目详细说明"
+                  />
+                </el-form-item>
+
+                <div class="inline-grid">
+                  <el-form-item label="周期">
+                    <el-input v-model="project.period" placeholder="2025 - Present" />
+                  </el-form-item>
+                  <el-form-item label="状态">
+                    <el-input v-model="project.status" placeholder="In progress" />
+                  </el-form-item>
+                </div>
+
+                <div class="inline-grid">
+                  <el-form-item label="Repo URL">
+                    <el-input v-model="project.links.repoUrl" placeholder="https://github.com/..." />
+                  </el-form-item>
+                  <el-form-item label="Demo URL">
+                    <el-input v-model="project.links.demoUrl" placeholder="https://..." />
+                  </el-form-item>
+                </div>
+
+                <div class="inline-grid">
+                  <el-form-item label="主题色">
+                    <el-input v-model="project.accentColor" placeholder="#0f766e" />
+                  </el-form-item>
+                  <el-form-item label="排序">
+                    <el-input-number v-model="project.sort" :min="1" :max="999" />
+                  </el-form-item>
+                </div>
+
+                <el-form-item label="标签">
+                  <el-select
+                    v-model="project.tags"
+                    multiple
+                    filterable
+                    allow-create
+                    default-first-option
+                    :reserve-keyword="false"
+                    style="width: 100%"
+                    placeholder="输入后回车添加"
+                  >
+                    <el-option
+                      v-for="option in allTagOptions"
+                      :key="option.value"
+                      :label="option.label"
+                      :value="option.value"
                     />
-                  </el-form-item>
+                  </el-select>
+                </el-form-item>
 
-                  <div class="project-inline-grid">
-                    <el-form-item label="时间区间">
-                      <el-input v-model="project.period" placeholder="例如：2025 - 至今" />
-                    </el-form-item>
-                    <el-form-item label="项目状态">
-                      <el-input v-model="project.status" placeholder="例如：持续迭代" />
-                    </el-form-item>
-                  </div>
-
-                  <div class="project-inline-grid">
-                    <el-form-item label="仓库链接">
-                      <el-input v-model="project.links.repoUrl" placeholder="https://github.com/..." />
-                    </el-form-item>
-                    <el-form-item label="演示链接">
-                      <el-input v-model="project.links.demoUrl" placeholder="https://..." />
-                    </el-form-item>
-                  </div>
-
-                  <div class="project-inline-grid">
-                    <el-form-item label="强调色">
-                      <el-input v-model="project.accentColor" placeholder="#0f766e" />
-                    </el-form-item>
-                    <el-form-item label="排序值">
-                      <el-input-number v-model="project.sort" :min="1" :max="99" />
-                    </el-form-item>
-                  </div>
-
-                  <el-form-item label="技术标签">
-                    <el-select
-                      v-model="project.tags"
-                      multiple
-                      filterable
-                      allow-create
-                      default-first-option
-                      :reserve-keyword="false"
-                      style="width: 100%"
-                      placeholder="输入或选择标签"
-                    >
-                      <el-option
-                        v-for="option in allTagOptions"
-                        :key="option.value"
-                        :label="option.label"
-                        :value="option.value"
-                      />
-                    </el-select>
-                  </el-form-item>
-
-                  <el-form-item label="亮点列表">
-                    <el-input
-                      :model-value="project.highlights.join('\n')"
-                      type="textarea"
-                      :rows="5"
-                      placeholder="每行一条亮点"
-                      @update:model-value="updateHighlights(project, $event)"
-                    />
-                  </el-form-item>
-                </el-form>
-              </div>
+                <el-form-item label="亮点">
+                  <el-input
+                    :model-value="project.highlights.join('\n')"
+                    type="textarea"
+                    :rows="5"
+                    placeholder="每行一条亮点"
+                    @update:model-value="updateHighlights(project, $event)"
+                  />
+                </el-form-item>
+              </el-form>
             </BaseCard>
           </div>
 
           <BaseCard v-else>
-            <el-empty description="还没有项目介绍内容" />
+            <el-empty description="暂无项目内容" />
           </BaseCard>
         </el-tab-pane>
       </el-tabs>
@@ -163,21 +224,39 @@ import { ElMessage } from 'element-plus'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import siteService from '@/services/site.service'
-import type { SiteContent, SiteProject } from '@/types/site'
+import type { SiteContent, SiteLocalizedText, SiteProject, SiteTimelineItem } from '@/types/site'
 import { formatDateTime } from '@/utils/format'
 
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
-const activeTab = ref<'about' | 'projects'>('about')
+const activeTab = ref<'pages' | 'timeline' | 'projects'>('pages')
 const loading = ref(false)
 const saving = ref(false)
-const form = ref<SiteContent>({
-  about: {
-    zh: '',
-    en: ''
-  },
-  projects: [],
-  updatedAt: null
+const selectedPageIntro = ref<'about' | 'timeline' | 'project'>('about')
+
+const pageIntroOptions = [
+  { label: '关于导语', value: 'about' },
+  { label: '时间线导语', value: 'timeline' },
+  { label: '项目导语', value: 'project' }
+] as const
+
+const createLocalizedText = (): SiteLocalizedText => ({
+  zh: '',
+  en: ''
+})
+
+const createPages = () => ({
+  about: createLocalizedText(),
+  timeline: createLocalizedText(),
+  project: createLocalizedText()
+})
+
+const createTimelineItem = (index: number): SiteTimelineItem => ({
+  id: `timeline-${Date.now()}-${index + 1}`,
+  year: '',
+  title: createLocalizedText(),
+  desc: createLocalizedText(),
+  sort: index + 1
 })
 
 const createProject = (index: number): SiteProject => ({
@@ -186,7 +265,7 @@ const createProject = (index: number): SiteProject => ({
   summary: '',
   description: '',
   period: '',
-  status: '规划中',
+  status: 'In progress',
   accentColor: '#0f766e',
   tags: [],
   highlights: [],
@@ -197,13 +276,18 @@ const createProject = (index: number): SiteProject => ({
   sort: index + 1
 })
 
+const normalizeLocalizedText = (value?: Partial<SiteLocalizedText> | null): SiteLocalizedText => ({
+  zh: String(value?.zh || ''),
+  en: String(value?.en || '')
+})
+
 const normalizeProject = (project: Partial<SiteProject>, index: number): SiteProject => ({
   id: String(project.id || `project-${Date.now()}-${index + 1}`),
   title: String(project.title || ''),
   summary: String(project.summary || ''),
   description: String(project.description || ''),
   period: String(project.period || ''),
-  status: String(project.status || '规划中'),
+  status: String(project.status || 'In progress'),
   accentColor: String(project.accentColor || '#0f766e'),
   tags: Array.isArray(project.tags) ? project.tags.map(item => String(item)).filter(Boolean) : [],
   highlights: Array.isArray(project.highlights)
@@ -216,23 +300,49 @@ const normalizeProject = (project: Partial<SiteProject>, index: number): SitePro
   sort: Number(project.sort) > 0 ? Number(project.sort) : index + 1
 })
 
+const normalizeTimelineItem = (item: Partial<SiteTimelineItem>, index: number): SiteTimelineItem => ({
+  id: String(item.id || `timeline-${Date.now()}-${index + 1}`),
+  year: String(item.year || ''),
+  title: normalizeLocalizedText(item.title),
+  desc: normalizeLocalizedText(item.desc),
+  sort: Number(item.sort) > 0 ? Number(item.sort) : index + 1
+})
+
+const form = ref<SiteContent>({
+  about: createLocalizedText(),
+  pages: createPages(),
+  timeline: [],
+  projects: [],
+  updatedAt: null
+})
+
 const hydrateContent = (content: Partial<SiteContent> | null | undefined) => {
+  const timeline = Array.isArray(content?.timeline)
+    ? content.timeline.map((item, index) => normalizeTimelineItem(item, index))
+    : []
   const projects = Array.isArray(content?.projects)
     ? content.projects.map((project, index) => normalizeProject(project, index))
     : []
 
   form.value = {
-    about: {
-      zh: String(content?.about?.zh || ''),
-      en: String(content?.about?.en || '')
+    about: normalizeLocalizedText(content?.about),
+    pages: {
+      about: normalizeLocalizedText(content?.pages?.about),
+      timeline: normalizeLocalizedText(content?.pages?.timeline),
+      project: normalizeLocalizedText(content?.pages?.project)
     },
-    projects: projects.sort((a, b) => a.sort - b.sort).map((project, index) => ({ ...project, sort: index + 1 })),
+    timeline: timeline
+      .sort((a, b) => a.sort - b.sort)
+      .map((item, index) => ({ ...item, sort: index + 1 })),
+    projects: projects
+      .sort((a, b) => a.sort - b.sort)
+      .map((project, index) => ({ ...project, sort: index + 1 })),
     updatedAt: content?.updatedAt || null
   }
 }
 
 const updatedAtText = computed(() =>
-  form.value.updatedAt ? formatDateTime(form.value.updatedAt) : '尚未保存'
+  form.value.updatedAt ? formatDateTime(form.value.updatedAt) : '暂无更新记录'
 )
 
 const allTagOptions = computed(() => {
@@ -247,32 +357,33 @@ const allTagOptions = computed(() => {
 
 const summaryCards = computed(() => [
   {
-    key: 'about-zh',
-    label: '中文关于页',
-    value: form.value.about.zh.trim().length,
-    desc: '当前 Markdown 字符数'
-  },
-  {
-    key: 'about-en',
-    label: '英文 About',
-    value: form.value.about.en.trim().length,
-    desc: '当前 Markdown 字符数'
+    key: 'timeline',
+    label: '时间线卡片',
+    value: form.value.timeline.length,
+    desc: '前台时间线数量'
   },
   {
     key: 'projects',
     label: '项目数量',
     value: form.value.projects.length,
-    desc: '会直接展示在前台项目页'
+    desc: '项目列表条目'
   },
   {
-    key: 'tags',
-    label: '项目标签',
-    value: allTagOptions.value.length,
-    desc: '所有项目去重后的标签数'
+    key: 'pages',
+    label: '页面导语',
+    value: Object.values(form.value.pages).filter(item => item.zh.trim() || item.en.trim()).length,
+    desc: '已配置页面文案'
   }
 ])
 
-const syncSort = () => {
+const syncTimelineSort = () => {
+  form.value.timeline = form.value.timeline.map((item, index) => ({
+    ...item,
+    sort: index + 1
+  }))
+}
+
+const syncProjectSort = () => {
   form.value.projects = form.value.projects.map((project, index) => ({
     ...project,
     sort: index + 1
@@ -287,33 +398,54 @@ const fetchContent = async () => {
       hydrateContent(res.data)
       return
     }
-    ElMessage.error(res?.msg || '获取站点内容失败')
+    ElMessage.error(res?.msg || '加载站点内容失败')
   } catch (error: any) {
-    ElMessage.error(error?.message || '获取站点内容失败')
+    ElMessage.error(error?.message || '加载站点内容失败')
   } finally {
     loading.value = false
   }
 }
 
+const addTimelineItem = () => {
+  form.value.timeline.push(createTimelineItem(form.value.timeline.length))
+  syncTimelineSort()
+}
+
+const removeTimeline = (index: number) => {
+  form.value.timeline.splice(index, 1)
+  syncTimelineSort()
+}
+
+const moveTimeline = (index: number, step: number) => {
+  const targetIndex = index + step
+  if (targetIndex < 0 || targetIndex >= form.value.timeline.length) return
+
+  const next = [...form.value.timeline]
+  const [current] = next.splice(index, 1)
+  next.splice(targetIndex, 0, current)
+  form.value.timeline = next
+  syncTimelineSort()
+}
+
 const addProject = () => {
   form.value.projects.push(createProject(form.value.projects.length))
-  syncSort()
+  syncProjectSort()
 }
 
 const removeProject = (index: number) => {
   form.value.projects.splice(index, 1)
-  syncSort()
+  syncProjectSort()
 }
 
 const moveProject = (index: number, step: number) => {
   const targetIndex = index + step
   if (targetIndex < 0 || targetIndex >= form.value.projects.length) return
 
-  const nextProjects = [...form.value.projects]
-  const [current] = nextProjects.splice(index, 1)
-  nextProjects.splice(targetIndex, 0, current)
-  form.value.projects = nextProjects
-  syncSort()
+  const next = [...form.value.projects]
+  const [current] = next.splice(index, 1)
+  next.splice(targetIndex, 0, current)
+  form.value.projects = next
+  syncProjectSort()
 }
 
 const updateHighlights = (project: SiteProject, value: string) => {
@@ -324,9 +456,14 @@ const updateHighlights = (project: SiteProject, value: string) => {
 }
 
 const onSave = async () => {
-  if (!form.value.about.zh.trim()) {
-    ElMessage.warning('请先填写中文关于页内容')
-    activeTab.value = 'about'
+
+  const hasInvalidTimeline = form.value.timeline.some(item => {
+    const title = `${item.title.zh || ''}${item.title.en || ''}`.trim()
+    return !item.year.trim() || !title
+  })
+  if (hasInvalidTimeline) {
+    ElMessage.warning('时间线需要填写年份和至少一个标题')
+    activeTab.value = 'timeline'
     return
   }
 
@@ -344,19 +481,34 @@ const onSave = async () => {
         zh: form.value.about.zh,
         en: form.value.about.en
       },
+      pages: {
+        about: {
+          zh: form.value.pages.about.zh,
+          en: form.value.pages.about.en
+        },
+        timeline: {
+          zh: form.value.pages.timeline.zh,
+          en: form.value.pages.timeline.en
+        },
+        project: {
+          zh: form.value.pages.project.zh,
+          en: form.value.pages.project.en
+        }
+      },
+      timeline: form.value.timeline.map((item, index) => normalizeTimelineItem(item, index)),
       projects: form.value.projects.map((project, index) => normalizeProject(project, index))
     }
 
     const res: any = await siteService.updateAdminContent(payload)
     if (res?.status === 200 && res.data) {
       hydrateContent(res.data)
-      ElMessage.success('站点内容保存成功')
+      ElMessage.success('内容已保存')
       return
     }
 
-    ElMessage.error(res?.msg || '站点内容保存失败')
+    ElMessage.error(res?.msg || '保存失败')
   } catch (error: any) {
-    ElMessage.error(error?.message || '站点内容保存失败')
+    ElMessage.error(error?.message || '保存失败')
   } finally {
     saving.value = false
   }
@@ -423,11 +575,39 @@ onMounted(() => {
   gap: 20px;
 }
 
-.content-editor {
-  height: 640px;
+.page-intro-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-.project-toolbar {
+.page-editor-list,
+.item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.item-card {
+  overflow: hidden;
+}
+
+.item-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.item-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -440,61 +620,37 @@ onMounted(() => {
   }
 }
 
-.project-editor-list {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.project-editor-card {
-  overflow: hidden;
-}
-
-.project-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.project-card-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.project-form-grid {
-  display: flex;
-  flex-direction: column;
-}
-
-.project-inline-grid {
+.inline-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
 
+.content-editor {
+  height: 640px;
+}
+
+.content-editor-sm {
+  height: 420px;
+}
+
 @media (max-width: 1100px) {
   .editor-grid,
-  .project-inline-grid {
+  .inline-grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 960px) {
   .content-hero,
-  .project-toolbar,
-  .project-card-header {
+  .section-toolbar,
+  .item-card-header {
     flex-direction: column;
     align-items: flex-start;
   }
 
   .content-actions {
     justify-content: flex-start;
-  }
-
-  .content-editor {
-    height: 520px;
   }
 }
 </style>

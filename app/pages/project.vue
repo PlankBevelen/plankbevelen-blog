@@ -12,17 +12,19 @@
         </template>
 
         <template #middle>
+          <WidgetPageIntro :title="pageTitle" :content="projectIntro" />
+
           <div v-if="projects.length" class="project-list">
             <BaseCard v-for="project in projects" :key="project.id" class="project-card">
               <div class="project-top">
                 <div class="project-title-wrap">
                   <h2>{{ project.title }}</h2>
-                  <el-tag effect="plain" round>{{ project.status || '持续迭代' }}</el-tag>
+                  <el-tag effect="plain" round>{{ project.status || defaultStatus }}</el-tag>
                 </div>
                 <div class="project-stats">
-                  <span>{{ project.period || '长期维护' }}</span>
-                  <span>{{ project.tags.length }} 项技术栈</span>
-                  <span>{{ project.highlights.length }} 个能力点</span>
+                  <span>{{ project.period || defaultPeriod }}</span>
+                  <span>{{ project.tags.length }} 标签</span>
+                  <span>{{ project.highlights.length }} 亮点</span>
                 </div>
               </div>
 
@@ -43,17 +45,17 @@
 
               <div v-if="project.links.repoUrl || project.links.demoUrl" class="project-links">
                 <a v-if="project.links.repoUrl" :href="project.links.repoUrl" target="_blank" rel="noopener noreferrer">
-                  仓库地址
+                  源码
                 </a>
                 <a v-if="project.links.demoUrl" :href="project.links.demoUrl" target="_blank" rel="noopener noreferrer">
-                  在线预览
+                  预览
                 </a>
               </div>
             </BaseCard>
           </div>
 
           <BaseCard v-else>
-            <el-empty description="暂时还没有项目内容" />
+            <el-empty description="暂无项目内容" />
           </BaseCard>
         </template>
 
@@ -68,25 +70,31 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useAsyncData } from 'nuxt/app'
-import siteService from '@/services/site.service'
 import { useSidebarData } from '@/composables/useSidebarData'
+import { useSiteContent } from '@/composables/useSiteContent'
+import { resolveLocalizedText } from '@/utils/localized-text'
 
+const { locale } = useI18n()
 const { data, pending } = await useSidebarData()
 const stats = computed(() => data.value?.stats || null)
+const { data: contentData, pending: contentPending } = await useSiteContent()
 
-const { data: contentData, pending: contentPending } = await useAsyncData('site-project-content', async () => {
-  const res: any = await siteService.getContent()
-  return res?.data || { about: { zh: '', en: '' }, projects: [] }
-})
+const pageTitle = computed(() => (locale.value === 'en' ? 'Projects' : '项目'))
+const projectIntro = computed(() => resolveLocalizedText(contentData.value?.pages?.project, locale.value))
 
 const projects = computed(() =>
   [...(contentData.value?.projects || [])].sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0))
 )
 
+const defaultStatus = computed(() => (locale.value === 'en' ? 'In progress' : '进行中'))
+const defaultPeriod = computed(() => (locale.value === 'en' ? 'No period set' : '暂无周期'))
+
 usePageSeo({
-  title: '项目',
-  description: '这里展示我在持续维护与迭代的重点项目，包括目标、技术栈与核心能力。'
+  title: () => (locale.value === 'en' ? 'Projects' : '项目'),
+  description: () =>
+    locale.value === 'en'
+      ? 'A curated list of projects, experiments, and work worth keeping track of.'
+      : '整理项目、实验和阶段性成果，方便持续记录与回顾。'
 })
 </script>
 

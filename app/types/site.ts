@@ -15,11 +15,29 @@ export type SiteProject = {
   sort: number
 }
 
+export type SiteLocalizedText = {
+  zh: string
+  en: string
+}
+
+export type SiteTimelineItem = {
+  id: string
+  year: string
+  title: SiteLocalizedText
+  desc: SiteLocalizedText
+  sort: number
+}
+
+export type SitePageContent = {
+  about: SiteLocalizedText
+  timeline: SiteLocalizedText
+  project: SiteLocalizedText
+}
+
 export type SiteContent = {
-  about: {
-    zh: string
-    en: string
-  }
+  about: SiteLocalizedText
+  pages: SitePageContent
+  timeline: SiteTimelineItem[]
   projects: SiteProject[]
   updatedAt?: string | null
 }

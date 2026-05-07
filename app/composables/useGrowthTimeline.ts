@@ -1,4 +1,7 @@
 import { computed } from 'vue'
+import type { SiteTimelineItem } from '@/types/site'
+import { resolveLocalizedText } from '@/utils/localized-text'
+import { useSiteContent } from '@/composables/useSiteContent'
 
 export type GrowthTimelineItem = {
   year: string
@@ -6,58 +9,76 @@ export type GrowthTimelineItem = {
   desc: string
 }
 
-const ZH_TIMELINE: GrowthTimelineItem[] = [
+const FALLBACK_TIMELINE: SiteTimelineItem[] = [
   {
+    id: 'frontend-foundation',
     year: '2022',
-    title: '前端启蒙',
-    desc: '系统学习 HTML、CSS、JavaScript 与 Vue，开始搭建第一个可上线的小项目。'
+    title: {
+      zh: '前端入门',
+      en: 'Frontend Foundation'
+    },
+    desc: {
+      zh: '系统学习 HTML、CSS、JavaScript 和 Vue，完成第一个可交付项目。',
+      en: 'Learned HTML, CSS, JavaScript, and Vue, then shipped the first small production project.'
+    },
+    sort: 1
   },
   {
+    id: 'full-stack-practice',
     year: '2023',
-    title: '全栈实践',
-    desc: '深入 Node.js 与接口设计，尝试从前端到后端独立完成完整功能闭环。'
+    title: {
+      zh: '全栈实践',
+      en: 'Full-Stack Practice'
+    },
+    desc: {
+      zh: '开始深入 Node.js 和 API 设计，尝试独立完成前后端闭环。',
+      en: 'Went deeper into Node.js and API design, building end-to-end features independently.'
+    },
+    sort: 2
   },
   {
+    id: 'engineering-upgrade',
     year: '2024',
-    title: '工程化升级',
-    desc: '聚焦性能优化、组件抽象与可维护性，逐步形成稳定的项目开发范式。'
+    title: {
+      zh: '工程化升级',
+      en: 'Engineering Upgrade'
+    },
+    desc: {
+      zh: '把重心放在性能、组件架构和可维护性上，让项目更适合长期迭代。',
+      en: 'Focused on performance, component architecture, and long-term maintainability.'
+    },
+    sort: 3
   },
   {
-    year: '2025 - 至今',
-    title: 'AI + 产品探索',
-    desc: '围绕 AI Agent 与内容平台持续迭代，探索更高效的开发协作与交互体验。'
-  }
-]
-
-const EN_TIMELINE: GrowthTimelineItem[] = [
-  {
-    year: '2022',
-    title: 'Frontend Foundation',
-    desc: 'Learned HTML, CSS, JavaScript, and Vue, then shipped the first small production project.'
-  },
-  {
-    year: '2023',
-    title: 'Full-Stack Practice',
-    desc: 'Went deeper into Node.js and API design, building end-to-end features independently.'
-  },
-  {
-    year: '2024',
-    title: 'Engineering Upgrade',
-    desc: 'Focused on performance, component architecture, and long-term maintainability.'
-  },
-  {
+    id: 'ai-product-exploration',
     year: '2025 - Present',
-    title: 'AI + Product Exploration',
-    desc: 'Iterating on AI agent and content platform ideas to improve collaboration and UX.'
+    title: {
+      zh: 'AI 与产品探索',
+      en: 'AI + Product Exploration'
+    },
+    desc: {
+      zh: '围绕 AI Agent 与内容平台持续试验，希望提升协作体验与整体效率。',
+      en: 'Iterating on AI agent and content platform ideas to improve collaboration and UX.'
+    },
+    sort: 4
   }
 ]
 
 export function useGrowthTimeline() {
   const { locale } = useI18n()
+  const { data: siteContent } = useSiteContent()
 
-  const growthTimeline = computed(() =>
-    locale.value === 'en' ? EN_TIMELINE : ZH_TIMELINE
-  )
+  const growthTimeline = computed<GrowthTimelineItem[]>(() => {
+    const source = [...(siteContent.value?.timeline?.length ? siteContent.value.timeline : FALLBACK_TIMELINE)]
+
+    return source
+      .sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0))
+      .map(item => ({
+        year: item.year,
+        title: resolveLocalizedText(item.title, locale.value),
+        desc: resolveLocalizedText(item.desc, locale.value)
+      }))
+  })
 
   return {
     growthTimeline

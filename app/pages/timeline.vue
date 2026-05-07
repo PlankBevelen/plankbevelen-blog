@@ -1,7 +1,7 @@
 <template>
   <div class="timeline-page">
     <div class="container">
-      <LayoutThreeColumn :loading="pending">
+      <LayoutThreeColumn :loading="pending || contentPending">
         <template #left>
           <WidgetBlogger
             :articleCount="stats?.articles || 0"
@@ -12,7 +12,8 @@
         </template>
 
         <template #middle>
-          <WidgetAboutTimelineCard :timeline="growthTimeline" />
+          <WidgetPageIntro :title="pageTitle" :content="timelineIntro" />
+          <WidgetTimeline :timeline="growthTimeline" />
         </template>
 
         <template #right>
@@ -28,14 +29,24 @@
 import { computed } from 'vue'
 import { useSidebarData } from '@/composables/useSidebarData'
 import { useGrowthTimeline } from '@/composables/useGrowthTimeline'
+import { useSiteContent } from '@/composables/useSiteContent'
+import { resolveLocalizedText } from '@/utils/localized-text'
 
+const { locale } = useI18n()
 const { data, pending } = await useSidebarData()
 const stats = computed(() => data.value?.stats || null)
 const { growthTimeline } = useGrowthTimeline()
+const { data: contentData, pending: contentPending } = await useSiteContent()
+
+const pageTitle = computed(() => (locale.value === 'en' ? 'Timeline' : '时间线'))
+const timelineIntro = computed(() => resolveLocalizedText(contentData.value?.pages?.timeline, locale.value))
 
 usePageSeo({
-  title: '成长时间线',
-  description: '记录 PlankBevelen 在技术学习与产品实践中的阶段成长。'
+  title: () => (locale.value === 'en' ? 'Timeline' : '时间线'),
+  description: () =>
+    locale.value === 'en'
+      ? 'A chronological record of milestones and growth notes.'
+      : '按时间顺序记录成长节点与阶段性思考。'
 })
 </script>
 

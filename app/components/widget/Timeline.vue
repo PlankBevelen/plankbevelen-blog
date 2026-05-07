@@ -3,7 +3,7 @@
     <template #header>
       <div class="header-wrap">
         <span>成长时间线</span>
-        <span v-if="showMoreHint" class="hint">查看全部</span>
+        <span class="hint">查看全部</span>
       </div>
     </template>
     <div class="timeline">
@@ -41,8 +41,6 @@ const router = useRouter()
 const displayedTimeline = computed(() =>
   props.compact ? props.timeline.slice(0, 3) : props.timeline
 )
-
-const showMoreHint = computed(() => props.compact && props.timeline.length > displayedTimeline.value.length)
 
 const goTimeline = () => {
   if (!props.clickableCard) return

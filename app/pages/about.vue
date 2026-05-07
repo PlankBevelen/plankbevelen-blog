@@ -12,7 +12,8 @@
         </template>
 
         <template #middle>
-          <WidgetAboutContent :aboutMd="aboutMd" />
+          <WidgetPageIntro :title="$t('pages.about.title')" :content="aboutIntro" />
+          <!-- <WidgetAboutContent :aboutMd="aboutMd" /> -->
           <WidgetContact />
           <WidgetTimeline :timeline="growthTimeline" compact clickableCard />
         </template>
@@ -28,31 +29,24 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useAsyncData } from 'nuxt/app'
 import { useSidebarData } from '@/composables/useSidebarData'
 import { useGrowthTimeline } from '@/composables/useGrowthTimeline'
-import siteService from '@/services/site.service'
+import { useSiteContent } from '@/composables/useSiteContent'
+import { resolveLocalizedText } from '@/utils/localized-text'
 
 const { t, locale } = useI18n()
 
 const { data, pending } = await useSidebarData()
 const stats = computed(() => data.value?.stats || null)
 const { growthTimeline } = useGrowthTimeline()
-
-const { data: contentData, pending: contentPending } = await useAsyncData('site-content-public', async () => {
-  const res: any = await siteService.getContent()
-  return (
-    res?.data || {
-      about: { zh: '', en: '' },
-      projects: []
-    }
-  )
-})
+const { data: contentData, pending: contentPending } = await useSiteContent()
 
 const aboutMd = computed(() => {
-  const about = contentData.value?.about
-  if (!about) return ''
-  return locale.value === 'en' ? about.en || about.zh || '' : about.zh || about.en || ''
+  return resolveLocalizedText(contentData.value?.about, locale.value)
+})
+
+const aboutIntro = computed(() => {
+  return resolveLocalizedText(contentData.value?.pages?.about, locale.value)
 })
 
 usePageSeo({
