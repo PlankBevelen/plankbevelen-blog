@@ -70,5 +70,6 @@ const navTitle = computed(() => navTitleMap[route.path] || '管理后台')
   padding: 20px;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
+  background-color: var(--bg-color);
 }
 </style>

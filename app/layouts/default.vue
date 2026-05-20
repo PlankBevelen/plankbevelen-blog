@@ -17,6 +17,3 @@ import { useAdminStore } from '~/stores/admin.store'
 const admin = useAdminStore()
 </script>
 
-<style lang="less">
-/* Removed #main padding to avoid double padding with .container */
-</style>
