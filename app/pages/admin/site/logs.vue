@@ -1,17 +1,6 @@
 <template>
-  <div class="space-y-6">
-    <section class="logs-hero">
-      <div>
-        <p class="logs-kicker">Access Log Center</p>
-        <h1 class="logs-title">访问日志</h1>
-        <p class="logs-desc">
-          公开页面的 HTML 访问会由服务端自动记录，后台可以按时间范围、关键词和设备类型查看访问轨迹。
-        </p>
-      </div>
-      <el-button :loading="loading" @click="fetchLogs">刷新日志</el-button>
-    </section>
-
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+  <div class="space-y-3">
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
       <BaseCard v-for="card in summaryCards" :key="card.key">
         <p class="text-xs text-mute">{{ card.label }}</p>
         <div class="mt-2 text-h1 font-semibold text-text">{{ card.value }}</div>
@@ -19,13 +8,13 @@
       </BaseCard>
     </div>
 
-    <div class="insight-grid">
+    <div class="grid grid-cols-1 gap-3 xl:grid-cols-2">
       <BaseCard>
         <template #header>
           <span>热门页面</span>
         </template>
-        <div v-if="summary.topPaths.length" class="insight-list">
-          <div v-for="item in summary.topPaths" :key="item.path" class="insight-item">
+        <div v-if="summary.topPaths.length" class="grid grid-cols-1 gap-3">
+          <div v-for="item in summary.topPaths" :key="item.path" class="flex items-center justify-between">
             <span>{{ item.path }}</span>
             <strong>{{ item.count }}</strong>
           </div>
@@ -37,7 +26,7 @@
         <template #header>
           <span>设备分布</span>
         </template>
-        <div v-if="summary.deviceDistribution.length" class="device-list">
+        <div v-if="summary.deviceDistribution.length" class="grid grid-cols-1 gap-3">
           <el-tag
             v-for="item in summary.deviceDistribution"
             :key="`${item.deviceType}-${item.count}`"
@@ -68,16 +57,16 @@
               v-model="filters.keyword"
               placeholder="搜索路径、IP、浏览器或来源"
               clearable
-              class="w-[280px]"
+              class="!w-[280px]"
             />
-            <el-select v-model="filters.deviceType" class="w-[160px]">
+            <el-select v-model="filters.deviceType" class="!w-[160px]">
               <el-option label="全部设备" value="all" />
               <el-option label="桌面端" value="desktop" />
               <el-option label="移动端" value="mobile" />
               <el-option label="平板" value="tablet" />
               <el-option label="爬虫" value="bot" />
             </el-select>
-            <el-select v-model="filters.days" class="w-[140px]">
+            <el-select v-model="filters.days" class="!w-[140px]">
               <el-option :value="1" label="近 1 天" />
               <el-option :value="7" label="近 7 天" />
               <el-option :value="30" label="近 30 天" />
@@ -87,16 +76,16 @@
             <el-button @click="onReset">重置</el-button>
           </div>
           <template #actions>
-            <span class="table-tip">当前只记录公开页面访问，不采集后台和静态资源请求</span>
+            <el-button type="primary" @click="fetchLogs">刷新日志</el-button>
           </template>
         </BaseQueryBar>
       </template>
 
       <el-table-column label="访问路径" min-width="280">
         <template #default="{ row }">
-          <div class="log-path">
-            <strong>{{ row.path }}</strong>
-            <span>{{ row.fullPath }}</span>
+          <div class="flex gap-1 flex-col">
+            <strong class="font-semibold text-text">{{ row.path }}</strong>
+            <span class="text-mute line-clamp-2">{{ row.fullPath }}</span>
           </div>
         </template>
       </el-table-column>
@@ -290,84 +279,6 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
-.logs-hero {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 24px 28px;
-  border-radius: 24px;
-  border: 1px solid rgba(29, 78, 216, 0.14);
-  background:
-    radial-gradient(circle at top right, rgba(29, 78, 216, 0.14), transparent 28%),
-    linear-gradient(140deg, var(--card-color), color-mix(in srgb, var(--card-color) 88%, #f1f5ff));
-}
-
-.logs-kicker {
-  margin: 0 0 8px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--primary-color);
-}
-
-.logs-title {
-  margin: 0;
-  font-size: 30px;
-  color: var(--text-color);
-}
-
-.logs-desc {
-  margin: 12px 0 0;
-  max-width: 680px;
-  font-size: 14px;
-  line-height: 1.8;
-  color: var(--secondary-color);
-}
-
-.insight-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-}
-
-.insight-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.insight-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--card-color) 76%, #f5f7fb);
-  border: 1px solid var(--border-color);
-
-  span {
-    color: var(--secondary-color);
-    word-break: break-all;
-  }
-
-  strong {
-    color: var(--text-color);
-  }
-}
-
-.device-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.table-tip {
-  font-size: 12px;
-  color: var(--tertiary-color);
-}
 
 .log-path,
 .log-meta {

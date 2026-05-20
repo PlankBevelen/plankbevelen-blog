@@ -1,25 +1,18 @@
 <template>
   <div class="space-y-6">
-    <section class="content-hero">
-      <div>
-        <p class="content-kicker">Site Content Studio</p>
-        <h1 class="content-title">站点内容管理</h1>
-        <p class="content-desc">
-          在这里统一管理关于页、页面导语、时间线卡片和项目内容。保存后，前台页面会直接读取这份数据。
-        </p>
-      </div>
-      <div class="content-actions">
-        <span class="content-updated">最后更新：{{ updatedAtText }}</span>
-        <el-button :loading="loading" @click="fetchContent">重新加载</el-button>
-        <el-button type="primary" :loading="saving" @click="onSave">保存内容</el-button>
-      </div>
-    </section>
-
     <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
       <BaseCard v-for="card in summaryCards" :key="card.key">
         <p class="text-xs text-mute">{{ card.label }}</p>
         <div class="mt-2 text-h1 font-semibold text-text">{{ card.value }}</div>
         <div class="mt-1 text-xs text-mute">{{ card.desc }}</div>
+      </BaseCard>
+      <BaseCard>
+        <p class="text-xs text-mute">最后更新</p>
+        <div class="!mt-1 text-sm font-semibold text-text">{{ updatedAtText }}</div>
+        <div class="!mt-1 flex gap-3">
+          <el-button :loading="loading" @click="fetchContent">重新加载</el-button>
+          <el-button type="primary" :loading="saving" @click="onSave">保存内容</el-button>
+        </div>
       </BaseCard>
     </div>
 
@@ -520,55 +513,6 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
-.content-hero {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 24px 28px;
-  border-radius: 24px;
-  border: 1px solid rgba(15, 118, 110, 0.14);
-  background:
-    radial-gradient(circle at top left, rgba(15, 118, 110, 0.16), transparent 28%),
-    linear-gradient(140deg, var(--card-color), color-mix(in srgb, var(--card-color) 86%, #eefaf7));
-}
-
-.content-kicker {
-  margin: 0 0 8px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--primary-color);
-}
-
-.content-title {
-  margin: 0;
-  font-size: 30px;
-  color: var(--text-color);
-}
-
-.content-desc {
-  margin: 12px 0 0;
-  max-width: 680px;
-  font-size: 14px;
-  line-height: 1.8;
-  color: var(--secondary-color);
-}
-
-.content-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.content-updated {
-  font-size: 13px;
-  color: var(--tertiary-color);
-}
-
 .editor-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -46,7 +46,7 @@ const route = useRoute()
 // 文章详情页会在页面级覆盖此值
 const canonicalUrl = computed(() => `${SITE_URL}${route.path || '/'}`)
 
-// 全局兜底：og 通用字段，页面级 useSeoMeta 会自动覆盖 title/description
+// 全局兜底: og 通用字段，页面级 useSeoMeta 会自动覆盖 title/description
 useSeoMeta({
   ogType: 'website',
   ogSiteName: 'PlankBevelen',

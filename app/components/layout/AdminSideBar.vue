@@ -13,6 +13,7 @@
       :default-active="activeIndex"
       class="sidebar-menu"
       :collapse-transition="false"
+      :default-openeds="['2', '3']"
     >
       <el-menu-item index="1" @click="navigateTo('/admin')">
         <el-icon><Odometer /></el-icon>

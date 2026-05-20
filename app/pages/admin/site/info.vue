@@ -1,17 +1,6 @@
 <template>
-  <div class="space-y-6">
-    <section class="site-hero">
-      <div>
-        <p class="site-kicker">Website Profile</p>
-        <h1 class="site-title">网站信息</h1>
-        <p class="site-desc">
-          这里汇总站点基础配置、内容规模和 SEO 状态，方便统一查看当前博客的对外信息。
-        </p>
-      </div>
-      <el-button :loading="loading" @click="fetchInfo">刷新信息</el-button>
-    </section>
-
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+  <div class="space-y-3">
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
       <BaseCard v-for="card in summaryCards" :key="card.key">
         <p class="text-xs text-mute">{{ card.label }}</p>
         <div class="mt-2 text-h1 font-semibold text-text">{{ card.value }}</div>
@@ -19,7 +8,7 @@
       </BaseCard>
     </div>
 
-    <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+    <div class="grid grid-cols-1 gap-3 xl:grid-cols-2">
       <BaseCard>
         <template #header>
           <span>站点基础信息</span>

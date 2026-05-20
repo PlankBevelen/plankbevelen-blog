@@ -1,17 +1,6 @@
 <template>
-  <div class="space-y-6">
-    <section class="data-hero">
-      <div>
-        <p class="data-kicker">Website Analytics</p>
-        <h1 class="data-title">网站数据</h1>
-        <p class="data-desc">
-          这里聚合站点内容趋势、资源体积和当前页面性能。访问统计位也已经预留，后续接入埋点即可直接显示。
-        </p>
-      </div>
-      <el-button :loading="loading" @click="fetchMetrics">刷新数据</el-button>
-    </section>
-
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+  <div class="space-y-3">
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
       <BaseCard v-for="card in summaryCards" :key="card.key">
         <p class="text-xs text-mute">{{ card.label }}</p>
         <div class="mt-2 text-h1 font-semibold text-text">{{ card.value }}</div>
@@ -19,7 +8,7 @@
       </BaseCard>
     </div>
 
-    <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+    <div class="grid grid-cols-1 gap-3 xl:grid-cols-3">
       <BaseCard class="xl:col-span-2">
         <template #header>
           <span>近 30 天发文趋势</span>
@@ -35,7 +24,7 @@
       </BaseCard>
     </div>
 
-    <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+    <div class="grid grid-cols-1 gap-3 xl:grid-cols-2">
       <BaseCard>
         <template #header>
           <span>访问统计</span>

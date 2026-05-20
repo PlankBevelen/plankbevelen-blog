@@ -1,17 +1,6 @@
 <template>
-  <div class="space-y-6">
-    <section class="stats-hero">
-      <div>
-        <p class="stats-kicker">Content Analytics</p>
-        <h2 class="stats-title">内容数据统计</h2>
-        <p class="stats-desc">
-          从分类占比、热门标签和发布趋势三个角度，快速了解后台内容结构。
-        </p>
-      </div>
-      <el-button :loading="loading" @click="fetchData">刷新统计</el-button>
-    </section>
-
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+  <div class="space-y-3">
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
       <BaseCard v-for="card in summaryCards" :key="card.key">
         <p class="text-xs text-mute">{{ card.label }}</p>
         <div class="mt-2 text-h1 font-semibold text-text">{{ card.value }}</div>
@@ -137,6 +126,7 @@ const initCharts = async () => {
         {
           name: '分类文章占比',
           type: 'pie',
+          center: ['40%', '45%'],
           radius: ['40%', '70%'],
           itemStyle: {
             borderRadius: 10,
@@ -162,7 +152,7 @@ const initCharts = async () => {
 
     tagChart.setOption({
       tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-      grid: { left: '4%', right: '4%', bottom: '3%', containLabel: true },
+      grid: { left: '4%', right: '4%', top: '3%', containLabel: true },
       xAxis: {
         type: 'value',
         axisLine: { lineStyle: { color: border } },

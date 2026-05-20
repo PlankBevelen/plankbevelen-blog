@@ -1,17 +1,6 @@
 <template>
-  <div class="space-y-6">
-    <section class="content-hero category-hero">
-      <div>
-        <p class="hero-kicker">Category Manager</p>
-        <h1 class="hero-title">分类管理</h1>
-        <p class="hero-desc">
-          统一维护文章分类结构，查看分类分布、文章数量以及更新时间，保持内容体系清晰稳定。
-        </p>
-      </div>
-      <el-button type="primary" @click="handleEdit('add')">新增分类</el-button>
-    </section>
-
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+  <div class="space-y-3">
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
       <BaseCard v-for="card in summaryCards" :key="card.key">
         <p class="text-xs text-mute">{{ card.label }}</p>
         <div class="mt-2 text-h1 font-semibold text-text">{{ card.value }}</div>
@@ -27,13 +16,13 @@
               v-model="searchText"
               placeholder="搜索分类名称"
               clearable
-              class="w-[280px]"
+              class="!w-[280px]"
             />
             <el-button @click="onSearch">查询</el-button>
-            <el-button @click="onReset">重置</el-button>
+            <el-button @click="onReset" class="mx-0">重置</el-button>
           </div>
           <template #actions>
-            <span class="table-tip">分类变更会影响文章的内容归档结构</span>
+            <el-button type="primary" @click="handleEdit('add')">新增分类</el-button>
           </template>
         </BaseQueryBar>
       </template>

@@ -1,17 +1,6 @@
 <template>
-  <div class="space-y-6">
-    <section class="content-hero article-hero">
-      <div>
-        <p class="hero-kicker">Content Manager</p>
-        <h1 class="hero-title">文章管理</h1>
-        <p class="hero-desc">
-          在这里筛选、编辑和删除文章，并快速查看当前内容库的规模与筛选状态。
-        </p>
-      </div>
-      <el-button type="primary" @click="handleEdit('add')">新增文章</el-button>
-    </section>
-
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+  <div class="space-y-3">
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
       <BaseCard v-for="card in summaryCards" :key="card.key">
         <p class="text-xs text-mute">{{ card.label }}</p>
         <div class="mt-2 text-h1 font-semibold text-text">{{ card.value }}</div>
@@ -31,19 +20,19 @@
     >
       <template #header>
         <BaseQueryBar>
-          <div class="flex flex-wrap items-center gap-2">
+          <div class="flex gap-2 items-center flex-wrap ">
             <el-input
               v-model="query.q"
               placeholder="搜索标题 / 分类 / 标签"
               clearable
-              class="w-[280px]"
+              class="!w-[280px]"
               @keyup.enter="onSearch"
             />
             <el-select
               v-model="query.categoryId"
               clearable
               placeholder="分类"
-              class="w-[160px]"
+              class="!w-[160px]"
               @change="onSearch"
             >
               <el-option
@@ -53,7 +42,7 @@
                 :value="item.value"
               />
             </el-select>
-            <el-select v-model="query.sort" class="w-[140px]" @change="onSearch">
+            <el-select v-model="query.sort" class="!w-[140px]" @change="onSearch">
               <el-option label="按创建时间" value="created" />
               <el-option label="按更新时间" value="updated" />
             </el-select>
@@ -61,7 +50,7 @@
             <el-button @click="onReset">重置</el-button>
           </div>
           <template #actions>
-            <span class="table-tip">点击表格行可直接进入编辑页</span>
+            <el-button type="primary" @click="handleEdit('create')">新建文章</el-button>
           </template>
         </BaseQueryBar>
       </template>
@@ -153,18 +142,6 @@ const summaryCards = computed(() => [
     value: articleList.value.length,
     desc: `第 ${page.value} 页，单页 ${limit.value} 条`
   },
-  {
-    key: 'category',
-    label: '分类筛选',
-    value: selectedCategoryLabel.value,
-    desc: query.value.categoryId ? '仅查看当前分类内容' : '未限制分类'
-  },
-  {
-    key: 'sort',
-    label: '排序方式',
-    value: query.value.sort === 'created' ? '创建时间' : '更新时间',
-    desc: query.value.q ? `关键词：${query.value.q}` : '当前未输入搜索词'
-  }
 ])
 
 const handleEdit = (mode: string, id?: string) => {
