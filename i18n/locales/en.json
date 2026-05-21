@@ -10,7 +10,8 @@
       "home": "Home",
       "article": "Articles",
       "about": "About",
-      "project": "Projects"
+      "project": "Projects",
+      "notes": "Notes"
     }
   },
   "footer": {

@@ -31,7 +31,7 @@ export type SiteTimelineItem = {
 export type SitePageContent = {
   about: SiteLocalizedText
   timeline: SiteLocalizedText
-  project: SiteLocalizedText
+  project?: SiteLocalizedText
 }
 
 export type SiteContent = {

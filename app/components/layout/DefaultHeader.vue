@@ -102,9 +102,10 @@ const changeLocale = async (locale: 'en' | 'zh') => {
 
 const navList = [
   { key: 'header.nav.home', path: '/' },
+  { key: 'header.nav.notes', path: '/notes' },
   { key: 'header.nav.article', path: '/article' },
-  { key: 'header.nav.about', path: '/about' },
   { key: 'header.nav.project', path: '/project' },
+  { key: 'header.nav.about', path: '/about' },
 ]
 
 const { isMobile } = useUserAgent()
@@ -207,7 +208,7 @@ onMounted(()=>{
       display: flex;
       gap: 12px;
       align-items: center;
-      .lang { 
+      .lang {
         position: relative;
         cursor: pointer;
         font-size: @font-size-xl;

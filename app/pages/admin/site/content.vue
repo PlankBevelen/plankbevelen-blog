@@ -17,196 +17,186 @@
     </div>
 
     <div v-loading="loading">
-      <el-tabs v-model="activeTab">
-        <el-tab-pane label="页面导语" name="pages">
-          <BaseCard>
-            <div class="page-intro-toolbar">
-              <span class="text-sm text-mute">选择要编辑的页面导语</span>
-              <el-select v-model="selectedPageIntro" style="width: 220px">
-                <el-option
-                  v-for="option in pageIntroOptions"
-                  :key="option.value"
-                  :label="option.label"
-                  :value="option.value"
+      <!-- 关于页面 -->
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">关于页面</h2>
+            <p class="section-desc">编辑 /about 页面的介绍内容，支持 Markdown。</p>
+          </div>
+        </div>
+        <BaseCard>
+          <div class="editor-grid">
+            <div>
+              <p class="editor-label">中文</p>
+              <MdEditor v-model="form.pages.about.zh" class="content-editor" />
+            </div>
+            <div>
+              <p class="editor-label">English</p>
+              <MdEditor v-model="form.pages.about.en" class="content-editor" />
+            </div>
+          </div>
+        </BaseCard>
+      </section>
+
+      <!-- 时间线 -->
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">时间线</h2>
+            <p class="section-desc">显示在 /timeline 页面和 About 页的时间线模块中。</p>
+          </div>
+          <el-button type="primary" plain @click="addTimelineItem">新增时间线</el-button>
+        </div>
+
+        <div v-if="form.timeline.length" class="item-list">
+          <BaseCard v-for="(item, index) in form.timeline" :key="item.id" class="item-card">
+            <template #header>
+              <div class="item-card-header">
+                <span>时间线 {{ index + 1 }}</span>
+                <div class="item-card-actions">
+                  <el-button link :disabled="index === 0" @click="moveTimeline(index, -1)">上移</el-button>
+                  <el-button link :disabled="index === form.timeline.length - 1" @click="moveTimeline(index, 1)">下移</el-button>
+                  <el-button link type="danger" @click="removeTimeline(index)">删除</el-button>
+                </div>
+              </div>
+            </template>
+
+            <el-form label-position="top">
+              <div class="inline-grid">
+                <el-form-item label="年份">
+                  <el-input v-model="item.year" placeholder="2025 / 2025 - Present" />
+                </el-form-item>
+                <el-form-item label="排序">
+                  <el-input-number v-model="item.sort" :min="1" :max="999" />
+                </el-form-item>
+              </div>
+
+              <div class="inline-grid">
+                <el-form-item label="标题（中文）">
+                  <el-input v-model="item.title.zh" placeholder="前端入门" />
+                </el-form-item>
+                <el-form-item label="Title (EN)">
+                  <el-input v-model="item.title.en" placeholder="Frontend Foundation" />
+                </el-form-item>
+              </div>
+
+              <el-form-item label="描述（中文）">
+                <el-input v-model="item.desc.zh" type="textarea" :rows="3" placeholder="时间线说明" />
+              </el-form-item>
+
+              <el-form-item label="Description (EN)">
+                <el-input v-model="item.desc.en" type="textarea" :rows="3" placeholder="Timeline description" />
+              </el-form-item>
+            </el-form>
+          </BaseCard>
+        </div>
+
+        <BaseCard v-else>
+          <el-empty description="暂无时间线内容" />
+        </BaseCard>
+      </section>
+
+      <!-- 项目 -->
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">项目</h2>
+            <p class="section-desc">用于首页精选项目和 /project 页面列表。</p>
+          </div>
+          <el-button type="primary" plain @click="addProject">新增项目</el-button>
+        </div>
+
+        <div v-if="form.projects.length" class="item-list">
+          <BaseCard v-for="(project, index) in form.projects" :key="project.id" class="item-card">
+            <template #header>
+              <div class="item-card-header">
+                <span>项目 {{ index + 1 }}</span>
+                <div class="item-card-actions">
+                  <el-button link :disabled="index === 0" @click="moveProject(index, -1)">上移</el-button>
+                  <el-button link :disabled="index === form.projects.length - 1" @click="moveProject(index, 1)">下移</el-button>
+                  <el-button link type="danger" @click="removeProject(index)">删除</el-button>
+                </div>
+              </div>
+            </template>
+
+            <el-form label-position="top">
+              <el-form-item label="标题">
+                <el-input v-model="project.title" placeholder="PlankBevelen Blog" />
+              </el-form-item>
+
+              <el-form-item label="摘要">
+                <el-input v-model="project.summary" placeholder="项目简述" />
+              </el-form-item>
+
+              <el-form-item label="描述">
+                <el-input v-model="project.description" type="textarea" :rows="4" placeholder="项目详细说明" />
+              </el-form-item>
+
+              <div class="inline-grid">
+                <el-form-item label="周期">
+                  <el-input v-model="project.period" placeholder="2025 - Present" />
+                </el-form-item>
+                <el-form-item label="状态">
+                  <el-input v-model="project.status" placeholder="In progress" />
+                </el-form-item>
+              </div>
+
+              <div class="inline-grid">
+                <el-form-item label="Repo URL">
+                  <el-input v-model="project.links.repoUrl" placeholder="https://github.com/..." />
+                </el-form-item>
+                <el-form-item label="Demo URL">
+                  <el-input v-model="project.links.demoUrl" placeholder="https://..." />
+                </el-form-item>
+              </div>
+
+              <div class="inline-grid">
+                <el-form-item label="主题色">
+                  <el-input v-model="project.accentColor" placeholder="#0f766e" />
+                </el-form-item>
+                <el-form-item label="排序">
+                  <el-input-number v-model="project.sort" :min="1" :max="999" />
+                </el-form-item>
+              </div>
+
+              <el-form-item label="标签">
+                <el-select
+                  v-model="project.tags"
+                  multiple
+                  filterable
+                  allow-create
+                  default-first-option
+                  :reserve-keyword="false"
+                  style="width: 100%"
+                  placeholder="输入后回车添加"
+                >
+                  <el-option
+                    v-for="option in allTagOptions"
+                    :key="option.value"
+                    :label="option.label"
+                    :value="option.value"
+                  />
+                </el-select>
+              </el-form-item>
+
+              <el-form-item label="亮点">
+                <el-input
+                  :model-value="project.highlights.join('\n')"
+                  type="textarea"
+                  :rows="5"
+                  placeholder="每行一条亮点"
+                  @update:model-value="updateHighlights(project, $event)"
                 />
-              </el-select>
-            </div>
-
-            <div class="editor-grid mt-4">
-              <MdEditor v-model="form.pages[selectedPageIntro].zh" class="content-editor content-editor-sm" />
-              <MdEditor v-model="form.pages[selectedPageIntro].en" class="content-editor content-editor-sm" />
-            </div>
+              </el-form-item>
+            </el-form>
           </BaseCard>
-        </el-tab-pane>
+        </div>
 
-        <el-tab-pane label="时间线" name="timeline">
-          <div class="section-toolbar">
-            <p>时间线卡片会显示在 `/timeline` 页面，也会在 About 页的时间线模块中复用。</p>
-            <el-button type="primary" plain @click="addTimelineItem">新增时间线</el-button>
-          </div>
-
-          <div v-if="form.timeline.length" class="item-list">
-            <BaseCard v-for="(item, index) in form.timeline" :key="item.id" class="item-card">
-              <template #header>
-                <div class="item-card-header">
-                  <span>时间线 {{ index + 1 }}</span>
-                  <div class="item-card-actions">
-                    <el-button link :disabled="index === 0" @click="moveTimeline(index, -1)">上移</el-button>
-                    <el-button
-                      link
-                      :disabled="index === form.timeline.length - 1"
-                      @click="moveTimeline(index, 1)"
-                    >
-                      下移
-                    </el-button>
-                    <el-button link type="danger" @click="removeTimeline(index)">删除</el-button>
-                  </div>
-                </div>
-              </template>
-
-              <el-form label-position="top">
-                <div class="inline-grid">
-                  <el-form-item label="年份">
-                    <el-input v-model="item.year" placeholder="2025 / 2025 - Present" />
-                  </el-form-item>
-                  <el-form-item label="排序">
-                    <el-input-number v-model="item.sort" :min="1" :max="999" />
-                  </el-form-item>
-                </div>
-
-                <div class="inline-grid">
-                  <el-form-item label="标题（中文）">
-                    <el-input v-model="item.title.zh" placeholder="前端入门" />
-                  </el-form-item>
-                  <el-form-item label="Title (EN)">
-                    <el-input v-model="item.title.en" placeholder="Frontend Foundation" />
-                  </el-form-item>
-                </div>
-
-                <el-form-item label="描述（中文）">
-                  <el-input v-model="item.desc.zh" type="textarea" :rows="3" placeholder="时间线说明" />
-                </el-form-item>
-
-                <el-form-item label="Description (EN)">
-                  <el-input v-model="item.desc.en" type="textarea" :rows="3" placeholder="Timeline description" />
-                </el-form-item>
-              </el-form>
-            </BaseCard>
-          </div>
-
-          <BaseCard v-else>
-            <el-empty description="暂无时间线内容" />
-          </BaseCard>
-        </el-tab-pane>
-
-        <el-tab-pane label="项目" name="projects">
-          <div class="section-toolbar">
-            <p>项目内容会用于首页精选项目和项目页列表。</p>
-            <el-button type="primary" plain @click="addProject">新增项目</el-button>
-          </div>
-
-          <div v-if="form.projects.length" class="item-list">
-            <BaseCard v-for="(project, index) in form.projects" :key="project.id" class="item-card">
-              <template #header>
-                <div class="item-card-header">
-                  <span>项目 {{ index + 1 }}</span>
-                  <div class="item-card-actions">
-                    <el-button link :disabled="index === 0" @click="moveProject(index, -1)">上移</el-button>
-                    <el-button
-                      link
-                      :disabled="index === form.projects.length - 1"
-                      @click="moveProject(index, 1)"
-                    >
-                      下移
-                    </el-button>
-                    <el-button link type="danger" @click="removeProject(index)">删除</el-button>
-                  </div>
-                </div>
-              </template>
-
-              <el-form label-position="top">
-                <el-form-item label="标题">
-                  <el-input v-model="project.title" placeholder="PlankBevelen Blog" />
-                </el-form-item>
-
-                <el-form-item label="摘要">
-                  <el-input v-model="project.summary" placeholder="项目简述" />
-                </el-form-item>
-
-                <el-form-item label="描述">
-                  <el-input
-                    v-model="project.description"
-                    type="textarea"
-                    :rows="4"
-                    placeholder="项目详细说明"
-                  />
-                </el-form-item>
-
-                <div class="inline-grid">
-                  <el-form-item label="周期">
-                    <el-input v-model="project.period" placeholder="2025 - Present" />
-                  </el-form-item>
-                  <el-form-item label="状态">
-                    <el-input v-model="project.status" placeholder="In progress" />
-                  </el-form-item>
-                </div>
-
-                <div class="inline-grid">
-                  <el-form-item label="Repo URL">
-                    <el-input v-model="project.links.repoUrl" placeholder="https://github.com/..." />
-                  </el-form-item>
-                  <el-form-item label="Demo URL">
-                    <el-input v-model="project.links.demoUrl" placeholder="https://..." />
-                  </el-form-item>
-                </div>
-
-                <div class="inline-grid">
-                  <el-form-item label="主题色">
-                    <el-input v-model="project.accentColor" placeholder="#0f766e" />
-                  </el-form-item>
-                  <el-form-item label="排序">
-                    <el-input-number v-model="project.sort" :min="1" :max="999" />
-                  </el-form-item>
-                </div>
-
-                <el-form-item label="标签">
-                  <el-select
-                    v-model="project.tags"
-                    multiple
-                    filterable
-                    allow-create
-                    default-first-option
-                    :reserve-keyword="false"
-                    style="width: 100%"
-                    placeholder="输入后回车添加"
-                  >
-                    <el-option
-                      v-for="option in allTagOptions"
-                      :key="option.value"
-                      :label="option.label"
-                      :value="option.value"
-                    />
-                  </el-select>
-                </el-form-item>
-
-                <el-form-item label="亮点">
-                  <el-input
-                    :model-value="project.highlights.join('\n')"
-                    type="textarea"
-                    :rows="5"
-                    placeholder="每行一条亮点"
-                    @update:model-value="updateHighlights(project, $event)"
-                  />
-                </el-form-item>
-              </el-form>
-            </BaseCard>
-          </div>
-
-          <BaseCard v-else>
-            <el-empty description="暂无项目内容" />
-          </BaseCard>
-        </el-tab-pane>
-      </el-tabs>
+        <BaseCard v-else>
+          <el-empty description="暂无项目内容" />
+        </BaseCard>
+      </section>
     </div>
   </div>
 </template>
@@ -222,26 +212,12 @@ import { formatDateTime } from '@/utils/format'
 
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
-const activeTab = ref<'pages' | 'timeline' | 'projects'>('pages')
 const loading = ref(false)
 const saving = ref(false)
-const selectedPageIntro = ref<'about' | 'timeline' | 'project'>('about')
-
-const pageIntroOptions = [
-  { label: '关于导语', value: 'about' },
-  { label: '时间线导语', value: 'timeline' },
-  { label: '项目导语', value: 'project' }
-] as const
 
 const createLocalizedText = (): SiteLocalizedText => ({
   zh: '',
   en: ''
-})
-
-const createPages = () => ({
-  about: createLocalizedText(),
-  timeline: createLocalizedText(),
-  project: createLocalizedText()
 })
 
 const createTimelineItem = (index: number): SiteTimelineItem => ({
@@ -303,7 +279,10 @@ const normalizeTimelineItem = (item: Partial<SiteTimelineItem>, index: number): 
 
 const form = ref<SiteContent>({
   about: createLocalizedText(),
-  pages: createPages(),
+  pages: {
+    about: createLocalizedText(),
+    timeline: createLocalizedText()
+  },
   timeline: [],
   projects: [],
   updatedAt: null
@@ -321,8 +300,7 @@ const hydrateContent = (content: Partial<SiteContent> | null | undefined) => {
     about: normalizeLocalizedText(content?.about),
     pages: {
       about: normalizeLocalizedText(content?.pages?.about),
-      timeline: normalizeLocalizedText(content?.pages?.timeline),
-      project: normalizeLocalizedText(content?.pages?.project)
+      timeline: normalizeLocalizedText(content?.pages?.timeline)
     },
     timeline: timeline
       .sort((a, b) => a.sort - b.sort)
@@ -351,7 +329,7 @@ const allTagOptions = computed(() => {
 const summaryCards = computed(() => [
   {
     key: 'timeline',
-    label: '时间线卡片',
+    label: '时间线条目',
     value: form.value.timeline.length,
     desc: '前台时间线数量'
   },
@@ -360,12 +338,6 @@ const summaryCards = computed(() => [
     label: '项目数量',
     value: form.value.projects.length,
     desc: '项目列表条目'
-  },
-  {
-    key: 'pages',
-    label: '页面导语',
-    value: Object.values(form.value.pages).filter(item => item.zh.trim() || item.en.trim()).length,
-    desc: '已配置页面文案'
   }
 ])
 
@@ -412,7 +384,6 @@ const removeTimeline = (index: number) => {
 const moveTimeline = (index: number, step: number) => {
   const targetIndex = index + step
   if (targetIndex < 0 || targetIndex >= form.value.timeline.length) return
-
   const next = [...form.value.timeline]
   const [current] = next.splice(index, 1)
   next.splice(targetIndex, 0, current)
@@ -433,7 +404,6 @@ const removeProject = (index: number) => {
 const moveProject = (index: number, step: number) => {
   const targetIndex = index + step
   if (targetIndex < 0 || targetIndex >= form.value.projects.length) return
-
   const next = [...form.value.projects]
   const [current] = next.splice(index, 1)
   next.splice(targetIndex, 0, current)
@@ -449,21 +419,18 @@ const updateHighlights = (project: SiteProject, value: string) => {
 }
 
 const onSave = async () => {
-
   const hasInvalidTimeline = form.value.timeline.some(item => {
     const title = `${item.title.zh || ''}${item.title.en || ''}`.trim()
     return !item.year.trim() || !title
   })
   if (hasInvalidTimeline) {
     ElMessage.warning('时间线需要填写年份和至少一个标题')
-    activeTab.value = 'timeline'
     return
   }
 
   const hasUntitledProject = form.value.projects.some(project => !project.title.trim())
   if (hasUntitledProject) {
     ElMessage.warning('项目标题不能为空')
-    activeTab.value = 'projects'
     return
   }
 
@@ -482,10 +449,6 @@ const onSave = async () => {
         timeline: {
           zh: form.value.pages.timeline.zh,
           en: form.value.pages.timeline.en
-        },
-        project: {
-          zh: form.value.pages.project.zh,
-          en: form.value.pages.project.en
         }
       },
       timeline: form.value.timeline.map((item, index) => normalizeTimelineItem(item, index)),
@@ -513,21 +476,45 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
+.section {
+  margin-top: 32px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.section-title {
+  margin: 0;
+  font-size: @font-size-xl;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.section-desc {
+  margin: 6px 0 0;
+  font-size: @font-size-sm;
+  color: var(--tertiary-color);
+}
+
+.editor-label {
+  font-size: @font-size-sm;
+  color: var(--secondary-color);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
 .editor-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 
-.page-intro-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.page-editor-list,
 .item-list {
   display: flex;
   flex-direction: column;
@@ -551,19 +538,6 @@ onMounted(() => {
   gap: 8px;
 }
 
-.section-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
-
-  p {
-    margin: 0;
-    color: var(--secondary-color);
-  }
-}
-
 .inline-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -571,10 +545,6 @@ onMounted(() => {
 }
 
 .content-editor {
-  height: 640px;
-}
-
-.content-editor-sm {
   height: 420px;
 }
 
@@ -586,15 +556,10 @@ onMounted(() => {
 }
 
 @media (max-width: 960px) {
-  .content-hero,
-  .section-toolbar,
+  .section-head,
   .item-card-header {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .content-actions {
-    justify-content: flex-start;
   }
 }
 </style>

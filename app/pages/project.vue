@@ -1,7 +1,7 @@
 <template>
   <div class="project-page">
     <div class="container">
-      <LayoutThreeColumn :loading="pending || contentPending">
+      <LayoutTwoColumn :loading="pending || contentPending">
         <template #left>
           <WidgetBlogger
             :articleCount="stats?.articles || 0"
@@ -11,11 +11,9 @@
           <WidgetRecordLink />
         </template>
 
-        <template #middle>
-          <WidgetPageIntro :title="pageTitle" :content="projectIntro" />
-
-          <div v-if="projects.length" class="project-list">
-            <BaseCard v-for="project in projects" :key="project.id" class="project-card">
+        <template #right>
+          <div v-if="projects.length" class="space-y-3">
+            <BaseCard v-for="project in projects" :key="project.id">
               <div class="project-top">
                 <div class="project-title-wrap">
                   <h2>{{ project.title }}</h2>
@@ -59,11 +57,7 @@
           </BaseCard>
         </template>
 
-        <template #right>
-          <WidgetCategory :categories="data?.categories" />
-          <WidgetTag :tags="data?.tags" />
-        </template>
-      </LayoutThreeColumn>
+      </LayoutTwoColumn>
     </div>
   </div>
 </template>
@@ -72,15 +66,11 @@
 import { computed } from 'vue'
 import { useSidebarData } from '@/composables/useSidebarData'
 import { useSiteContent } from '@/composables/useSiteContent'
-import { resolveLocalizedText } from '@/utils/localized-text'
 
 const { locale } = useI18n()
 const { data, pending } = await useSidebarData()
 const stats = computed(() => data.value?.stats || null)
 const { data: contentData, pending: contentPending } = await useSiteContent()
-
-const pageTitle = computed(() => (locale.value === 'en' ? 'Projects' : '项目'))
-const projectIntro = computed(() => resolveLocalizedText(contentData.value?.pages?.project, locale.value))
 
 const projects = computed(() =>
   [...(contentData.value?.projects || [])].sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0))
@@ -113,11 +103,6 @@ usePageSeo({
   display: flex;
   flex-direction: column;
   gap: 20px;
-}
-
-.project-card {
-  overflow: hidden;
-  border-radius: 12px;
 }
 
 .project-top {

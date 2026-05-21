@@ -10,6 +10,7 @@
             :categoryCount="homeData.stats?.categories"
             :tagCount="homeData.stats?.tags"
           />
+          <WidgetRecordLink />
         </template>
 
         <template #right>

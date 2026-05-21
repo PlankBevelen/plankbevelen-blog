@@ -1,7 +1,6 @@
 <template>
   <BaseCard class="page-intro">
     <div class="header">
-      <p class="kicker">Page Intro</p>
       <h1 class="title">{{ props.title }}</h1>
     </div>
     <Suspense v-if="props.content">
@@ -63,7 +62,7 @@ const AsyncMdPreview = defineAsyncComponent(() => {
 }
 
 .title {
-  margin: 0;
+  margin: 12px 0 0 0;
   font-size: @font-size-xxl;
   font-weight: 600;
   color: var(--text-color);

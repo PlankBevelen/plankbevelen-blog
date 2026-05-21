@@ -1,7 +1,7 @@
 <template>
   <div class="timeline-page">
     <div class="container">
-      <LayoutThreeColumn :loading="pending || contentPending">
+      <LayoutTwoColumn :loading="pending">
         <template #left>
           <WidgetBlogger
             :articleCount="stats?.articles || 0"
@@ -11,16 +11,10 @@
           <WidgetRecordLink />
         </template>
 
-        <template #middle>
-          <WidgetPageIntro :title="pageTitle" :content="timelineIntro" />
+        <template #right>
           <WidgetTimeline :timeline="growthTimeline" />
         </template>
-
-        <template #right>
-          <WidgetCategory :categories="data?.categories" />
-          <WidgetTag :tags="data?.tags" />
-        </template>
-      </LayoutThreeColumn>
+      </LayoutTwoColumn>
     </div>
   </div>
 </template>
@@ -29,17 +23,11 @@
 import { computed } from 'vue'
 import { useSidebarData } from '@/composables/useSidebarData'
 import { useGrowthTimeline } from '@/composables/useGrowthTimeline'
-import { useSiteContent } from '@/composables/useSiteContent'
-import { resolveLocalizedText } from '@/utils/localized-text'
 
 const { locale } = useI18n()
 const { data, pending } = await useSidebarData()
 const stats = computed(() => data.value?.stats || null)
 const { growthTimeline } = useGrowthTimeline()
-const { data: contentData, pending: contentPending } = await useSiteContent()
-
-const pageTitle = computed(() => (locale.value === 'en' ? 'Timeline' : '时间线'))
-const timelineIntro = computed(() => resolveLocalizedText(contentData.value?.pages?.timeline, locale.value))
 
 usePageSeo({
   title: () => (locale.value === 'en' ? 'Timeline' : '时间线'),

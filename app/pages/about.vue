@@ -1,7 +1,7 @@
 <template>
   <div class="about">
     <div class="container">
-      <LayoutThreeColumn :loading="pending || contentPending">
+      <LayoutTwoColumn :loading="pending || contentPending">
         <template #left>
           <WidgetBlogger
             :articleCount="stats?.articles || 0"
@@ -11,18 +11,12 @@
           <WidgetRecordLink />
         </template>
 
-        <template #middle>
+        <template #right>
           <WidgetPageIntro :title="$t('pages.about.title')" :content="aboutIntro" />
-          <!-- <WidgetAboutContent :aboutMd="aboutMd" /> -->
           <WidgetContact />
           <WidgetTimeline :timeline="growthTimeline" compact clickableCard />
         </template>
-
-        <template #right>
-          <WidgetCategory :categories="data?.categories" />
-          <WidgetTag :tags="data?.tags" />
-        </template>
-      </LayoutThreeColumn>
+      </LayoutTwoColumn>
     </div>
   </div>
 </template>
@@ -41,9 +35,6 @@ const stats = computed(() => data.value?.stats || null)
 const { growthTimeline } = useGrowthTimeline()
 const { data: contentData, pending: contentPending } = await useSiteContent()
 
-const aboutMd = computed(() => {
-  return resolveLocalizedText(contentData.value?.about, locale.value)
-})
 
 const aboutIntro = computed(() => {
   return resolveLocalizedText(contentData.value?.pages?.about, locale.value)
