@@ -17,7 +17,6 @@
             </template>
           </el-skeleton>
         </div>
-        <!-- v-show 保证组件始终挂载，onMounted 正常触发，数据请求和骨架屏并行 -->
         <div v-show="!loading" class="slot-wrapper">
           <slot name="left"></slot>
         </div>
