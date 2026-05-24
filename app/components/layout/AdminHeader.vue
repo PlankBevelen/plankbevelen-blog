@@ -2,10 +2,8 @@
   <header class="admin-header">
     <div class="header-left">
       <el-button class="toggle-btn" text @click="$emit('toggle')">
-        <el-icon :size="18">
-          <Expand v-if="collapsed" />
-          <Fold v-else />
-        </el-icon>
+        <nuxt-icon name="admin/header/expand" class="header-icon" v-if="collapsed" />
+        <nuxt-icon name="admin/header/fold" class="header-icon" v-else />
       </el-button>
 
       <div class="title-group">
@@ -22,15 +20,15 @@
     <div class="header-right">
       <el-tooltip content="访问前台" placement="bottom">
         <el-button text @click="openFrontend">
-          <el-icon :size="18"><Link /></el-icon>
+          <nuxt-icon name="admin/header/link" class="header-icon" />
         </el-button>
       </el-tooltip>
 
       <el-tooltip :content="isDark ? '切换浅色主题' : '切换深色主题'" placement="bottom">
         <el-button text @click="toggleTheme">
           <el-icon :size="18">
-            <Sunny v-if="isDark" />
-            <Moon v-else />
+            <nuxt-icon name="header/sun" class="header-icon" v-if="isDark" />
+            <nuxt-icon name="header/moon" class="header-icon" v-else />
           </el-icon>
         </el-button>
       </el-tooltip>
@@ -57,7 +55,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Expand, Fold, Link, Moon, Sunny } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 import { useAdminStore } from '@/stores/admin.store'
 
@@ -208,6 +205,10 @@ const onCommand = async (cmd: string) => {
   font-size: @font-size-sm;
   color: var(--text-color);
   font-weight: 500;
+}
+
+.header-icon {
+  font-size: @base-font-size;
 }
 
 :deep(.danger-item) {

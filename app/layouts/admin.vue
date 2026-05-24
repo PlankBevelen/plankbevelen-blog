@@ -24,7 +24,6 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-
 const isLoginPage = computed(() => route.path === '/admin/login')
 const isCollapsed = ref(false)
 
@@ -33,10 +32,13 @@ const navTitleMap: Record<string, string> = {
   '/admin/content/article': '文章管理',
   '/admin/content/article/edit': '编辑文章',
   '/admin/content/category': '分类管理',
-  '/admin/content/statistics': '数据统计',
+  '/admin/content/notes': '笔记管理',
+  '/admin/content/notes/edit': '编辑笔记',
+  '/admin/content/note-category': '笔记分类',
+  '/admin/content/statistics': '统计分析',
   '/admin/site/content': '站点内容',
-  '/admin/site/info': '网站信息',
-  '/admin/site/data': '网站数据',
+  '/admin/site/info': '站点信息',
+  '/admin/site/data': '站点数据',
   '/admin/site/logs': '访问日志'
 }
 

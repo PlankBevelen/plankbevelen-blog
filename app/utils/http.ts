@@ -10,12 +10,28 @@ class Http {
   private async request<T>(url: string, options: any = {}): Promise<T> {
     const { getToken } = useAuthentication()
     const token = getToken()
+    const method = String(options.method || 'GET').toUpperCase()
 
     const headers = {
       ...(options.headers || {}),
     }
 
-    if (url.includes('/admin') && token) {
+    const protectedMutationPaths = [
+      '/article',
+      '/category',
+      '/note',
+      '/note-category',
+      '/tag/sync',
+      '/upload',
+    ]
+    const shouldAttachToken = url.includes('/admin')
+      || (
+        method !== 'GET'
+        && method !== 'HEAD'
+        && protectedMutationPaths.some((prefix) => url === prefix || url.startsWith(`${prefix}/`))
+      )
+
+    if (shouldAttachToken && token) {
       headers.token = token
     }
 
@@ -24,10 +40,10 @@ class Http {
         baseURL: this.baseURL,
         ...options,
         headers,
-        onResponse({ response }) {
+        onResponse() {
 
         },
-        onResponseError({ response }) {
+        onResponseError({ response }: any) {
           if (response.status === 401) {
             // 处理未授权，例如跳转登录
           }

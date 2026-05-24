@@ -27,8 +27,28 @@ export type ArticleDoc = {
   deletedAt?: Date | null
 }
 
+export type NoteDoc = {
+  id: number
+  title: string
+  categoryId: string
+  chapter: string
+  chapterOrder?: number
+  content: string
+  createdAt: Date
+  updatedAt: Date
+  deletedAt?: Date | null
+}
+
 export type CategoryDoc = {
   id: number
+  name: string
+  count: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+export type NoteCategoryDoc = {
+  id: string
   name: string
   count: number
   createdAt: Date
@@ -100,7 +120,9 @@ export function getCollections(dbInstance?: Db) {
   const d = dbInstance || getDb()
   return {
     articles: d.collection<ArticleDoc>('articles'),
+    notes: d.collection<NoteDoc>('notes'),
     categories: d.collection<CategoryDoc>('categories'),
+    noteCategories: d.collection<NoteCategoryDoc>('note_categories'),
     tags: d.collection<TagDoc>('tags'),
     counters: d.collection<CounterDoc>('counters'),
     siteConfigs: d.collection<SiteConfigDoc>('site_configs'),
@@ -109,14 +131,21 @@ export function getCollections(dbInstance?: Db) {
 }
 
 async function ensureIndexes(dbInstance: Db) {
-  const { articles, categories, tags, siteConfigs, visitLogs } = getCollections(dbInstance)
+  const { articles, notes, categories, noteCategories, tags, siteConfigs, visitLogs } = getCollections(dbInstance)
   await Promise.all([
     articles.createIndex({ id: 1 }, { unique: true, name: 'uniq_id' }),
     articles.createIndex({ deletedAt: 1, createdAt: -1, id: -1 }, { name: 'by_created' }),
     articles.createIndex({ deletedAt: 1, updatedAt: -1, createdAt: -1, id: -1 }, { name: 'by_updated' }),
     articles.createIndex({ categoryId: 1 }, { name: 'by_category' }),
     articles.createIndex({ title: 'text', tags: 'text' }, { name: 'text_title_tags' }),
+    notes.createIndex({ id: 1 }, { unique: true, name: 'uniq_id' }),
+    notes.createIndex({ deletedAt: 1, createdAt: -1, id: -1 }, { name: 'by_created' }),
+    notes.createIndex({ deletedAt: 1, updatedAt: -1, createdAt: -1, id: -1 }, { name: 'by_updated' }),
+    notes.createIndex({ categoryId: 1 }, { name: 'by_category' }),
+    notes.createIndex({ title: 'text', tags: 'text' }, { name: 'text_title_tags' }),
     categories.createIndex({ id: 1 }, { unique: true, name: 'uniq_id' }),
+    noteCategories.createIndex({ id: 1 }, { unique: true, name: 'uniq_id' }),
+    noteCategories.createIndex({ name: 1 }, { unique: true, name: 'uniq_name' }),
     tags.createIndex({ name: 1 }, { unique: true, name: 'uniq_name' }),
     siteConfigs.createIndex({ type: 1 }, { name: 'by_type' }),
     visitLogs.createIndex({ requestId: 1 }, { unique: true, name: 'uniq_request_id' }),

@@ -117,14 +117,14 @@ body {
 :deep(.md-editor-preview) {
     font-size: @font-size-md;
     content-visibility: auto;
-    contain-intrinsic-size: 1000px; 
+    contain-intrinsic-size: 1000px;
 
     --md-theme-color: var(--text-color);
 
     > *:first-child {
         margin-top: 12px;
     }
-    code {        
+    code {
         & > * {
             font-size: @font-size-sm;
             letter-spacing: 0.05em;
@@ -135,4 +135,8 @@ body {
             margin: 0 4px;
         }
     }
+}
+
+.nuxt-icon svg {
+    margin: 0 !important;
 }

@@ -30,7 +30,7 @@ const tocItems = computed<TocItem[]>(() => {
   const items: TocItem[] = []
   for (const line of lines) {
     const m = line.match(/^(#{1,6})\s+(.+)/)
-    if (m) items.push({ level: m[1].length, title: m[2].trim() })
+    if (m?.[1] && m?.[2]) items.push({ level: m[1].length, title: m[2].trim() })
   }
   return items.slice(0, 100)
 })

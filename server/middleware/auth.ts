@@ -4,10 +4,22 @@ import jwt from 'jsonwebtoken'
 export default defineEventHandler((event) => {
   const url = new URL(event.node.req.url || '/', 'http://localhost')
   const path = url.pathname
+  const method = event.node.req.method || 'GET'
 
   // 拦截需要 admin 权限的 API
-  const isProtectedAPI = path.startsWith('/api/admin') && 
-                         path !== '/api/admin/login'
+  const protectedMutationRoutes = [
+    '/api/article',
+    '/api/category',
+    '/api/note',
+    '/api/note-category',
+    '/api/tag/sync',
+    '/api/upload'
+  ]
+  const isAdminAPI = path.startsWith('/api/admin') && path !== '/api/admin/login'
+  const isProtectedMutation = method !== 'GET'
+    && method !== 'HEAD'
+    && protectedMutationRoutes.some((prefix) => path === prefix || path.startsWith(`${prefix}/`))
+  const isProtectedAPI = isAdminAPI || isProtectedMutation
 
   if (!isProtectedAPI) {
     return

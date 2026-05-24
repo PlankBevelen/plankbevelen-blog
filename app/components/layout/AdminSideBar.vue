@@ -4,7 +4,7 @@
       <img src="/img/logo.webp" alt="logo" class="logo-img" width="32" height="32" />
       <div v-show="!isCollapsed" class="logo-copy">
         <span class="logo-text">PlankBevelen</span>
-        <span class="logo-subtitle">管理后台</span>
+        <span class="logo-subtitle">Admin Console</span>
       </div>
     </div>
 
@@ -16,39 +16,45 @@
       :default-openeds="['2', '3']"
     >
       <el-menu-item index="1" @click="navigateTo('/admin')">
-        <el-icon><Odometer /></el-icon>
+        <nuxt-icon name="admin/sidebar/odometer" class="sidebar-icon" />
         <template #title>控制台</template>
       </el-menu-item>
 
       <el-sub-menu index="2">
         <template #title>
-          <el-icon><Files /></el-icon>
+          <nuxt-icon name="admin/sidebar/files" class="sidebar-icon" />
           <span>内容管理</span>
         </template>
         <el-menu-item index="2-1" @click="navigateTo('/admin/content/article')">
           文章管理
         </el-menu-item>
         <el-menu-item index="2-2" @click="navigateTo('/admin/content/category')">
-          分类管理
+          文章分类
         </el-menu-item>
-        <el-menu-item index="2-3" @click="navigateTo('/admin/content/statistics')">
-          数据统计
+        <el-menu-item index="2-3" @click="navigateTo('/admin/content/notes')">
+          笔记管理
+        </el-menu-item>
+        <el-menu-item index="2-4" @click="navigateTo('/admin/content/note-category')">
+          笔记分类
+        </el-menu-item>
+        <el-menu-item index="2-5" @click="navigateTo('/admin/content/statistics')">
+          统计分析
         </el-menu-item>
       </el-sub-menu>
 
       <el-sub-menu index="3">
         <template #title>
-          <el-icon><Monitor /></el-icon>
-          <span>网站管理</span>
+          <nuxt-icon name="admin/sidebar/monitor" class="sidebar-icon" />
+          <span>站点管理</span>
         </template>
         <el-menu-item index="3-0" @click="navigateTo('/admin/site/content')">
           站点内容
         </el-menu-item>
         <el-menu-item index="3-1" @click="navigateTo('/admin/site/info')">
-          网站信息
+          站点信息
         </el-menu-item>
         <el-menu-item index="3-2" @click="navigateTo('/admin/site/data')">
-          网站数据
+          站点数据
         </el-menu-item>
         <el-menu-item index="3-3" @click="navigateTo('/admin/site/logs')">
           访问日志
@@ -59,11 +65,11 @@
     <div class="sidebar-footer">
       <el-tooltip v-if="isCollapsed" content="退出登录" placement="right">
         <el-button link class="logout-icon-btn" @click="onLogout">
-          <el-icon><SwitchButton /></el-icon>
+          <nuxt-icon name="admin/switch" class="sidebar-icon" />
         </el-button>
       </el-tooltip>
       <el-button v-else link class="logout-btn" @click="onLogout">
-        <el-icon><SwitchButton /></el-icon>
+        <nuxt-icon name="admin/switch" class="sidebar-icon" />
         退出登录
       </el-button>
     </div>
@@ -73,7 +79,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { Files, Monitor, Odometer, SwitchButton } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 import { useAdminStore } from '@/stores/admin.store'
 
@@ -87,7 +92,9 @@ const activeIndex = computed(() => {
   if (path === '/admin' || path === '/admin/') return '1'
   if (path.startsWith('/admin/content/article')) return '2-1'
   if (path.startsWith('/admin/content/category')) return '2-2'
-  if (path.startsWith('/admin/content/statistics')) return '2-3'
+  if (path.startsWith('/admin/content/notes')) return '2-3'
+  if (path.startsWith('/admin/content/note-category')) return '2-4'
+  if (path.startsWith('/admin/content/statistics')) return '2-5'
   if (path.startsWith('/admin/site/content')) return '3-0'
   if (path.startsWith('/admin/site/info')) return '3-1'
   if (path.startsWith('/admin/site/data')) return '3-2'
@@ -131,6 +138,11 @@ const onLogout = async () => {
     width: @sidebar-collapsed-width;
     min-width: @sidebar-collapsed-width;
   }
+}
+
+.sidebar-icon {
+  margin: 0 8px 0 0;
+  font-size: @base-font-size;
 }
 
 .sidebar-logo {
