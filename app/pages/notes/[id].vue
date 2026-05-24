@@ -23,34 +23,19 @@
     </div>
 
     <template v-else-if="noteData">
-      <LayoutThreeColumn class="note-shell">
+      <LayoutThreeColumn class="note-content-layout">
         <template #left>
-          <aside class="left-rail">
-            <BaseCard class="rail-card">
-              <LayoutNoteSidebar
-                :nav-groups="noteData.navGroups"
-                :active-id="noteData.article.id"
-                @select="onSelectNote"
-              />
-            </BaseCard>
-          </aside>
+          <BaseCard class="left-rail w-full">
+            <LayoutNoteSidebar
+              :nav-groups="noteData.navGroups"
+              :active-id="noteData.article.id"
+              @select="onSelectNote"
+            />
+          </BaseCard>
         </template>
 
         <template #middle>
-          <LayoutNoteContent class="center-content">
-          <article class="space-y-3">
-            <BaseCard class="hero-card">
-              <h1 class="hero-title">{{ noteData.article.title }}</h1>
-              <p class="hero-summary">
-                {{ introText }}
-              </p>
-              <div class="hero-info">
-                <span>分类：{{ noteData.article.categoryName }}</span>
-                <span>章节：{{ noteData.article.chapter }}</span>
-                <span>更新于：{{ timeText }}</span>
-                <span>本分类 {{ noteData.siblingNotes.length }} 篇</span>
-              </div>
-            </BaseCard>
+          <LayoutNoteContent class="w-full">
             <BaseCard class="content-card">
               <Suspense>
                 <template #default>
@@ -66,14 +51,11 @@
                 </template>
               </Suspense>
             </BaseCard>
-          </article>
           </LayoutNoteContent>
         </template>
 
         <template #right>
-          <aside class="right-rail">
-            <ArticleToc :content="noteData.article.content" />
-          </aside>
+          <ArticleToc :content="noteData.article.content" class="right-rail w-full" />
         </template>
       </LayoutThreeColumn>
     </template>
@@ -114,7 +96,6 @@ import { createError, navigateTo, useAsyncData } from 'nuxt/app'
 import { useRoute } from 'vue-router'
 import { useAdminStore } from '@/stores/admin.store'
 import { extractSummary, SITE_URL, usePageSeo } from '@/composables/useSeo'
-import { formatDateTime } from '@/utils/format'
 import noteService from '@/services/note.service'
 
 definePageMeta({
@@ -195,10 +176,6 @@ const introText = computed(() => {
   const summary = extractSummary(noteData.value?.article.content || '', 120)
   return summary || '这是该分类下默认展示的第一篇笔记，适合作为查阅入口。'
 })
-const timeText = computed(() =>
-  formatDateTime(noteData.value?.article.updateTime || noteData.value?.article.createTime || '')
-)
-
 watch(
   () => route.fullPath,
   () => {
@@ -236,10 +213,7 @@ useHead(() => ({
 </script>
 
 <style lang="less" scoped>
-.note-detail-page {
-  min-height: 100vh;
-  padding-bottom: 48px;
-}
+
 
 .note-topbar {
   display: flex;
@@ -287,134 +261,23 @@ useHead(() => ({
   font-size: @font-size-xs;
 }
 
-.note-shell {
+.note-content-layout {
   :deep(.content) {
-    grid-template-columns: 280px minmax(0, 1fr) 250px !important;
-    gap: 24px !important;
-    align-items: start;
-  }
-
-  :deep(.left .slot-wrapper > *),
-  :deep(.middle .slot-wrapper > *),
-  :deep(.right .slot-wrapper > *) {
-    animation: none;
+    grid-template-columns: 260px minmax(0, 1fr) 220px;
+    gap: 20px;
   }
 }
 
 .left-rail,
 .right-rail {
   position: sticky;
-  top: calc(@header-height + 20px);
-}
-
-.rail-card {
-  overflow: hidden;
-
-  :deep(.card-content) {
-    padding: 0;
-  }
-}
-
-.center-content {
-  width: 100%;
-}
-
-
-.hero-card {
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--primary-color) 7%, transparent), transparent 40%),
-    color-mix(in srgb, var(--card-color) 86%, white 14%);
-  padding: 12px;
-}
-
-.separator {
-  opacity: 0.6;
-}
-
-.hero-title {
-  font-size: 42px;
-  line-height: 1.18;
-  color: var(--text-color);
-}
-
-.hero-summary {
-  margin-top: 12px;
-  max-width: 68ch;
-  font-size: @font-size-md;
-  line-height: 1.9;
-  color: var(--secondary-color);
-}
-
-.hero-info {
-  margin-top: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 18px;
-  color: var(--secondary-color);
-  font-size: @font-size-sm;
+  top: calc(@header-height + 12px);
+  align-self: flex-start;
+  z-index: 2;
 }
 
 .content-card {
-  // padding: 24px 32px 30px;
   padding: 12px;
-  :deep(.md-editor-preview) {
-    background: transparent;
-  }
-
-  :deep(.md-editor-preview h1),
-  :deep(.md-editor-preview h2),
-  :deep(.md-editor-preview h3) {
-    scroll-margin-top: calc(@header-height + 28px);
-  }
-}
-
-.toc-title,
-.group-title {
-  padding: 0 20px 14px;
-  font-size: @font-size-md;
-  color: var(--text-color);
-}
-
-.toc-panel {
-  :deep(.toc-card) {
-    position: static;
-    top: auto;
-    max-height: none;
-    border: none;
-    box-shadow: none;
-    background: transparent;
-  }
-
-  :deep(.card-header) {
-    display: none;
-  }
-
-  :deep(.card-content) {
-    padding: 0 14px 0 20px;
-  }
-}
-
-.group-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 0 14px 0 20px;
-}
-
-.group-link {
-  display: block;
-  padding: 9px 10px;
-  border-radius: @small-border-radius;
-  text-decoration: none;
-  color: var(--secondary-color);
-  font-size: @font-size-sm;
-  line-height: 1.5;
-
-  &:hover,
-  &.active {
-    background: color-mix(in srgb, var(--primary-color) 9%, transparent);
-    color: var(--primary-color);
-  }
 }
 
 .note-loading,
@@ -424,8 +287,8 @@ useHead(() => ({
 
 .skeleton-layout {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr) 250px;
-  gap: 24px;
+  grid-template-columns: 260px minmax(0, 1fr) 220px;
+  gap: 20px;
 }
 
 .skeleton-block {
@@ -487,62 +350,4 @@ useHead(() => ({
   }
 }
 
-.drawer-fade-enter-active,
-.drawer-fade-leave-active {
-  transition: opacity 0.25s ease;
-}
-
-.drawer-fade-enter-from,
-.drawer-fade-leave-to {
-  opacity: 0;
-}
-
-@media (max-width: 1200px) {
-  .note-shell :deep(.content),
-  .skeleton-layout {
-    grid-template-columns: 260px minmax(0, 1fr) !important;
-  }
-
-  .note-shell :deep(.right),
-  .right-rail,
-  .skeleton-block.toc {
-    display: none;
-  }
-}
-
-@media (max-width: 960px) {
-  .note-topbar {
-    padding-top: 18px;
-  }
-
-  .note-shell :deep(.content),
-  .skeleton-layout {
-    grid-template-columns: 1fr !important;
-  }
-
-  .note-shell :deep(.left),
-  .left-rail,
-  .skeleton-block.sidebar {
-    display: none;
-  }
-
-  .mobile-nav-trigger {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .hero-card {
-    padding: 24px 20px;
-  }
-
-  .hero-title {
-    font-size: 30px;
-  }
-
-  .content-card {
-    padding: 18px 16px 24px;
-  }
-
-}
 </style>
