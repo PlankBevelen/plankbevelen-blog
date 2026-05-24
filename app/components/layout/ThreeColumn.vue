@@ -91,6 +91,8 @@ defineProps({
   grid-template-columns: 1fr 2fr 1fr;
   grid-gap: 20px;
   height: auto;
+  position: relative;
+  align-items: start;
 }
 
 .left,
@@ -100,6 +102,12 @@ defineProps({
   flex-direction: column;
   gap: @base-gap;
   min-width: 0;
+}
+
+.left, .right {
+  position: sticky;
+  top: var(--layout-sticky-top);
+  align-self: start;
 }
 
 .slot-wrapper {
@@ -125,12 +133,14 @@ defineProps({
     grid-template-columns: 1fr;
     .left {
       order: 1;
+      position: static;
     }
     .middle {
       order: 2;
     }
     .right {
       order: 3;
+      position: static;
     }
   }
 }

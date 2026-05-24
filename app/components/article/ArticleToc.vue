@@ -52,7 +52,7 @@ function onJump(item: TocItem) {
 <style scoped lang="less">
 .toc-card { 
   position: sticky; 
-  top: calc(@header-height + 20px); 
+  top: var(--layout-sticky-top); 
   max-height: calc((100vh - @header-height) / 2);  
   display: flex;
   flex-direction: column;

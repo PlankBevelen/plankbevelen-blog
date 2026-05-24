@@ -77,6 +77,7 @@ defineProps({
   display: grid;
   grid-gap: 20px;
   width: 100%;
+  align-items: start;
   &.leftbigger {
     grid-template-columns: 2fr 1fr;
   }
@@ -94,9 +95,42 @@ defineProps({
   gap: @base-gap;
   min-width: 0;
 }
+
+.content.rightbigger {
+  .left {
+    position: sticky;
+    top: var(--layout-sticky-top);
+    align-self: start;
+  }
+}
+
+.content.leftbigger {
+  .right {
+    position: sticky;
+    top: var(--layout-sticky-top);
+    align-self: start;
+  }
+}
+
+.content.equal {
+  .left,
+  .right {
+    position: static;
+  }
+}
 .slot-wrapper {
   display: flex;
   flex-direction: column;
   gap: @base-gap;
+}
+
+@media (max-width: 1024px) {
+  .content {
+    grid-template-columns: 1fr !important;
+    .left,
+    .right {
+      position: static !important;
+    }
+  }
 }
 </style>

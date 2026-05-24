@@ -1,5 +1,5 @@
 <template>
-  <div class="note-detail-page">
+  <div class="note-page">
     <div class="note-topbar">
       <div class="topbar-meta">
         <span class="meta-badge">{{ noteData?.article.categoryName }}</span>
@@ -36,7 +36,7 @@
 
         <template #middle>
           <LayoutNoteContent class="w-full">
-            <BaseCard class="content-card">
+            <BaseCard class="content-card p-[12px]">
               <Suspense>
                 <template #default>
                   <AsyncMdPreview
@@ -214,6 +214,10 @@ useHead(() => ({
 
 <style lang="less" scoped>
 
+.note-page {
+  min-height: 100vh - @header-height;
+  padding-bottom: 100px;
+}
 
 .note-topbar {
   display: flex;
@@ -262,22 +266,11 @@ useHead(() => ({
 }
 
 .note-content-layout {
+  position: relative;
   :deep(.content) {
     grid-template-columns: 260px minmax(0, 1fr) 220px;
     gap: 20px;
   }
-}
-
-.left-rail,
-.right-rail {
-  position: sticky;
-  top: calc(@header-height + 12px);
-  align-self: flex-start;
-  z-index: 2;
-}
-
-.content-card {
-  padding: 12px;
 }
 
 .note-loading,
