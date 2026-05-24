@@ -24,6 +24,9 @@
     "light": "浅色",
     "dark": "深色"
   },
+  "common": {
+    "close": "关闭"
+  },
   "lang": {
     "zh": "中文",
     "en": "English"
@@ -93,6 +96,26 @@
       "meta": {
         "description": "了解 PlankBevelen 的技术方向、项目实践与创作理念。",
         "keywords": "关于, 个人介绍, 技术博主, 开发者"
+      }
+    },
+    "notes": {
+      "title": "笔记",
+      "meta": {
+        "description": "按分类卡片浏览整理过的笔记内容。"
+      },
+      "empty": "暂时还没有笔记分类",
+      "countUnit": "{count} 篇",
+      "categorySummary": "{name} 分类下当前共有 {count} 篇笔记。",
+      "categoryEmpty": "{name} 分类已经创建，等待后续内容归档。",
+      "detail": {
+        "backToList": "返回笔记",
+        "navTrigger": "目录导航",
+        "mobileNav": "导航",
+        "notFound": "没有找到这篇笔记",
+        "defaultIntro": "这是该分类下默认展示的第一篇笔记，适合作为查阅入口。",
+        "title": "笔记",
+        "errorParam": "参数错误",
+        "errorNotFound": "笔记不存在"
       }
     }
   },

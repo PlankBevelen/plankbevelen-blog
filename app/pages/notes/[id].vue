@@ -4,10 +4,10 @@
       <div class="topbar-meta">
         <span class="meta-badge">{{ noteData?.article.categoryName }}</span>
         <button class="mobile-nav-trigger" @click="sidebarOpen = true">
-          目录导航
+          {{ $t('pages.notes.detail.navTrigger') }}
         </button>
       </div>
-      <NuxtLink :to="localePath('/notes')" class="back-link">返回笔记</NuxtLink>
+      <NuxtLink :to="localePath('/notes')" class="back-link">{{ $t('pages.notes.detail.backToList') }}</NuxtLink>
     </div>
 
     <div v-if="pending" class="note-loading">
@@ -62,7 +62,7 @@
 
     <div v-else class="container note-empty">
       <BaseCard>
-        <el-empty description="没有找到这篇笔记" />
+        <el-empty :description="$t('pages.notes.detail.notFound')" />
       </BaseCard>
     </div>
 
@@ -72,8 +72,8 @@
           <div v-if="sidebarOpen" class="mobile-sidebar-mask" @click="sidebarOpen = false">
             <div class="mobile-sidebar-panel" @click.stop>
               <div class="mobile-sidebar-header">
-                <span>导航</span>
-                <button class="close-btn" @click="sidebarOpen = false">关闭</button>
+                <span>{{ $t('pages.notes.detail.mobileNav') }}</span>
+                <button class="close-btn" @click="sidebarOpen = false">{{ $t('common.close') }}</button>
               </div>
               <BaseCard class="mobile-sidebar-card">
                 <LayoutNoteSidebar
@@ -143,6 +143,7 @@ const AsyncMdPreview = defineAsyncComponent(() => {
 })
 
 const admin = useAdminStore()
+const { t } = useI18n()
 const currentTheme = computed(() => admin.getTheme)
 const route = useRoute()
 const localePath = useLocalePath()
@@ -159,12 +160,12 @@ const { data, pending } = await useAsyncData(
   async () => {
     const rid = categoryId.value
     if (!rid) {
-      throw createError({ statusCode: 400, statusMessage: 'Bad Request', message: '参数错误' })
+      throw createError({ statusCode: 400, statusMessage: 'Bad Request', message: t('pages.notes.detail.errorParam') })
     }
     const res: any = await noteService.getNote(rid, noteId.value || undefined)
     if (res?.status === 200) return res.data as NoteDetailPayload
     if (res?.status === 404) {
-      throw createError({ statusCode: 404, statusMessage: 'Not Found', message: '笔记不存在' })
+      throw createError({ statusCode: 404, statusMessage: 'Not Found', message: t('pages.notes.detail.errorNotFound') })
     }
     return null
   },
@@ -174,7 +175,7 @@ const { data, pending } = await useAsyncData(
 const noteData = computed(() => data.value || null)
 const introText = computed(() => {
   const summary = extractSummary(noteData.value?.article.content || '', 120)
-  return summary || '这是该分类下默认展示的第一篇笔记，适合作为查阅入口。'
+  return summary || t('pages.notes.detail.defaultIntro')
 })
 watch(
   () => route.fullPath,
@@ -202,7 +203,7 @@ const canonicalUrl = computed(() => {
 })
 
 usePageSeo({
-  title: () => noteData.value?.article.title || '笔记',
+  title: () => noteData.value?.article.title || t('pages.notes.detail.title'),
   description: () => introText.value,
   keywords: () => [noteData.value?.article.categoryName || ''].filter(Boolean).join(',')
 })

@@ -24,6 +24,9 @@
     "light": "Light",
     "dark": "Dark"
   },
+  "common": {
+    "close": "Close"
+  },
   "lang": {
     "zh": "中文",
     "en": "English"
@@ -93,6 +96,26 @@
       "meta": {
         "description": "Learn more about PlankBevelen - A developer passionate about sharing knowledge and coding experiences",
         "keywords": "about, plankbevelen, plank, bevelen, PlankBevelen, developer introduction, tech blogger, programming background"
+      }
+    },
+    "notes": {
+      "title": "Notes",
+      "meta": {
+        "description": "Browse notes by category cards."
+      },
+      "empty": "No note categories yet.",
+      "countUnit": "{count} notes",
+      "categorySummary": "{name} contains {count} notes.",
+      "categoryEmpty": "{name} is ready for future notes.",
+      "detail": {
+        "backToList": "Back to Notes",
+        "navTrigger": "Table of Contents",
+        "mobileNav": "Navigation",
+        "notFound": "Note not found",
+        "defaultIntro": "This is the first note in this category.",
+        "title": "Notes",
+        "errorParam": "Invalid parameters",
+        "errorNotFound": "Note does not exist"
       }
     }
   },

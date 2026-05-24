@@ -21,7 +21,7 @@
             >
               <div class="note-card-top">
                 <h3 class="note-title">{{ item.name }}</h3>
-                <span class="note-count">{{ item.count || 0 }} 篇</span>
+                <span class="note-count">{{ $t('pages.notes.countUnit', { count: item.count || 0 }) }}</span>
               </div>
               <p class="note-summary">
                 {{ getCategorySummary(item) }}
@@ -35,7 +35,7 @@
           </div>
 
           <div v-if="!pending && !categories.length" class="notes-empty">
-            <el-empty :description="isEn ? 'No note categories yet.' : '暂时还没有笔记分类'" />
+            <el-empty :description="$t('pages.notes.empty')" />
           </div>
         </template>
       </LayoutTwoColumn>
@@ -49,8 +49,7 @@ import { formatDateTime } from '@/utils/format'
 import { useSidebarData } from '@/composables/useSidebarData'
 import noteService, { type NoteCategory } from '@/services/note.service'
 
-const { locale } = useI18n()
-const isEn = computed(() => locale.value === 'en')
+const { t } = useI18n()
 const localePath = useLocalePath()
 
 const { data: sidebarData } = await useSidebarData()
@@ -61,15 +60,8 @@ const pending = ref(false)
 
 function getCategorySummary(item: NoteCategory) {
   const count = Number(item.count || 0)
-  if (isEn.value) {
-    return count > 0
-      ? `${item.name} contains ${count} notes.`
-      : `${item.name} is ready for future notes.`
-  }
-
-  return count > 0
-    ? `${item.name} 分类下当前共有 ${count} 篇笔记。`
-    : `${item.name} 分类已经创建，等待后续内容归档。`
+  const key = count > 0 ? 'pages.notes.categorySummary' : 'pages.notes.categoryEmpty'
+  return t(key, { name: item.name, count })
 }
 
 async function loadData() {
@@ -93,11 +85,8 @@ function openCategory(id: string) {
 await loadData()
 
 usePageSeo({
-  title: () => (isEn.value ? 'Notes' : '笔记'),
-  description: () =>
-    isEn.value
-      ? 'Browse notes by category cards.'
-      : '按分类卡片浏览整理过的笔记内容。'
+  title: () => t('pages.notes.title'),
+  description: () => t('pages.notes.meta.description')
 })
 </script>
 
