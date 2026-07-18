@@ -25,14 +25,14 @@ pipeline {
           ).trim()
           branchName = branchName.replaceFirst(/^origin\//, '')
 
-          if (branchName == 'dev') {
+          if (branchName == 'test') {
             env.DEPLOY_ENV = 'test'
             env.HEALTH_URL = 'https://test.plankbevelen.cn/api/health'
           } else if (branchName == 'main') {
             env.DEPLOY_ENV = 'prod'
             env.HEALTH_URL = 'https://plankbevelen.cn/api/health'
           } else {
-            error("Branch '${branchName}' is not deployable. Use dev for test or main for production.")
+            error("Branch '${branchName}' is not deployable. Use test for test or main for production.")
           }
 
           env.GIT_COMMIT_SHORT = sh(script: 'git rev-parse --short=12 HEAD', returnStdout: true).trim()

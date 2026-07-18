@@ -14,7 +14,8 @@ This project deploys two environments to the same server:
 
 Branch mapping:
 
-- `dev` deploys to test.
+- `dev` is the development branch and does not deploy automatically.
+- `test` deploys to test.
 - `main` deploys to production.
 
 ## Server Bootstrap
