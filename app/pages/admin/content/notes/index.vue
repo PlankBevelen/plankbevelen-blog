@@ -219,8 +219,8 @@ const goView = (id: string) => {
     return
   }
   navigateTo({
-    path: `/notes/${row.categoryId}`,
-    query: { noteId: id }
+    path: `/notes/${id}`,
+    query: { category: row.categoryId }
   })
 }
 

@@ -78,8 +78,23 @@ async function loadData() {
   }
 }
 
-function openCategory(id: string) {
-  navigateTo(localePath(`/notes/${id}`))
+async function openCategory(id: string) {
+  const categoryId = String(id || '').trim()
+  if (!categoryId) return
+
+  const res: any = await noteService.getNote(categoryId)
+  if (res?.status === 200 && res.data?.article) {
+    const firstNoteId = String(res.data.article.id || '').trim()
+    if (firstNoteId) {
+      navigateTo({
+        path: localePath(`/notes/${firstNoteId}`),
+        query: { category: categoryId }
+      })
+      return
+    }
+  }
+
+  navigateTo(localePath(`/notes/${categoryId}`))
 }
 
 await loadData()

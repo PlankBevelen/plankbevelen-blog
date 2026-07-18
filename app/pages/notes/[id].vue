@@ -149,30 +149,61 @@ const route = useRoute()
 const localePath = useLocalePath()
 const sidebarOpen = ref(false)
 
-const categoryId = computed(() => String(route.params.id || ''))
-const noteId = computed(() => String(route.query.noteId || ''))
-if (!categoryId.value) {
+const pathNoteId = computed(() => String(route.params.id || '').trim())
+const categoryIdFromQuery = computed(() =>
+  String(route.query.category || route.query.categoryId || '').trim()
+)
+const legacyNoteId = computed(() => String(route.query.noteId || '').trim())
+
+if (!pathNoteId.value) {
   await navigateTo('/notes', { replace: true })
 }
 
+if (legacyNoteId.value && legacyNoteId.value !== pathNoteId.value) {
+  await navigateTo(
+    {
+      path: localePath(`/notes/${legacyNoteId.value}`),
+      query: categoryIdFromQuery.value ? { category: categoryIdFromQuery.value } : undefined
+    },
+    { replace: true }
+  )
+}
+
+const detailDataKey = computed(() => `note-detail:${pathNoteId.value}:${categoryIdFromQuery.value}`)
 const { data, pending } = await useAsyncData(
-  'note-detail',
+  detailDataKey,
   async () => {
-    const rid = categoryId.value
-    if (!rid) {
+    const routeParam = pathNoteId.value
+    if (!routeParam) {
       throw createError({ statusCode: 400, statusMessage: 'Bad Request', message: t('pages.notes.detail.errorParam') })
     }
-    const res: any = await noteService.getNote(rid, noteId.value || undefined)
-    if (res?.status === 200) return res.data as NoteDetailPayload
-    if (res?.status === 404) {
-      throw createError({ statusCode: 404, statusMessage: 'Not Found', message: t('pages.notes.detail.errorNotFound') })
+
+    const noteDetailRes: any = await noteService.getNoteDetail(routeParam)
+    if (noteDetailRes?.status === 200 && noteDetailRes?.data) {
+      const resolvedCategoryId = String(noteDetailRes.data.category || categoryIdFromQuery.value || '').trim()
+      if (!resolvedCategoryId) {
+        throw createError({ statusCode: 400, statusMessage: 'Bad Request', message: t('pages.notes.detail.errorParam') })
+      }
+
+      const res: any = await noteService.getNote(resolvedCategoryId, routeParam)
+      if (res?.status === 200) return res.data as NoteDetailPayload
+      if (res?.status === 404) {
+        throw createError({ statusCode: 404, statusMessage: 'Not Found', message: t('pages.notes.detail.errorNotFound') })
+      }
+      return null
     }
-    return null
+
+    const legacyCategoryRes: any = await noteService.getNote(routeParam)
+    if (legacyCategoryRes?.status === 200) {
+      return legacyCategoryRes.data as NoteDetailPayload
+    }
+    throw createError({ statusCode: 404, statusMessage: 'Not Found', message: t('pages.notes.detail.errorNotFound') })
   },
-  { watch: [categoryId, noteId] }
+  { watch: [pathNoteId, categoryIdFromQuery] }
 )
 
 const noteData = computed(() => data.value || null)
+const categoryId = computed(() => String(noteData.value?.article.category || categoryIdFromQuery.value || ''))
 const introText = computed(() => {
   const summary = extractSummary(noteData.value?.article.content || '', 120)
   return summary || t('pages.notes.detail.defaultIntro')
@@ -183,12 +214,28 @@ watch(
     sidebarOpen.value = false
   }
 )
+watch(
+  () => noteData.value?.article.id,
+  (id) => {
+    const normalizedId = String(id || '').trim()
+    if (!normalizedId || normalizedId === pathNoteId.value) return
+    const query = categoryId.value ? { category: categoryId.value } : undefined
+    navigateTo(
+      {
+        path: localePath(`/notes/${normalizedId}`),
+        query
+      },
+      { replace: true }
+    )
+  }
+)
 
 function onSelectNote(_groupId: string, itemId: string) {
   if (!itemId || itemId === noteData.value?.article.id) return
+  const query = categoryId.value ? { category: categoryId.value } : undefined
   navigateTo({
-    path: localePath(`/notes/${categoryId.value}`),
-    query: { noteId: itemId }
+    path: localePath(`/notes/${itemId}`),
+    query
   })
 }
 
@@ -198,8 +245,7 @@ function onSelectNoteFromDrawer(groupId: string, itemId: string) {
 }
 
 const canonicalUrl = computed(() => {
-  const suffix = noteId.value ? `?noteId=${noteId.value}` : ''
-  return `${SITE_URL}/notes/${categoryId.value}${suffix}`
+  return `${SITE_URL}/notes/${pathNoteId.value}`
 })
 
 usePageSeo({

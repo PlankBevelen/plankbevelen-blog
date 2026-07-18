@@ -5,10 +5,13 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "dev:local": "nuxt dev --dotenv .env.development --host 127.0.0.1 --port 3000",
+    "dev:host": "nuxt dev --dotenv .env.development --host 0.0.0.0 --port 3000",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "serve": "vite"
+    "serve": "vite",
+    "start": "node .output/server/index.mjs"
   },
   "dependencies": {
     "@nuxt/image": "^2.0.0",
@@ -43,7 +46,6 @@
     "sanitize-html": "^2.11.0",
     "sharp": "^0.34.5",
     "three": "^0.183.2",
-    "vite-plugin-compression": "^0.5.1",
     "vue": "^3.5.24",
     "vue-i18n": "^11.1.12",
     "vue-router": "^4.6.3"
@@ -57,27 +59,5 @@
     "postcss-pxtorem": "^6.1.0",
     "rollup-plugin-visualizer": "^7.0.1",
     "tailwindcss": "^3.4.19"
-  },
-  "pnpm": {
-    "overrides": {
-      "ipx": "^3.0.0"
-    },
-    "onlyBuiltDependencies": [
-      "sharp"
-    ],
-    "supportedArchitectures": {
-      "os": [
-        "linux",
-        "win32"
-      ],
-      "cpu": [
-        "x64",
-        "arm64"
-      ],
-      "libc": [
-        "glibc",
-        "musl"
-      ]
-    }
   }
 }
