@@ -2,7 +2,7 @@
 
 ## 分支规则
 
-- `dev`：开发分支，不自动部署。
+- `dev`：开发分支，只执行依赖安装和构建验证，不部署服务器。
 - `test`：测试环境分支，部署到 `test.plankbevelen.cn`。
 - `main`：生产环境分支，部署到 `plankbevelen.cn`。
 
