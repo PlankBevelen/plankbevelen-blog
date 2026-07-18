@@ -1,5 +1,4 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import viteCompression from 'vite-plugin-compression'
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-09-15',
@@ -87,15 +86,6 @@ export default defineNuxtConfig({
     }
   },
   vite: {
-    plugins: [
-      viteCompression({
-        verbose: true,
-        disable: false,
-        threshold: 10240,
-        algorithm: 'gzip',
-        ext: '.gz',
-      })
-    ],
     css: {
       preprocessorMaxWorkers: 0,  // 禁用预处理器多线程，避免在服务器端运行时出现问题
       preprocessorOptions: {
@@ -142,14 +132,14 @@ export default defineNuxtConfig({
   },
   nitro: {
     prerender: {
-      crawlLinks: true,
-      routes: ['/sitemap.xml', '/robots.txt']
+      crawlLinks: false,
+      routes: []
     },
     externals: {
       inline: ['element-plus', '@popperjs/core']
     },
     // 压缩静态资源
     serveStatic: true,
-    compressPublicAssets: true,
+    compressPublicAssets: false,
   },
 })
