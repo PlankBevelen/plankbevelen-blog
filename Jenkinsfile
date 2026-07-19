@@ -13,6 +13,8 @@ pipeline {
     SERVER_USER = 'root'
     REMOTE_BASE = '/var/www/plankbevelen-blog'
     PNPM_VERSION = '11.10.0'
+    NVM_DIR = '/var/lib/jenkins/.nvm'
+    NODE_VERSION = '22'
   }
 
   stages {
@@ -51,23 +53,17 @@ pipeline {
       steps {
         sh '''
           set -eux
+          export NVM_DIR="/var/lib/jenkins/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"
+          nvm use ${NODE_VERSION}
+
           export NPM_CONFIG_PREFIX="$WORKSPACE/.npm-global"
           export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
 
-          if command -v npm >/dev/null 2>&1; then
-            npm install -g pnpm@${PNPM_VERSION}
-          elif command -v pnpm >/dev/null 2>&1; then
-            CURRENT_PNPM="$(pnpm --version)"
-            if [ "$CURRENT_PNPM" != "${PNPM_VERSION}" ]; then
-              echo "Found pnpm ${CURRENT_PNPM}, but this project requires pnpm ${PNPM_VERSION}. Install npm/corepack or upgrade pnpm on the Jenkins agent."
-              exit 127
-            fi
-          elif command -v corepack >/dev/null 2>&1; then
-            COREPACK_HOME="$WORKSPACE/.corepack" corepack prepare pnpm@${PNPM_VERSION} --activate
-          else
-            echo "Node.js/npm/corepack/pnpm is missing on the Jenkins agent."
-            exit 127
-          fi
+          node -v
+          npm -v
+
+          npm install -g pnpm@${PNPM_VERSION}
           pnpm --version
           pnpm config set store-dir "$HOME/.pnpm-store"
           pnpm install --frozen-lockfile
@@ -79,6 +75,13 @@ pipeline {
       steps {
         sh '''
           set -eux
+          export NVM_DIR="/var/lib/jenkins/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"
+          nvm use ${NODE_VERSION}
+
+          export NPM_CONFIG_PREFIX="$WORKSPACE/.npm-global"
+          export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
+
           pnpm build
           test -f .output/server/index.mjs
         '''
