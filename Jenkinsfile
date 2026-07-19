@@ -12,6 +12,7 @@ pipeline {
     SERVER_HOST = '8.141.114.140'
     SERVER_USER = 'root'
     REMOTE_BASE = '/var/www/plankbevelen-blog'
+    PNPM_VERSION = '11.10.0'
   }
 
   stages {
@@ -50,19 +51,26 @@ pipeline {
       steps {
         sh '''
           set -eux
-          if command -v pnpm >/dev/null 2>&1; then
-            pnpm --version
-          elif command -v corepack >/dev/null 2>&1; then
+          if command -v corepack >/dev/null 2>&1; then
             corepack enable
-            corepack prepare pnpm@11.10.0 --activate
-            pnpm --version
+            corepack prepare pnpm@${PNPM_VERSION} --activate
           elif command -v npm >/dev/null 2>&1; then
-            npm install -g pnpm@11.10.0
-            pnpm --version
+            CURRENT_PNPM="$(command -v pnpm >/dev/null 2>&1 && pnpm --version || true)"
+            if [ "$CURRENT_PNPM" != "${PNPM_VERSION}" ]; then
+              npm install -g pnpm@${PNPM_VERSION}
+            fi
+          elif command -v pnpm >/dev/null 2>&1; then
+            CURRENT_PNPM="$(pnpm --version)"
+            if [ "$CURRENT_PNPM" != "${PNPM_VERSION}" ]; then
+              echo "Found pnpm ${CURRENT_PNPM}, but this project requires pnpm ${PNPM_VERSION}. Install npm/corepack or upgrade pnpm on the Jenkins agent."
+              exit 127
+            fi
           else
             echo "Node.js/npm/corepack/pnpm is missing on the Jenkins agent."
             exit 127
           fi
+          pnpm --version
+          pnpm config set store-dir "$HOME/.pnpm-store"
           pnpm install --frozen-lockfile
         '''
       }
