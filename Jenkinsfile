@@ -51,20 +51,19 @@ pipeline {
       steps {
         sh '''
           set -eux
-          if command -v corepack >/dev/null 2>&1; then
-            corepack enable
-            corepack prepare pnpm@${PNPM_VERSION} --activate
-          elif command -v npm >/dev/null 2>&1; then
-            CURRENT_PNPM="$(command -v pnpm >/dev/null 2>&1 && pnpm --version || true)"
-            if [ "$CURRENT_PNPM" != "${PNPM_VERSION}" ]; then
-              npm install -g pnpm@${PNPM_VERSION}
-            fi
+          export NPM_CONFIG_PREFIX="$WORKSPACE/.npm-global"
+          export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
+
+          if command -v npm >/dev/null 2>&1; then
+            npm install -g pnpm@${PNPM_VERSION}
           elif command -v pnpm >/dev/null 2>&1; then
             CURRENT_PNPM="$(pnpm --version)"
             if [ "$CURRENT_PNPM" != "${PNPM_VERSION}" ]; then
               echo "Found pnpm ${CURRENT_PNPM}, but this project requires pnpm ${PNPM_VERSION}. Install npm/corepack or upgrade pnpm on the Jenkins agent."
               exit 127
             fi
+          elif command -v corepack >/dev/null 2>&1; then
+            COREPACK_HOME="$WORKSPACE/.corepack" corepack prepare pnpm@${PNPM_VERSION} --activate
           else
             echo "Node.js/npm/corepack/pnpm is missing on the Jenkins agent."
             exit 127
