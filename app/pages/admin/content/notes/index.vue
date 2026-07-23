@@ -63,8 +63,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="chapter" label="章节" min-width="180" show-overflow-tooltip />
-      <el-table-column prop="chapterOrder" label="章节排序" width="110" />
+      <el-table-column prop="chapter" label="章节" min-width="160" show-overflow-tooltip />
+      <el-table-column prop="chapterOrder" label="章节排序" width="100" />
+      <el-table-column prop="noteOrder" label="笔记排序" width="100" />
       <el-table-column prop="createTime" label="创建时间" width="170" />
       <el-table-column prop="updateTime" label="更新时间" width="170" />
 
@@ -213,15 +214,7 @@ const goEdit = (id: string) => {
 }
 
 const goView = (id: string) => {
-  const row = noteRows.value.find(item => item.id === id)
-  if (!row?.categoryId) {
-    ElMessage.error('当前笔记缺少分类，无法预览')
-    return
-  }
-  navigateTo({
-    path: `/notes/${id}`,
-    query: { category: row.categoryId }
-  })
+  navigateTo(`/notes/${id}`)
 }
 
 const handleDelete = async (id: string) => {
