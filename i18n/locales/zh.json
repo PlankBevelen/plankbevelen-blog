@@ -27,6 +27,11 @@
   "common": {
     "close": "关闭"
   },
+  "pagination": {
+    "prev": "上一页",
+    "next": "下一页",
+    "total": "共 {total} 篇文章"
+  },
   "lang": {
     "zh": "中文",
     "en": "English"
@@ -106,6 +111,7 @@
       "empty": "暂时还没有笔记分类",
       "countUnit": "{count} 篇",
       "categorySummary": "{name} 分类下当前共有 {count} 篇笔记。",
+      "categoryFirstNote": "首篇：{title}（共 {count} 篇）",
       "categoryEmpty": "{name} 分类已经创建，等待后续内容归档。",
       "detail": {
         "backToList": "返回笔记",
@@ -123,7 +129,7 @@
     "kicker": "你好，欢迎来到我的站点",
     "title1": "构建有趣且",
     "title2": "实用的东西",
-    "desc": "一个热爱技术的开发者，专注于有趣且实用的产品。在这里分享我的项目、想法和学习笔记。",
+    "desc": "一个热爱技术的开发者，专注于有趣且实用的产品。在这里分享我的项目、想法和学习笔记",
     "article": "浏览文章",
     "project": "查看项目"
   },
