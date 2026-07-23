@@ -17,7 +17,7 @@
               v-for="item in categories"
               :key="item.id"
               class="note-card"
-              @click="openCategory(item.id)"
+              @click="openCategory(item)"
             >
               <div class="note-card-top">
                 <h3 class="note-title">{{ item.name }}</h3>
@@ -60,8 +60,16 @@ const pending = ref(false)
 
 function getCategorySummary(item: NoteCategory) {
   const count = Number(item.count || 0)
-  const key = count > 0 ? 'pages.notes.categorySummary' : 'pages.notes.categoryEmpty'
-  return t(key, { name: item.name, count })
+  if (count <= 0) {
+    return t('pages.notes.categoryEmpty', { name: item.name, count })
+  }
+  if (item.firstNoteTitle) {
+    return t('pages.notes.categoryFirstNote', {
+      title: item.firstNoteTitle,
+      count
+    })
+  }
+  return t('pages.notes.categorySummary', { name: item.name, count })
 }
 
 async function loadData() {
@@ -78,23 +86,14 @@ async function loadData() {
   }
 }
 
-async function openCategory(id: string) {
-  const categoryId = String(id || '').trim()
-  if (!categoryId) return
-
-  const res: any = await noteService.getNote(categoryId)
-  if (res?.status === 200 && res.data?.article) {
-    const firstNoteId = String(res.data.article.id || '').trim()
-    if (firstNoteId) {
-      navigateTo({
-        path: localePath(`/notes/${firstNoteId}`),
-        query: { category: categoryId }
-      })
-      return
-    }
+async function openCategory(item: NoteCategory) {
+  const firstNoteId = String(item.firstNoteId || '').trim()
+  if (firstNoteId) {
+    navigateTo(localePath(`/notes/${firstNoteId}`))
+    return
   }
-
-  navigateTo(localePath(`/notes/${categoryId}`))
+  const { ElMessage } = await import('element-plus')
+  ElMessage.info(t('pages.notes.categoryEmpty', { name: item.name, count: 0 }))
 }
 
 await loadData()
@@ -141,14 +140,6 @@ usePageSeo({
   gap: 10px;
 }
 
-.note-badge {
-  font-size: @font-size-xs;
-  color: var(--primary-color);
-  background: color-mix(in srgb, var(--primary-color) 10%, transparent);
-  border-radius: 999px;
-  padding: 5px 10px;
-}
-
 .note-count {
   font-size: @font-size-xs;
   color: var(--tertiary-color);
@@ -175,11 +166,6 @@ usePageSeo({
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-}
-
-.note-category {
-  font-size: @font-size-xs;
-  color: var(--primary-color);
 }
 
 .note-time {
