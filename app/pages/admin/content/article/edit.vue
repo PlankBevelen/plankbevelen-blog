@@ -1,18 +1,12 @@
 <template>
   <div class="article-edit space-y-6">
-    <section class="edit-hero">
-      <div>
-        <p class="edit-kicker">Content Studio</p>
-        <h1 class="edit-title">{{ pageTitle }}</h1>
-        <p class="edit-desc">
-          在这里统一完成标题、分类、标签和 Markdown 内容编辑，支持图片上传与标签同步。
-        </p>
-      </div>
+    <header class="edit-toolbar">
+      <h1 class="edit-title">{{ pageTitle }}</h1>
       <div class="edit-actions">
         <el-button @click="navigateTo('/admin/content/article')">返回列表</el-button>
         <el-button type="primary" :loading="saving" @click="onSubmit">保存文章</el-button>
       </div>
-    </section>
+    </header>
 
     <div v-loading="initializing" class="editor-layout">
       <BaseCard class="meta-panel">
@@ -283,40 +277,18 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
-.edit-hero {
+.edit-toolbar {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding: 24px 28px;
-  border-radius: 24px;
-  border: 1px solid rgba(0, 105, 217, 0.14);
-  background:
-    radial-gradient(circle at top right, rgba(230, 162, 60, 0.12), transparent 24%),
-    linear-gradient(140deg, var(--card-color), color-mix(in srgb, var(--card-color) 88%, #fff7ea));
-}
-
-.edit-kicker {
-  margin: 0 0 8px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #e6a23c;
+  gap: 16px;
 }
 
 .edit-title {
   margin: 0;
-  font-size: 30px;
+  font-size: 22px;
   color: var(--text-color);
-}
-
-.edit-desc {
-  margin: 12px 0 0;
-  max-width: 680px;
-  font-size: 14px;
-  line-height: 1.8;
-  color: var(--secondary-color);
+  font-weight: 600;
 }
 
 .edit-actions {
@@ -328,7 +300,7 @@ onMounted(() => {
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
   gap: 24px;
-  min-height: calc(100vh - 260px);
+  min-height: calc(100vh - 200px);
 }
 
 .meta-panel {
@@ -383,8 +355,9 @@ onMounted(() => {
 }
 
 @media (max-width: 1100px) {
-  .edit-hero {
+  .edit-toolbar {
     flex-direction: column;
+    align-items: flex-start;
   }
 
   .editor-layout {
