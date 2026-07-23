@@ -49,9 +49,6 @@ q:before, q:after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  /* 加载字体资源 */
-  
-  // font-family: "黑体", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Open Sans", "Microsoft YaHei", sans-serif;
 }
 html {
     font-size: 24px;
@@ -90,13 +87,13 @@ body {
 }
 
 .container {
-    max-width: @max-content-width;
     margin: 0 auto;
-}
-@media screen and (max-width: @max-content-width) {
-    .container {
-        padding-left: 20px;
-        padding-right: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+
+    // 小屏依靠内边距留白，桌面端用连续曲线收住主体宽度。
+    @media screen and (min-width: @screen-md) {
+        max-width: @max-content-width-fluid;
     }
 }
 /* element-plus 全局样式 */
