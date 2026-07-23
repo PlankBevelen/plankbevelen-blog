@@ -1,8 +1,21 @@
 <template>
   <aside class="note-sidebar">
     <nav>
+      <ul v-if="flatItems.length" class="flat-items">
+        <li v-for="item in flatItems" :key="item.id">
+          <button
+            class="nav-item flat"
+            :class="{ active: activeId === item.id }"
+            @click="onSelectItem('', item.id)"
+          >
+            <span class="nav-item-title">{{ item.title }}</span>
+          </button>
+        </li>
+      </ul>
+
       <div v-for="group in navGroups" :key="group.id" class="nav-group">
         <button
+          type="button"
           class="nav-group-header"
           @click="toggleGroup(group.id)"
         >
@@ -17,6 +30,7 @@
           <ul v-if="isExpanded(group.id)" class="nav-group-items">
             <li v-for="item in group.items" :key="item.id">
               <button
+                type="button"
                 class="nav-item"
                 :class="{ active: activeId === item.id }"
                 @click="onSelectItem(group.id, item.id)"
@@ -32,13 +46,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { reactive, watch } from 'vue'
 import type { PropType } from 'vue'
 
 interface NoteNavItem {
   id: string
   title: string
-  summary?: string
+  chapter?: string
 }
 
 interface NoteNavGroup {
@@ -53,6 +67,10 @@ const props = defineProps({
     type: Array as PropType<NoteNavGroup[]>,
     default: () => []
   },
+  flatItems: {
+    type: Array as PropType<NoteNavItem[]>,
+    default: () => []
+  },
   activeId: {
     type: String,
     default: ''
@@ -63,31 +81,32 @@ const emit = defineEmits<{
   select: [groupId: string, itemId: string]
 }>()
 
-const expandedGroups = ref(new Set<string>())
+const expandedMap = reactive<Record<string, boolean>>({})
+
+function ensureActiveGroupExpanded() {
+  if (!props.activeId) return
+  const currentGroup = props.navGroups.find((group) =>
+    group.items.some((item) => item.id === props.activeId)
+  )
+  if (currentGroup) {
+    expandedMap[currentGroup.id] = true
+  }
+}
 
 watch(
-  () => props.activeId,
-  (value) => {
-    if (!value) return
-    const currentGroup = props.navGroups.find(group => group.items.some(item => item.id === value))
-    if (currentGroup) {
-      expandedGroups.value.add(currentGroup.id)
-    }
+  () => [props.activeId, props.navGroups] as const,
+  () => {
+    ensureActiveGroupExpanded()
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 )
 
 function isExpanded(groupId: string): boolean {
-  if (expandedGroups.value.has(groupId)) return true
-  return !expandedGroups.value.size
+  return expandedMap[groupId] === true
 }
 
 function toggleGroup(groupId: string) {
-  if (expandedGroups.value.has(groupId)) {
-    expandedGroups.value.delete(groupId)
-  } else {
-    expandedGroups.value.add(groupId)
-  }
+  expandedMap[groupId] = !isExpanded(groupId)
 }
 
 function onSelectItem(groupId: string, itemId: string) {
@@ -100,46 +119,26 @@ function onSelectItem(groupId: string, itemId: string) {
   width: 100%;
   flex-shrink: 0;
   height: 100%;
-  overflow-y: auto;
-  padding: 12px 0;
+  overflow: visible;
+  padding: 0;
 }
 
-.brand-link {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  text-decoration: none;
+.flat-items {
+  list-style: none;
+  margin: 0 0 4px;
+  padding: 0;
 }
-
-.brand-title {
-  font-size: @font-size-xl;
-  font-weight: 700;
-  color: var(--text-color);
-}
-
-.brand-caption {
-  font-size: @font-size-xs;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--tertiary-color);
-}
-
-/* .nav-group {
-  &:not(:last-child) {
-    // 分割线
-    border-bottom: 1px solid var(--border-color);    
-  }
-} */
 
 .nav-group {
   position: relative;
   &:not(:last-child) {
+    margin-bottom: 8px;
     padding-bottom: 8px;
     &::after {
       content: '';
       position: absolute;
-      left: 12px;
-      right: 12px;
+      left: 0;
+      right: 0;
       bottom: 0;
       border-bottom: 1px solid var(--border-color);
     }
@@ -151,41 +150,24 @@ function onSelectItem(groupId: string, itemId: string) {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 10px 20px;
+  padding: 8px;
   border: none;
   background: transparent;
   color: var(--text-color);
   font-size: @font-size-sm;
   font-weight: 600;
   cursor: pointer;
+  border-radius: @small-border-radius;
   transition: background 0.15s;
 
   &:hover {
-    background: var(--mute-bg-color);
+    background: var(--shallow-hover-bg-color);
   }
 }
 
 .nav-group-title {
   text-align: left;
 }
-
-/* .nav-group:not(:last-child) {
-  border-bottom: none !important;
-} */
-
-/* .nav-group:not(:last-child){
-  position: relative;
-  display: inline-block;
-}
- */
-/* .nav-group:not(:last-child) .nav-group::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -6px;
-  border-bottom: 1px solid var(--border-color);
-} */
 
 .nav-group-chevron {
   display: flex;
@@ -202,12 +184,13 @@ function onSelectItem(groupId: string, itemId: string) {
 .nav-group-items {
   list-style: none;
   margin: 0;
+  padding: 0;
   overflow: hidden;
 }
 
 .nav-item {
   width: 100%;
-  padding: 8px 20px 8px 30px;
+  padding: 6px 8px 6px 16px;
   border: none;
   background: transparent;
   color: var(--secondary-color);
@@ -215,10 +198,15 @@ function onSelectItem(groupId: string, itemId: string) {
   cursor: pointer;
   transition: all 0.15s;
   text-align: left;
+  border-radius: @small-border-radius;
+
+  &.flat {
+    padding-left: 8px;
+  }
 
   &:hover {
     color: var(--text-color);
-    background: var(--mute-bg-color);
+    background: var(--shallow-hover-bg-color);
   }
 
   &.active {
@@ -251,26 +239,5 @@ function onSelectItem(groupId: string, itemId: string) {
 .collapse-leave-from {
   opacity: 1;
   max-height: 999px;
-}
-
-@media (max-width: 1024px) {
-  .note-sidebar {
-    padding-top: 18px;
-  }
-
-  .sidebar-brand {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  .nav-group-header {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  .nav-item {
-    padding-left: 24px;
-    padding-right: 16px;
-  }
 }
 </style>
