@@ -16,6 +16,7 @@ export default defineEventHandler(async (event) => {
       category: string
       chapter: string
       chapterOrder?: number | string
+      noteOrder?: number | string
       content: string
       tempId?: string
     }>(event)
@@ -23,11 +24,18 @@ export default defineEventHandler(async (event) => {
     const title = String(body?.title || '').trim()
     const category = String(body?.category || '').trim()
     const chapter = String(body?.chapter || '').trim()
-    const chapterOrder = Number(body?.chapterOrder ?? 0)
+    const chapterOrder = chapter ? Number(body?.chapterOrder ?? 0) : 0
+    const noteOrder = Number(body?.noteOrder ?? 0)
     let content = String(body?.content || '')
     const tempId = String(body?.tempId || '').trim()
 
-    if (!title || !category || !chapter || !content || Number.isNaN(chapterOrder)) {
+    if (
+      !title ||
+      !category ||
+      !content ||
+      Number.isNaN(chapterOrder) ||
+      Number.isNaN(noteOrder)
+    ) {
       setResponseStatus(event, 400)
       return { status: 400, msg: '参数错误', data: null }
     }
@@ -90,6 +98,7 @@ export default defineEventHandler(async (event) => {
           categoryId: category,
           chapter,
           chapterOrder,
+          noteOrder,
           content: finalContent,
           createdAt: now,
           updatedAt: now
@@ -103,6 +112,7 @@ export default defineEventHandler(async (event) => {
         category,
         chapter,
         chapterOrder,
+        noteOrder,
         content: finalContent,
         createTime: now,
         updateTime: now
