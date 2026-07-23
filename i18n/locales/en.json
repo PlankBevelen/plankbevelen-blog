@@ -27,6 +27,11 @@
   "common": {
     "close": "Close"
   },
+  "pagination": {
+    "prev": "Previous",
+    "next": "Next",
+    "total": "{total} articles in total"
+  },
   "lang": {
     "zh": "中文",
     "en": "English"
@@ -106,6 +111,7 @@
       "empty": "No note categories yet.",
       "countUnit": "{count} notes",
       "categorySummary": "{name} contains {count} notes.",
+      "categoryFirstNote": "Starts with “{title}” ({count} notes).",
       "categoryEmpty": "{name} is ready for future notes.",
       "detail": {
         "backToList": "Back to Notes",
