@@ -2,7 +2,7 @@
   <div class="note-page">
     <div class="note-topbar">
       <div class="topbar-meta">
-        <span class="meta-badge">{{ noteData?.article.categoryName }}</span>
+        <span class="meta-badge">{{ currentNote?.categoryName }}</span>
         <button class="mobile-nav-trigger" @click="sidebarOpen = true">
           {{ $t('pages.notes.detail.navTrigger') }}
         </button>
@@ -10,40 +10,33 @@
       <NuxtLink :to="localePath('/notes')" class="back-link">{{ $t('pages.notes.detail.backToList') }}</NuxtLink>
     </div>
 
-    <div v-if="pending" class="note-loading">
-      <el-skeleton animated>
-        <template #template>
-          <div class="skeleton-layout">
-            <div class="skeleton-block sidebar"></div>
-            <div class="skeleton-block content"></div>
-            <div class="skeleton-block toc"></div>
-          </div>
-        </template>
-      </el-skeleton>
-    </div>
-
-    <template v-else-if="noteData">
-      <LayoutThreeColumn class="note-content-layout">
+    <template v-if="currentNote || pending">
+      <LayoutThreeColumn class="note-content-layout" :loading="layoutLoading">
         <template #left>
-          <BaseCard class="left-rail w-full">
-            <LayoutNoteSidebar
-              :nav-groups="noteData.navGroups"
-              :active-id="noteData.article.id"
-              @select="onSelectNote"
-            />
-          </BaseCard>
+          <div v-if="currentNote" class="left-rail">
+            <BaseCard class="rail-card">
+              <LayoutNoteSidebar
+                :nav-groups="noteData?.navGroups || []"
+                :flat-items="noteData?.flatItems || []"
+                :active-id="pathNoteId"
+                @select="onSelectNote"
+              />
+            </BaseCard>
+          </div>
         </template>
 
         <template #middle>
-          <LayoutNoteContent class="w-full">
-            <BaseCard class="content-card p-[12px]">
+          <LayoutNoteContent v-if="currentNote" class="w-full">
+            <BaseCard class="content-card">
+              <header class="note-heading">
+                <p v-if="currentNote.chapter" class="note-chapter">{{ currentNote.chapter }}</p>
+                <h1 class="note-title">{{ currentNote.title }}</h1>
+              </header>
               <Suspense>
                 <template #default>
                   <AsyncMdPreview
-                    :modelValue="noteData.article.content"
+                    :modelValue="currentNote.content"
                     :theme="currentTheme"
-                    :noMermaid="true"
-                    :noKatex="true"
                   />
                 </template>
                 <template #fallback>
@@ -55,7 +48,9 @@
         </template>
 
         <template #right>
-          <ArticleToc :content="noteData.article.content" class="right-rail w-full" />
+          <div v-if="currentNote" class="right-rail rail-static w-full">
+            <ArticleToc :content="currentNote.content" />
+          </div>
         </template>
       </LayoutThreeColumn>
     </template>
@@ -75,10 +70,11 @@
                 <span>{{ $t('pages.notes.detail.mobileNav') }}</span>
                 <button class="close-btn" @click="sidebarOpen = false">{{ $t('common.close') }}</button>
               </div>
-              <BaseCard class="mobile-sidebar-card">
+              <BaseCard class="rail-card mobile-sidebar-card">
                 <LayoutNoteSidebar
                   :nav-groups="noteData?.navGroups || []"
-                  :active-id="noteData?.article.id || ''"
+                  :flat-items="noteData?.flatItems || []"
+                  :active-id="pathNoteId"
                   @select="onSelectNoteFromDrawer"
                 />
               </BaseCard>
@@ -96,39 +92,11 @@ import { createError, navigateTo, useAsyncData } from 'nuxt/app'
 import { useRoute } from 'vue-router'
 import { useAdminStore } from '@/stores/admin.store'
 import { extractSummary, SITE_URL, usePageSeo } from '@/composables/useSeo'
-import noteService from '@/services/note.service'
+import noteService, { type NoteDetail } from '@/services/note.service'
 
 definePageMeta({
   layout: 'note'
 })
-
-type NoteSidebarItem = {
-  id: string
-  title: string
-}
-
-type NoteSidebarGroup = {
-  id: string
-  title: string
-  count: number
-  items: NoteSidebarItem[]
-}
-
-type NoteDetailPayload = {
-  article: {
-    id: string
-    title: string
-    category: string
-    categoryName: string
-    chapter: string
-    content: string
-    createTime: string
-    updateTime: string
-  }
-  navGroups: NoteSidebarGroup[]
-  currentGroupId: string
-  siblingNotes: NoteSidebarItem[]
-}
 
 const AsyncMdPreview = defineAsyncComponent(() => {
   const key = '__notes_md_preview_loader'
@@ -150,92 +118,57 @@ const localePath = useLocalePath()
 const sidebarOpen = ref(false)
 
 const pathNoteId = computed(() => String(route.params.id || '').trim())
-const categoryIdFromQuery = computed(() =>
-  String(route.query.category || route.query.categoryId || '').trim()
-)
-const legacyNoteId = computed(() => String(route.query.noteId || '').trim())
 
-if (!pathNoteId.value) {
-  await navigateTo('/notes', { replace: true })
+if (!pathNoteId.value || Number.isNaN(Number(pathNoteId.value))) {
+  await navigateTo(localePath('/notes'), { replace: true })
 }
 
-if (legacyNoteId.value && legacyNoteId.value !== pathNoteId.value) {
-  await navigateTo(
-    {
-      path: localePath(`/notes/${legacyNoteId.value}`),
-      query: categoryIdFromQuery.value ? { category: categoryIdFromQuery.value } : undefined
-    },
-    { replace: true }
-  )
-}
-
-const detailDataKey = computed(() => `note-detail:${pathNoteId.value}:${categoryIdFromQuery.value}`)
 const { data, pending } = await useAsyncData(
-  detailDataKey,
+  'note-handbook-detail',
   async () => {
-    const routeParam = pathNoteId.value
-    if (!routeParam) {
-      throw createError({ statusCode: 400, statusMessage: 'Bad Request', message: t('pages.notes.detail.errorParam') })
+    const noteId = pathNoteId.value
+    if (!noteId || Number.isNaN(Number(noteId))) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Bad Request',
+        message: t('pages.notes.detail.errorParam')
+      })
     }
 
-    const noteDetailRes: any = await noteService.getNoteDetail(routeParam)
-    if (noteDetailRes?.status === 200 && noteDetailRes?.data) {
-      const resolvedCategoryId = String(noteDetailRes.data.category || categoryIdFromQuery.value || '').trim()
-      if (!resolvedCategoryId) {
-        throw createError({ statusCode: 400, statusMessage: 'Bad Request', message: t('pages.notes.detail.errorParam') })
-      }
-
-      const res: any = await noteService.getNote(resolvedCategoryId, routeParam)
-      if (res?.status === 200) return res.data as NoteDetailPayload
-      if (res?.status === 404) {
-        throw createError({ statusCode: 404, statusMessage: 'Not Found', message: t('pages.notes.detail.errorNotFound') })
-      }
-      return null
+    const res: any = await noteService.getNoteHandbook(noteId)
+    if (res?.status === 200 && res.data) {
+      return res.data as NoteDetail
     }
-
-    const legacyCategoryRes: any = await noteService.getNote(routeParam)
-    if (legacyCategoryRes?.status === 200) {
-      return legacyCategoryRes.data as NoteDetailPayload
-    }
-    throw createError({ statusCode: 404, statusMessage: 'Not Found', message: t('pages.notes.detail.errorNotFound') })
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Not Found',
+      message: t('pages.notes.detail.errorNotFound')
+    })
   },
-  { watch: [pathNoteId, categoryIdFromQuery] }
+  { watch: [pathNoteId] }
 )
 
 const noteData = computed(() => data.value || null)
-const categoryId = computed(() => String(noteData.value?.article.category || categoryIdFromQuery.value || ''))
+const currentNote = computed(() => noteData.value?.note || noteData.value?.article || null)
+/** 仅首次无数据时走骨架；同手册内切换保留旧内容，避免整页闪烁 */
+const layoutLoading = computed(() => pending.value && !noteData.value)
+
 const introText = computed(() => {
-  const summary = extractSummary(noteData.value?.article.content || '', 120)
+  const summary = extractSummary(currentNote.value?.content || '', 120)
   return summary || t('pages.notes.detail.defaultIntro')
 })
+
 watch(
   () => route.fullPath,
   () => {
     sidebarOpen.value = false
   }
 )
-watch(
-  () => noteData.value?.article.id,
-  (id) => {
-    const normalizedId = String(id || '').trim()
-    if (!normalizedId || normalizedId === pathNoteId.value) return
-    const query = categoryId.value ? { category: categoryId.value } : undefined
-    navigateTo(
-      {
-        path: localePath(`/notes/${normalizedId}`),
-        query
-      },
-      { replace: true }
-    )
-  }
-)
 
 function onSelectNote(_groupId: string, itemId: string) {
-  if (!itemId || itemId === noteData.value?.article.id) return
-  const query = categoryId.value ? { category: categoryId.value } : undefined
+  if (!itemId || itemId === pathNoteId.value) return
   navigateTo({
-    path: localePath(`/notes/${itemId}`),
-    query
+    path: localePath(`/notes/${itemId}`)
   })
 }
 
@@ -249,9 +182,9 @@ const canonicalUrl = computed(() => {
 })
 
 usePageSeo({
-  title: () => noteData.value?.article.title || t('pages.notes.detail.title'),
+  title: () => currentNote.value?.title || t('pages.notes.detail.title'),
   description: () => introText.value,
-  keywords: () => [noteData.value?.article.categoryName || ''].filter(Boolean).join(',')
+  keywords: () => [currentNote.value?.categoryName || ''].filter(Boolean).join(',')
 })
 
 useHead(() => ({
@@ -260,7 +193,6 @@ useHead(() => ({
 </script>
 
 <style lang="less" scoped>
-
 .note-page {
   min-height: 100vh - @header-height;
   padding-bottom: 100px;
@@ -312,6 +244,26 @@ useHead(() => ({
   font-size: @font-size-xs;
 }
 
+.note-heading {
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.note-chapter {
+  margin: 0;
+  font-size: @font-size-xs;
+  color: var(--primary-color);
+}
+
+.note-title {
+  margin: 8px 0 0;
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1.25;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
 .note-content-layout {
   position: relative;
   :deep(.content) {
@@ -320,33 +272,72 @@ useHead(() => ({
   }
 }
 
+.rail-card {
+  width: 100%;
+  border-radius: @small-border-radius;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  :deep(.card-content) {
+    padding: 16px 24px;
+  }
+
+  &:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.rail-static {
+  width: 100%;
+
+  :deep(.card) {
+    border-radius: @small-border-radius;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      transform: none;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  :deep(.card-content) {
+    padding: 16px 24px;
+  }
+
+  :deep(.card-header) {
+    padding: 16px 24px;
+  }
+}
+
+.left-rail {
+  position: sticky;
+  top: var(--layout-sticky-top);
+  width: 100%;
+
+  .rail-card {
+    max-height: calc(100vh - @header-height - 40px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+}
+
+.content-card {
+  border-radius: @small-border-radius;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
 .note-loading,
 .note-empty {
   padding-top: 12px;
-}
-
-.skeleton-layout {
-  display: grid;
-  grid-template-columns: 260px minmax(0, 1fr) 220px;
-  gap: 20px;
-}
-
-.skeleton-block {
-  border-radius: @large-border-radius;
-  background: var(--card-color);
-  border: 1px solid var(--border-color);
-
-  &.sidebar {
-    min-height: 640px;
-  }
-
-  &.content {
-    min-height: 980px;
-  }
-
-  &.toc {
-    min-height: 420px;
-  }
 }
 
 .mobile-sidebar-mask {
@@ -384,10 +375,23 @@ useHead(() => ({
 
 .mobile-sidebar-card {
   overflow: hidden;
+  border-radius: @small-border-radius;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   :deep(.card-content) {
-    padding: 0;
+    padding: 16px 24px;
+  }
+
+  &:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 }
 
+@media (max-width: 960px) {
+  .mobile-nav-trigger {
+    display: inline-flex;
+  }
+}
 </style>
