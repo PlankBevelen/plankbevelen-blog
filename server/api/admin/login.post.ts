@@ -1,4 +1,4 @@
-import { defineEventHandler, readBody, setResponseStatus, setCookie } from 'h3'
+import { defineEventHandler, readBody, setResponseStatus } from 'h3'
 import { sha256 } from 'js-sha256'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
@@ -18,7 +18,6 @@ export default defineEventHandler(async (event) => {
     setResponseStatus(event, 500)
     return { code: 'MISSING_CONFIG', message: 'Admin credentials not configured' }
   }
-  const hash = sha256(String(adminPassword))
 
   if (!account || !password) {
     setResponseStatus(event, 400)
@@ -27,24 +26,24 @@ export default defineEventHandler(async (event) => {
   
   // 对前端传来的明文密码进行哈希，然后与配置的密码哈希进行比对
   const inputHash = sha256(String(password))
+  const hash = sha256(String(adminPassword))
   
   if (account !== adminAccount || inputHash !== hash) {
     setResponseStatus(event, 401)
     return { code: 'INVALID_CREDENTIALS', message: 'Invalid account or password' }
   }
-  const expiresIn = remember ? Number(process.env.NUXT_EXPIRATION_TIME) : Number(process.env.NUXT_KEEP_ALIVE_TIME)
+
+  const rawExpires = remember
+    ? config.public.expirationTime
+    : config.public.keepAliveTime
+  const expiresIn = Number(rawExpires)
+  if (!Number.isFinite(expiresIn) || expiresIn <= 0) {
+    setResponseStatus(event, 500)
+    return { code: 'INVALID_CONFIG', message: 'Invalid token expiration configuration' }
+  }
   const token = jwt.sign({ sub: adminAccount }, secret, { expiresIn })
 
-  const opts: any = {
-    httpOnly: true,
-    path: '/',
-    sameSite: 'lax',
-  }
-  if (remember) {
-    opts.maxAge = expiresIn
-  }
-  const cookieName = (process.env.NUXT_PUBLIC_COOKIE_PREFIX || '') + 'user_token'
-  setCookie(event, cookieName, token, opts)
+  // Token 由客户端可读 cookie 保存并经请求头 token 传给 API，此处不再写 httpOnly 同名 cookie
   setResponseStatus(event, 200)
   return { message: 'Login successful', status: 200, token }
 })
