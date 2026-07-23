@@ -1,5 +1,3 @@
-import { sha256 } from 'js-sha256'
-
 export const useAuthentication = () => {
   const config = useRuntimeConfig()
   
@@ -8,46 +6,52 @@ export const useAuthentication = () => {
   const themeKey = computed(() => config.public.cookiePrefix + 'theme')
   const expirationTime = computed(() => Number(config.public.expirationTime))
   const keepAliveTime = computed(() => Number(config.public.keepAliveTime))
-  const baseUrl = computed(() => config.public.baseUrl || '/')
+
+  const cookieOptions = () => ({
+    path: '/' as const,
+    sameSite: 'lax' as const,
+  })
 
   const getToken = () => {
-    const c = useCookie<string | undefined>(tokenKey.value)
+    const c = useCookie<string | undefined>(tokenKey.value, cookieOptions())
     return c.value || ''
   }
 
-  const setToken = (token: string, keepAlive?: boolean) => {
-    const opts: any = { path: baseUrl.value || '/', sameSite: 'lax' }
-    opts.maxAge = keepAlive ? expirationTime.value : keepAliveTime.value
+  const setToken = (token: string, remember?: boolean) => {
+    const opts = {
+      ...cookieOptions(),
+      maxAge: remember ? expirationTime.value : keepAliveTime.value,
+    }
     const c = useCookie<string | undefined>(tokenKey.value, opts)
     c.value = token
     return c
   }
 
   const removeToken = () => {
-    const c = useCookie<string | undefined>(tokenKey.value, { path: baseUrl.value || '/', sameSite: 'lax' })
+    const c = useCookie<string | undefined>(tokenKey.value, cookieOptions())
     c.value = undefined
     return c
   }
 
   const setI18n = (locale: string) => {
-    const c = useCookie<string | undefined>(i18nKey.value, { path: baseUrl.value || '/', sameSite: 'lax' })
+    const c = useCookie<string | undefined>(i18nKey.value, cookieOptions())
     c.value = locale
     return c
   }
 
   const getI18n = () => {
-    const c = useCookie<string | undefined>(i18nKey.value)
+    const c = useCookie<string | undefined>(i18nKey.value, cookieOptions())
     return c.value || 'zh'
   }
 
   const setTheme = (theme: string) => {
-    const c = useCookie<string | undefined>(themeKey.value, { path: baseUrl.value || '/', sameSite: 'lax' })
+    const c = useCookie<string | undefined>(themeKey.value, cookieOptions())
     c.value = theme
     return c
   }
 
   const getTheme = () => {
-    const c = useCookie<string | undefined>(themeKey.value)
+    const c = useCookie<string | undefined>(themeKey.value, cookieOptions())
     return c.value || 'light'
   }
 
