@@ -49,12 +49,8 @@
 
     <el-dialog v-model="dialogVisible" :title="dialogMode === 'add' ? '新增分类' : '编辑分类'" width="420px">
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
-        <el-form-item label="分类 ID" prop="id">
-          <el-input
-            v-model="form.id"
-            placeholder="请输入分类 ID"
-            :disabled="dialogMode === 'edit'"
-          />
+        <el-form-item v-if="dialogMode === 'edit'" label="分类 ID">
+          <el-input v-model="form.id" disabled />
         </el-form-item>
         <el-form-item label="分类名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入分类名称" />
@@ -92,7 +88,6 @@ const editingId = ref<string>('')
 const formRef = ref<FormInstance>()
 const form = ref({ id: '', name: '' })
 const rules: FormRules = {
-  id: [{ required: true, message: '请输入分类 ID', trigger: 'blur' }],
   name: [{ required: true, message: '请输入分类名称', trigger: 'blur' }]
 }
 
@@ -161,11 +156,10 @@ const submitForm = async () => {
 
   saving.value = true
   try {
-    const id = form.value.id.trim()
     const name = form.value.name.trim()
     let res: any = null
     if (dialogMode.value === 'add') {
-      res = await noteService.createAdminNoteCategory(id, name)
+      res = await noteService.createAdminNoteCategory(name)
     } else {
       res = await noteService.updateAdminNoteCategory(editingId.value, name)
     }
