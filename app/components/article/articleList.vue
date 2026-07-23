@@ -20,18 +20,13 @@
         </el-skeleton>
       </BaseCard>
     </div>
-    <div class="pager" v-if="!single">
-      <el-pagination
-        background
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        :current-page="page"
-        :page-size="limit"
-        :page-sizes="[10, 20, 50]"
-        @size-change="onPageSizeChange"
-        @current-change="onPageChange"
-      />
-    </div>
+    <BasePagination
+      v-if="!single"
+      :total="total"
+      :page="page"
+      :page-size="limit"
+      @page-change="onPageChange"
+    />
   </div>
 </template>
 
@@ -85,15 +80,12 @@ const loadData = async () => {
   }
 }
 
-const onPageSizeChange = async (val: number) => {
-  limit.value = val
-  page.value = 1
-  await loadData()
-}
-
 const onPageChange = async (val: number) => {
   page.value = val
   await loadData()
+  if (import.meta.client) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 }
 
 onMounted(async () => {
@@ -139,9 +131,5 @@ watch(
   display: flex;
   flex-direction: column;
   gap: 20px;
-}
-.pager {
-  display: flex;
-  justify-content: flex-end;
 }
 </style>
