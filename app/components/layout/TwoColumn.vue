@@ -3,7 +3,7 @@
     <div class="content" :class="[type]">
       <!-- 左列 -->
       <div class="left">
-        <div v-if="loading">
+        <div v-if="showSkeleton">
           <el-skeleton animated>
             <template #template>
               <el-skeleton-item
@@ -17,14 +17,14 @@
             </template>
           </el-skeleton>
         </div>
-        <div v-show="!loading" class="slot-wrapper">
+        <div v-show="!showSkeleton" class="slot-wrapper">
           <slot name="left"></slot>
         </div>
       </div>
 
       <!-- 右列（文章详情页的主内容区） -->
       <div class="right">
-        <div v-if="loading">
+        <div v-if="showSkeleton">
           <el-skeleton animated>
             <template #template>
               <el-skeleton-item
@@ -45,7 +45,7 @@
             </template>
           </el-skeleton>
         </div>
-        <div v-show="!loading" class="slot-wrapper">
+        <div v-show="!showSkeleton" class="slot-wrapper">
           <slot name="right"></slot>
         </div>
       </div>
@@ -54,16 +54,21 @@
 </template>
 
 <script setup lang="ts">
-defineProps({
+import { toRef } from 'vue'
+import { useMinSkeleton } from '@/composables/useMinSkeleton'
+
+const props = defineProps({
   type: {
     type: String,
-    default: "rightbigger",
+    default: 'rightbigger'
   },
   loading: {
     type: Boolean,
-    default: false,
-  },
-});
+    default: false
+  }
+})
+
+const { showSkeleton } = useMinSkeleton(toRef(props, 'loading'))
 </script>
 
 <style lang="less" scoped>
