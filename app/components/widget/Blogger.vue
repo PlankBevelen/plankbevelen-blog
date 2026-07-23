@@ -33,7 +33,7 @@
         @click="handleClick(link.url)"
       />
     </div>
-    <div class="mb-3">
+    <div class="mb-0">
       <el-row :gutter="20">
         <el-col :span="8">
           <el-statistic
