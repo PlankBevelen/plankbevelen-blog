@@ -33,6 +33,7 @@ export type NoteDoc = {
   categoryId: string
   chapter: string
   chapterOrder?: number
+  noteOrder?: number
   content: string
   createdAt: Date
   updatedAt: Date
