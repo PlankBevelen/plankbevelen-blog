@@ -1,18 +1,12 @@
 <template>
   <div class="note-edit space-y-6">
-    <section class="edit-hero">
-      <div>
-        <p class="edit-kicker">Notes Studio</p>
-        <h1 class="edit-title">{{ pageTitle }}</h1>
-        <p class="edit-desc">
-          结构是 分类 -> 章节 -> 笔记标题，例如：工程化 -> nginx -> nginx 下载。
-        </p>
-      </div>
+    <header class="edit-toolbar">
+      <h1 class="edit-title">{{ pageTitle }}</h1>
       <div class="edit-actions">
         <el-button @click="navigateTo('/admin/content/notes')">返回列表</el-button>
         <el-button type="primary" :loading="saving" @click="onSubmit">保存笔记</el-button>
       </div>
-    </section>
+    </header>
 
     <div v-loading="initializing" class="editor-layout">
       <BaseCard class="meta-panel">
@@ -31,6 +25,7 @@
               placeholder="请选择笔记分类"
               style="width: 100%"
               clearable
+              @change="onCategoryChange"
             >
               <el-option
                 v-for="item in categoryOptions"
@@ -41,11 +36,29 @@
             </el-select>
           </el-form-item>
 
-          <el-form-item label="章节名称" prop="chapter">
-            <el-input v-model="form.chapter" placeholder="例如：nginx" clearable />
+          <el-form-item label="章节名称（可选）" prop="chapter">
+            <el-select
+              v-model="form.chapter"
+              placeholder="可不选；选择或输入新章节"
+              style="width: 100%"
+              filterable
+              allow-create
+              default-first-option
+              clearable
+              :disabled="!form.category"
+              @change="onChapterChange"
+            >
+              <el-option
+                v-for="item in chapterOptions"
+                :key="item.name"
+                :label="item.name"
+                :value="item.name"
+              />
+            </el-select>
+            <p class="field-hint">留空则笔记出现在侧栏一级列表</p>
           </el-form-item>
 
-          <el-form-item label="章节排序" prop="chapterOrder">
+          <el-form-item v-if="hasChapter" label="章节排序" prop="chapterOrder">
             <el-input-number
               v-model="form.chapterOrder"
               :min="0"
@@ -53,8 +66,25 @@
               controls-position="right"
               style="width: 100%"
             />
+            <p class="field-hint">控制侧栏章节组顺序，数值越小越靠前</p>
           </el-form-item>
 
+          <el-form-item label="笔记排序" prop="noteOrder">
+            <el-input-number
+              v-model="form.noteOrder"
+              :min="0"
+              :step="1"
+              controls-position="right"
+              style="width: 100%"
+            />
+            <p class="field-hint">
+              {{ hasChapter ? '控制同章节内笔记顺序' : '控制一级列表中的笔记顺序' }}，数值越小越靠前
+            </p>
+          </el-form-item>
+
+          <el-form-item prop="content" class="content-validator">
+            <input type="hidden" :value="form.content" />
+          </el-form-item>
         </el-form>
       </BaseCard>
 
@@ -72,7 +102,9 @@
           placeholder="开始撰写你的笔记内容..."
           :toolbars-exclude="['github']"
           @onUploadImg="onUploadImg"
+          @onChange="onContentChange"
         />
+        <p v-if="contentError" class="content-error">{{ contentError }}</p>
       </BaseCard>
     </div>
   </div>
@@ -81,7 +113,7 @@
 <script setup lang="ts">
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { useRoute } from 'vue-router'
@@ -93,9 +125,11 @@ definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 const route = useRoute()
 const formRef = ref<FormInstance>()
 const categoryOptions = ref<Array<{ label: string; value: string }>>([])
+const chapterOptions = ref<Array<{ name: string; chapterOrder: number }>>([])
 const saving = ref(false)
 const initializing = ref(false)
 const tempId = ref('')
+const contentError = ref('')
 
 const mode = computed(() => (route.query.mode === 'update' ? 'update' : 'add'))
 const pageTitle = computed(() => (mode.value === 'add' ? '新建笔记' : '编辑笔记'))
@@ -105,16 +139,29 @@ const form = ref<NewNote>({
   category: '',
   chapter: '',
   chapterOrder: 0,
+  noteOrder: 0,
   content: '',
   tempId: ''
 })
 
+const hasChapter = computed(() => !!String(form.value.chapter || '').trim())
+
 const rules: FormRules = {
   title: [{ required: true, message: '请输入笔记标题', trigger: 'blur' }],
   category: [{ required: true, message: '请选择笔记分类', trigger: 'change' }],
-  chapter: [{ required: true, message: '请输入章节名称', trigger: 'blur' }],
-  chapterOrder: [{ required: true, message: '请输入章节排序', trigger: 'change' }],
-  content: [{ required: true, message: '请输入笔记内容', trigger: 'blur' }]
+  noteOrder: [{ required: true, message: '请输入笔记排序', trigger: 'change' }],
+  content: [
+    {
+      validator: (_rule, value, callback) => {
+        if (!String(value || '').trim()) {
+          callback(new Error('请输入笔记内容'))
+          return
+        }
+        callback()
+      },
+      trigger: 'change'
+    }
+  ]
 }
 
 const normalizeContentPath = (content: string) =>
@@ -133,6 +180,43 @@ const fetchBaseOptions = async () => {
       value: String(item.id)
     }))
   }
+}
+
+const loadChapters = async (categoryId: string) => {
+  if (!categoryId) {
+    chapterOptions.value = []
+    return
+  }
+  const res: any = await noteService.getNoteChapters(categoryId)
+  if (res?.status === 200) {
+    chapterOptions.value = res.data || []
+    return
+  }
+  chapterOptions.value = []
+}
+
+const onCategoryChange = async (value: string) => {
+  form.value.chapter = ''
+  form.value.chapterOrder = 0
+  await loadChapters(String(value || ''))
+}
+
+const onChapterChange = (value: string) => {
+  const chapter = String(value || '').trim()
+  form.value.chapter = chapter
+  if (!chapter) {
+    form.value.chapterOrder = 0
+    return
+  }
+  const matched = chapterOptions.value.find((item) => item.name === chapter)
+  if (matched) {
+    form.value.chapterOrder = Number(matched.chapterOrder || 0)
+  }
+}
+
+const onContentChange = () => {
+  contentError.value = ''
+  formRef.value?.validateField('content').catch(() => {})
 }
 
 const fetchNoteDetail = async () => {
@@ -156,7 +240,12 @@ const fetchNoteDetail = async () => {
     category: String(res.data.category || ''),
     chapter: String(res.data.chapter || ''),
     chapterOrder: Number(res.data.chapterOrder || 0),
+    noteOrder: Number(res.data.noteOrder || 0),
     content: normalizeContentPath(res.data.content || '')
+  }
+
+  if (form.value.category) {
+    await loadChapters(form.value.category)
   }
 }
 
@@ -187,7 +276,15 @@ const onUploadImg = async (files: File[], callback: (urls: string[]) => void) =>
 
 const onSubmit = async () => {
   const valid = await formRef.value?.validate().catch(() => false)
-  if (!valid) return
+  if (!String(form.value.content || '').trim()) {
+    contentError.value = '请输入笔记内容'
+  }
+  if (!valid || contentError.value) return
+
+  if (!hasChapter.value) {
+    form.value.chapter = ''
+    form.value.chapterOrder = 0
+  }
 
   saving.value = true
   try {
@@ -216,46 +313,33 @@ const onSubmit = async () => {
   }
 }
 
+watch(
+  () => form.value.content,
+  () => {
+    if (contentError.value && String(form.value.content || '').trim()) {
+      contentError.value = ''
+    }
+  }
+)
+
 onMounted(() => {
   initPage()
 })
 </script>
 
 <style scoped lang="less">
-.edit-hero {
+.edit-toolbar {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding: 24px 28px;
-  border-radius: 24px;
-  border: 1px solid rgba(0, 105, 217, 0.14);
-  background:
-    radial-gradient(circle at top right, rgba(230, 162, 60, 0.12), transparent 24%),
-    linear-gradient(140deg, var(--card-color), color-mix(in srgb, var(--card-color) 88%, #fff7ea));
-}
-
-.edit-kicker {
-  margin: 0 0 8px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #e6a23c;
+  gap: 16px;
 }
 
 .edit-title {
   margin: 0;
-  font-size: 30px;
+  font-size: 22px;
   color: var(--text-color);
-}
-
-.edit-desc {
-  margin: 12px 0 0;
-  max-width: 680px;
-  font-size: 14px;
-  line-height: 1.8;
-  color: var(--secondary-color);
+  font-weight: 600;
 }
 
 .edit-actions {
@@ -267,11 +351,22 @@ onMounted(() => {
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
   gap: 24px;
-  min-height: calc(100vh - 260px);
+  min-height: calc(100vh - 200px);
 }
 
 .meta-panel {
   height: fit-content;
+}
+
+.field-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--tertiary-color);
+}
+
+.content-validator {
+  display: none;
 }
 
 .editor-panel {
@@ -289,14 +384,21 @@ onMounted(() => {
   color: var(--tertiary-color);
 }
 
+.content-error {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--el-color-danger);
+}
+
 .md-editor {
   height: 72vh !important;
   min-height: 560px;
 }
 
 @media (max-width: 1100px) {
-  .edit-hero {
+  .edit-toolbar {
     flex-direction: column;
+    align-items: flex-start;
   }
 
   .editor-layout {
