@@ -42,10 +42,10 @@ const heroTitleFontSize = computed(() => (
 .hero-card {
   position: relative;
   overflow: hidden;
-  background:
+  /* background:
     radial-gradient(circle at 80% 0%, color-mix(in srgb, var(--primary-color) 24%, transparent), transparent 38%),
     linear-gradient(180deg, color-mix(in srgb, var(--card-color) 92%, #f8fbff), var(--card-color));
-  border: 1px solid color-mix(in srgb, var(--primary-color) 32%, var(--border-color));
+  border: 1px solid color-mix(in srgb, var(--primary-color) 32%, var(--border-color)); */
 }
 
 .hero-grid-bg {
