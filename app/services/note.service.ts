@@ -7,6 +7,8 @@ export type NoteCategory = {
   count?: number
   createTime?: string
   updateTime?: string
+  firstNoteId?: string
+  firstNoteTitle?: string
 }
 
 export type NoteItem = {
@@ -16,6 +18,7 @@ export type NoteItem = {
   categoryId?: string
   chapter: string
   chapterOrder: number
+  noteOrder?: number
   content?: string
   shortContent?: string
   longContent?: string
@@ -28,6 +31,7 @@ export type NewNote = {
   category: string
   chapter: string
   chapterOrder: number
+  noteOrder: number
   content: string
   tempId?: string
 }
@@ -47,6 +51,18 @@ export type NoteSidebarGroup = {
 }
 
 export type NoteDetail = {
+  note?: {
+    id: string
+    title: string
+    category: string
+    categoryName: string
+    chapter: string
+    chapterOrder: number
+    noteOrder?: number
+    content: string
+    createTime: string
+    updateTime: string
+  }
   article: {
     id: string
     title: string
@@ -54,10 +70,12 @@ export type NoteDetail = {
     categoryName: string
     chapter: string
     chapterOrder: number
+    noteOrder?: number
     content: string
     createTime: string
     updateTime: string
   }
+  flatItems?: NoteSidebarItem[]
   navGroups: NoteSidebarGroup[]
   currentGroupId: string
   siblingNotes: NoteSidebarItem[]
@@ -72,12 +90,12 @@ class NoteService {
     return await http.get<ApiResponse<NoteCategory[]>>('/admin/note-category')
   }
 
-  async createNoteCategory(id: number | string, name: string) {
-    return await http.post<ApiResponse<NoteCategory>>('/note-category', { id, name })
+  async createNoteCategory(name: string, id?: number | string) {
+    return await http.post<ApiResponse<NoteCategory>>('/note-category', { name, ...(id ? { id } : {}) })
   }
 
-  async createAdminNoteCategory(id: number | string, name: string) {
-    return await http.post<ApiResponse<NoteCategory>>('/admin/note-category', { id, name })
+  async createAdminNoteCategory(name: string, id?: number | string) {
+    return await http.post<ApiResponse<NoteCategory>>('/admin/note-category', { name, ...(id ? { id } : {}) })
   }
 
   async updateNoteCategory(id: number | string, name: string) {
@@ -116,6 +134,12 @@ class NoteService {
     return await http.get<ApiResponse<NoteItem[]>>('/admin/note', { page, limit, q, sort, categoryId })
   }
 
+  async getNoteChapters(categoryId: string) {
+    return await http.get<ApiResponse<Array<{ name: string; chapterOrder: number }>>>('/admin/note/chapters', {
+      categoryId
+    })
+  }
+
   async createNote(note: NewNote) {
     return await http.post<ApiResponse<NoteItem>>('/note', note)
   }
@@ -148,8 +172,14 @@ class NoteService {
     return await http.delete<ApiResponse>(`/admin/note/${id}`)
   }
 
-  async getNote(id: number | string, noteId?: number | string) {
-    return await http.get<ApiResponse<NoteDetail>>(`/notes/${id}`, noteId ? { noteId } : undefined)
+  /** 按笔记 ID 获取手册详情（正文 + 导航元数据） */
+  async getNoteHandbook(noteId: number | string) {
+    return await http.get<ApiResponse<NoteDetail>>(`/notes/${noteId}`)
+  }
+
+  /** @deprecated 使用 getNoteHandbook(noteId) */
+  async getNote(id: number | string, _noteId?: number | string) {
+    return await this.getNoteHandbook(_noteId || id)
   }
 }
 
