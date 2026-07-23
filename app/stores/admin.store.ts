@@ -17,12 +17,18 @@ export const useAdminStore = defineStore('admin', {
   actions: {        
     async login(account: string, password: string, remember?: boolean) {
       try {
-        const res: any = await adminService.login(account, useAuthentication().hashPassword(password), remember || false)
-        if (res.status === 200) {
-          this.userInfo = res.data
-          useAuthentication().setToken(res.token, remember)
-          return true
+        const rememberMe = !!remember
+        const res: any = await adminService.login(
+          account,
+          useAuthentication().hashPassword(password),
+          rememberMe
+        )
+        if (res.status === 200 && res.token) {
+          this.userInfo = res.data ?? null
+          useAuthentication().setToken(res.token, rememberMe)
+          return !!useAuthentication().getToken()
         }
+        return false
       } catch (error) {
         console.log(error, '登录失败')
         return false
