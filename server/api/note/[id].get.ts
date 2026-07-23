@@ -27,6 +27,7 @@ export default defineEventHandler(async (event) => {
       category: String(note.categoryId),
       chapter: String(note.chapter || ''),
       chapterOrder: Number(note.chapterOrder || 0),
+      noteOrder: Number(note.noteOrder || 0),
       content: normalizeUploadsInContent(String(note.content || '')),
       createTime: note.createdAt,
       updateTime: note.updatedAt
