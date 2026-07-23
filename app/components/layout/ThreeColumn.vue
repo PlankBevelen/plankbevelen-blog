@@ -3,7 +3,7 @@
     <div class="content">
       <!-- 左列 -->
       <div class="left">
-        <div v-if="loading">
+        <div v-if="showSkeleton">
           <el-skeleton animated>
             <template #template>
               <el-skeleton-item
@@ -17,14 +17,14 @@
             </template>
           </el-skeleton>
         </div>
-        <div v-show="!loading" class="slot-wrapper">
+        <div v-show="!showSkeleton" class="slot-wrapper">
           <slot name="left"></slot>
         </div>
       </div>
 
       <!-- 中间列 -->
       <div class="middle">
-        <div v-if="loading">
+        <div v-if="showSkeleton">
           <el-skeleton animated>
             <template #template>
               <el-skeleton-item
@@ -43,14 +43,14 @@
           </el-skeleton>
         </div>
         <!-- v-show 保证组件始终挂载，onMounted 正常触发，数据请求和骨架屏并行 -->
-        <div v-show="!loading" class="slot-wrapper">
+        <div v-show="!showSkeleton" class="slot-wrapper">
           <slot name="middle"></slot>
         </div>
       </div>
 
       <!-- 右列 -->
       <div class="right">
-        <div v-if="loading">
+        <div v-if="showSkeleton">
           <el-skeleton animated>
             <template #template>
               <el-skeleton-item
@@ -64,7 +64,7 @@
             </template>
           </el-skeleton>
         </div>
-        <div v-show="!loading" class="slot-wrapper">
+        <div v-show="!showSkeleton" class="slot-wrapper">
           <slot name="right"></slot>
         </div>
       </div>
@@ -73,12 +73,17 @@
 </template>
 
 <script setup lang="ts">
-defineProps({
+import { toRef } from 'vue'
+import { useMinSkeleton } from '@/composables/useMinSkeleton'
+
+const props = defineProps({
   loading: {
     type: Boolean,
-    default: false,
-  },
-});
+    default: false
+  }
+})
+
+const { showSkeleton } = useMinSkeleton(toRef(props, 'loading'))
 </script>
 
 <style lang="less" scoped>
