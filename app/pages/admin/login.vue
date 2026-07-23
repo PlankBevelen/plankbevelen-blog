@@ -1,33 +1,21 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center px-5 py-8 bg-gradient-to-br from-gray-50 to-gray-100">
-    <div class="login-shell">
-      <section class="brand-panel">
-        <img src="/img/logo.webp" alt="logo" class="brand-logo" width="56" height="56" />
-        <p class="brand-kicker">PlankBevelen CMS</p>
-        <h1 class="brand-title">博客后台管理系统</h1>
-        <p class="brand-desc">
-          在这里统一完成文章发布、分类维护和内容数据查看，让后台管理更顺手。
-        </p>
+  <div class="login-page">
+    <div class="login-page__grid" aria-hidden="true"></div>
 
-        <ul class="brand-points">
-          <li>快速发布和编辑 Markdown 文章</li>
-          <li>集中管理分类、标签与内容结构</li>
-          <li>通过仪表盘追踪内容产出趋势</li>
-        </ul>
-      </section>
+    <div class="login-card">
+      <header class="login-brand">
+        <img src="/img/logo.webp" alt="PlankBevelen" class="login-brand__logo" width="56" height="56" />
+        <h1 class="login-brand__name">PlankBevelen</h1>
+        <p class="login-brand__subtitle">后台管理</p>
+      </header>
 
-      <section class="login-panel">
-        <div class="login-header">
-          <h2 class="login-title">账号登录</h2>
-          <p class="login-subtitle">请输入管理员账号和密码继续操作</p>
-        </div>
-
+      <div class="login-form-block">
         <el-form
           ref="formRef"
           :model="form"
           :rules="rules"
           label-position="top"
-          class="form"
+          class="login-form"
           @keyup.enter="onSubmit"
         >
           <el-form-item prop="account" label="账号">
@@ -50,13 +38,13 @@
             />
           </el-form-item>
 
-          <div class="remember-row">
+          <div class="login-form__remember">
             <el-checkbox v-model="form.remember">记住登录状态</el-checkbox>
           </div>
 
           <el-button
             type="primary"
-            class="submit-btn"
+            class="login-form__submit"
             size="large"
             :loading="loading"
             @click="onSubmit"
@@ -64,7 +52,7 @@
             登录后台
           </el-button>
         </el-form>
-      </section>
+      </div>
     </div>
   </div>
 </template>
@@ -105,7 +93,7 @@ const onSubmit = async () => {
 
     if (success) {
       ElMessage.success('登录成功')
-      navigateTo('/admin', { replace: true })
+      await navigateTo('/admin', { replace: true })
       return
     }
 
@@ -120,120 +108,81 @@ const onSubmit = async () => {
 
 <style scoped lang="less">
 .login-page {
+  position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 32px 20px;
-  background:
-    radial-gradient(circle at top left, rgba(0, 105, 217, 0.12), transparent 34%),
-    radial-gradient(circle at bottom right, rgba(25, 135, 84, 0.12), transparent 28%),
-    linear-gradient(135deg, #f6f8fb 0%, #eef3f8 100%);
-}
-
-.login-shell {
-  width: min(1080px, 100%);
-  display: grid;
-  grid-template-columns: minmax(320px, 1.05fr) minmax(320px, 0.95fr);
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  border-radius: 28px;
   overflow: hidden;
-  box-shadow: 0 28px 80px rgba(16, 24, 40, 0.12);
-  backdrop-filter: blur(18px);
+  background-color: var(--bg-color);
 }
 
-.brand-panel {
-  padding: 56px;
-  color: #0f172a;
-  background:
-    linear-gradient(145deg, rgba(0, 105, 217, 0.08), rgba(25, 135, 84, 0.06)),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.92));
+.login-page__grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--primary-color) 8%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--primary-color) 8%, transparent) 1px, transparent 1px);
+  background-size: 36px 36px;
+  opacity: 0.35;
 }
 
-.brand-logo {
-  border-radius: 14px;
-  box-shadow: 0 12px 32px rgba(0, 105, 217, 0.16);
-}
-
-.brand-kicker {
-  margin: 24px 0 12px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #0069d9;
-}
-
-.brand-title {
-  margin: 0;
-  font-size: clamp(32px, 4vw, 48px);
-  line-height: 1.1;
-  font-weight: 800;
-}
-
-.brand-desc {
-  margin: 18px 0 0;
-  max-width: 420px;
-  font-size: 15px;
-  line-height: 1.8;
-  color: #475467;
-}
-
-.brand-points {
-  margin: 32px 0 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 14px;
-
-  li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    color: #0f172a;
-
-    &::before {
-      content: '';
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #0069d9, #198754);
-      box-shadow: 0 0 0 6px rgba(0, 105, 217, 0.08);
-    }
-  }
-}
-
-.login-panel {
-  padding: 56px 44px;
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: min(420px, 100%);
+  padding: 40px 36px 36px;
+  border-radius: 16px;
   background-color: var(--card-color);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 22%, var(--border-color));
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--text-color) 6%, transparent);
 }
 
-.login-header {
+.login-brand {
+  text-align: center;
   margin-bottom: 28px;
 }
 
-.login-title {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--text-color);
+.login-brand__logo {
+  display: block;
+  margin: 0 auto;
+  box-sizing: content-box;
+  padding: 8px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-color);
 }
 
-.login-subtitle {
+.login-brand__name {
+  margin: 18px 0 0;
+  font-size: clamp(28px, 5vw, 36px);
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  color: var(--text-color);
+  font-weight: 400;
+}
+
+.login-brand__subtitle {
   margin: 10px 0 0;
   font-size: 14px;
-  color: var(--tertiary-color);
+  color: var(--primary-color);
+  letter-spacing: 0.12em;
 }
 
-.form {
+
+.login-form {
+  margin-top: 22px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
 
   :deep(.el-form-item) {
     margin-bottom: 18px;
+  }
+
+  :deep(.el-form-item__label) {
+    color: var(--secondary-color);
   }
 
   :deep(.el-input__wrapper) {
@@ -254,31 +203,27 @@ const onSubmit = async () => {
   }
 }
 
-.remember-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
+.login-form__remember {
+  margin: 0 0 22px;
   color: var(--secondary-color);
 }
 
-.submit-btn {
+.login-form__submit {
   width: 100%;
-  border-radius: @base-border-radius;
   height: 46px;
+  border-radius: @base-border-radius;
   font-size: @font-size-md;
   font-weight: 600;
   letter-spacing: 1px;
 }
 
-@media (max-width: 960px) {
-  .login-shell {
-    grid-template-columns: 1fr;
+@media (max-width: 480px) {
+  .login-page {
+    padding: 24px 16px;
   }
 
-  .brand-panel,
-  .login-panel {
-    padding: 36px 28px;
+  .login-card {
+    padding: 32px 22px 28px;
   }
 }
 </style>
