@@ -1,35 +1,39 @@
 import { defineEventHandler, readBody, setResponseStatus } from 'h3'
 import { getCollections, withTransaction } from '../../utils/mongo'
+import { allocateNoteCategoryId } from '../../utils/note-helpers'
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody<{ id: string | number, name: string }>(event)
-    const id = String(body?.id || '').trim()
+    const body = await readBody<{ id?: string | number; name: string }>(event)
     const name = String(body?.name || '').trim()
-    if (!id || !name) {
+    const requestedId = String(body?.id || '').trim()
+    if (!name) {
       setResponseStatus(event, 400)
       return { status: 400, msg: '参数错误', data: null }
     }
 
     const data = await withTransaction(async (ctx) => {
       const { noteCategories } = getCollections(ctx.db)
-      const existedId = await noteCategories.findOne(
-        { id },
-        ctx.session ? { session: ctx.session } : undefined
-      )
-      if (existedId) {
-        throw new Error('分类 ID 已存在')
-      }
-      const existed = await noteCategories.findOne(
-        { name },
-        ctx.session ? { session: ctx.session } : undefined
-      )
+      const opts = ctx.session ? { session: ctx.session } : undefined
+
+      const existed = await noteCategories.findOne({ name }, opts)
       if (existed) {
         throw new Error('分类名称已存在')
       }
+
+      let id = requestedId
+      if (id) {
+        const existedId = await noteCategories.findOne({ id }, opts)
+        if (existedId) {
+          throw new Error('分类 ID 已存在')
+        }
+      } else {
+        id = await allocateNoteCategoryId(name, ctx)
+      }
+
       const now = new Date()
       const doc = { id, name, count: 0, createdAt: now, updatedAt: now }
-      await noteCategories.insertOne(doc, ctx.session ? { session: ctx.session } : undefined)
+      await noteCategories.insertOne(doc, opts)
       return {
         id: doc.id,
         name: doc.name,
