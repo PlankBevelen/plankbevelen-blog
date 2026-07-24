@@ -100,20 +100,7 @@ export default defineNuxtConfig({
     },
     build: {
       chunkSizeWarningLimit: 1500,
-      rollupOptions: {
-        output: {
-          manualChunks(id) {
-            if (id.includes('node_modules')) {
-              if (id.includes('md-editor-v3')) return 'md-editor-v3'
-              if (id.includes('element-plus')) return 'element-plus'
-              if (id.includes('echarts')) return 'echarts'
-              if (id.includes('three')) return 'three'
-              if (id.includes('gsap')) return 'gsap'
-              if (id.includes('lodash-es')) return 'lodash-es'
-            }
-          }
-        }
-      }
+      sourcemap: false,
     }
   },
   image: {
