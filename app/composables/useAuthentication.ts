@@ -18,11 +18,14 @@ export const useAuthentication = () => {
   }
 
   const setToken = (token: string, remember?: boolean) => {
-    const opts = {
+    const rawMaxAge = remember ? expirationTime.value : keepAliveTime.value
+    const maxAge = Number.isFinite(rawMaxAge) && rawMaxAge > 0
+      ? rawMaxAge
+      : 60 * 60 * 24 * 7
+    const c = useCookie<string | undefined>(tokenKey.value, {
       ...cookieOptions(),
-      maxAge: remember ? expirationTime.value : keepAliveTime.value,
-    }
-    const c = useCookie<string | undefined>(tokenKey.value, opts)
+      maxAge,
+    })
     c.value = token
     return c
   }
