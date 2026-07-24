@@ -16,23 +16,19 @@ export const useAdminStore = defineStore('admin', {
   },
   actions: {        
     async login(account: string, password: string, remember?: boolean) {
-      try {
-        const rememberMe = !!remember
-        const res: any = await adminService.login(
-          account,
-          useAuthentication().hashPassword(password),
-          rememberMe
-        )
-        if (res.status === 200 && res.token) {
-          this.userInfo = res.data ?? null
-          useAuthentication().setToken(res.token, rememberMe)
-          return !!useAuthentication().getToken()
-        }
-        return false
-      } catch (error) {
-        console.log(error, '登录失败')
-        return false
+      const rememberMe = !!remember
+      const res: any = await adminService.login(
+        account,
+        useAuthentication().hashPassword(password),
+        rememberMe
+      )
+      if (res?.status === 200 && res?.token) {
+        this.userInfo = res.data ?? null
+        useAuthentication().setToken(res.token, rememberMe)
+        // 信任接口返回的 token；勿再 getToken() 校验（useCookie 写入后可能尚未可读）
+        return true
       }
+      return false
     },
     async logout() {
         try {
