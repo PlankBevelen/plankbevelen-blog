@@ -53,6 +53,7 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'format-detection', content: 'telephone=no' },
         { name: 'author', content: 'PlankBevelen' },
+        { name: 'baidu-site-verification', content: 'codeva-sJBNhZ2pRR' },
       ]
     }
   },
