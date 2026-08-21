@@ -1,9 +1,9 @@
 <template>
   <aside class="sidebar" :class="{ collapsed: isCollapsed }">
     <div class="sidebar-logo">
-      <img src="/img/logo.webp" alt="logo" class="logo-img" width="32" height="32" />
+      <NuxtImg provider="ipx" src="/img/logo.webp" alt="logo" quality="70" loading="eager" class="logo-img" width="32" height="32" />
       <div v-show="!isCollapsed" class="logo-copy">
-        <span class="logo-text">PlankBevelen</span>
+        <span class="logo-text">plankbevelen</span>
         <span class="logo-subtitle">Admin Console</span>
       </div>
     </div>

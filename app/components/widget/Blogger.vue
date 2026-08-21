@@ -77,7 +77,7 @@ import articleService from '@/services/article.service'
 import categoryService from '@/services/category.service'
 import tagService from '@/services/tag.service'
 
-const name = 'PlankBevelen'
+const name = 'plankbevelen'
 
 const props = defineProps<{ articleCount?: number; categoryCount?: number; tagCount?: number }>()
 const articleCount = ref(0)

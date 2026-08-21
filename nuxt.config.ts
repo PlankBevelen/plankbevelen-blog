@@ -3,7 +3,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-09-15',
   devtools: { enabled: true },
-  css: ['@/assets/css/tailwind.css', '@/assets/css/global.less', '@/assets/css/theme.less', '@/assets/css/variables.less'],
+  css: ['@/assets/css/tailwind.css', '@/assets/css/variables.less', '@/assets/css/theme.less', '@/assets/css/reset.less', '@/assets/css/element-plus.less', '@/assets/css/components.less'],
   modules: ['nuxt-icons', '@pinia/nuxt', '@nuxt/image', '@nuxtjs/seo', '@element-plus/nuxt', '@nuxtjs/i18n', '@nuxtjs/tailwindcss'],
   ssr: true,
   // i18n 
@@ -42,8 +42,8 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: 'zh'
       },      
-      title: 'PlankBevelen',
-      titleTemplate: '%s | PlankBevelen',
+      title: 'plankbevelen',
+      titleTemplate: '%s | plankbevelen',
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         { rel: 'apple-touch-icon', href: '/img/logo.webp' }
@@ -52,20 +52,20 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'format-detection', content: 'telephone=no' },
-        { name: 'author', content: 'PlankBevelen' },
+        { name: 'author', content: 'plankbevelen' },
         { name: 'baidu-site-verification', content: 'codeva-sJBNhZ2pRR' },
       ]
     }
   },
   runtimeConfig: {  
-    authSecret: process.env.NUXT_AUTH_SECRET || 'dev-secret',
+    authSecret: process.env.NUXT_AUTH_SECRET || '',
     public: {
       baseUrl: process.env.NUXT_BASE_URL || '/',
       agentHealthUrl: process.env.NUXT_PUBLIC_AGENT_HEALTH_URL || 'http://127.0.0.1:6543/health',
       agentChatUrl: process.env.NUXT_PUBLIC_AGENT_CHAT_URL || 'http://127.0.0.1:6543/chat',
-      cookiePrefix: process.env.NUXT_PUBLIC_COOKIE_PREFIX || '',
-      expirationTime: process.env.NUXT_EXPIRATION_TIME || '432000',
-      keepAliveTime: process.env.NUXT_KEEP_ALIVE_TIME || '432000',
+      cookiePrefix: process.env.NUXT_PUBLIC_COOKIE_PREFIX || 'plankbevelen_',
+      expirationTime: process.env.NUXT_EXPIRATION_TIME || '43200',
+      keepAliveTime: process.env.NUXT_KEEP_ALIVE_TIME || '604800',
     }
   },  
   postcss: {
@@ -94,7 +94,7 @@ export default defineNuxtConfig({
       preprocessorMaxWorkers: 0,  // 禁用预处理器多线程，避免在服务器端运行时出现问题
       preprocessorOptions: {
         less: {
-          additionalData: '@import "@/assets/css/global.less"; @import "@/assets/css/theme.less"; @import "@/assets/css/variables.less";',
+          additionalData: '@import "@/assets/css/variables.less";',
           javascriptEnabled: true,
         }
       }

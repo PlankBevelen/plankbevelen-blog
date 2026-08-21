@@ -122,8 +122,8 @@ const DEFAULT_TIMELINE: SiteTimelineItem[] = [
 
 const DEFAULT_PROJECTS: SiteProjectItem[] = [
   {
-    id: 'plankbevelen-blog',
-    title: 'PlankBevelen Blog',
+    id: 'plankbevelen',
+    title: 'plankbevelen',
     summary: '个人博客和内容管理平台',
     description: '基于 Nuxt、MongoDB 和 Element Plus 的个人博客与内容管理站点。',
     period: '2025 - Present',

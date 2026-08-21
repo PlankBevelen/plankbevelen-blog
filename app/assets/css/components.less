@@ -1,0 +1,178 @@
+/* —————— MdPreview 容器：与 BaseCard 同频的 0.3s 颜色过渡，消除主题切换时的“边界感” —————— */
+.md-editor {
+    border: none;
+    transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+}
+
+.md-editor-preview {
+    font-size: @font-size-md;
+    font-family: 'ZTGJHeiTi', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Microsoft YaHei', sans-serif;
+    content-visibility: auto;
+    contain-intrinsic-size: 1000px;
+
+    --md-theme-color: var(--text-color);
+
+    /* — MdPreview 全量主题变量绑定（浅/暗通用：通过 theme.less CSS var 自动跟随主题切换） — */
+    --md-theme-bg-color: var(--card-color);
+    --md-theme-border-color: var(--border-color);
+    --md-theme-border-color-inset: var(--border-color);
+    --md-theme-border-color-reverse: var(--border-color);
+    --md-theme-link-color: var(--primary-color);
+    --md-theme-link-hover-color: var(--primary-hover-color);
+    --md-theme-bg-color-inset: var(--mute-bg-color);
+
+    /* — MdPreview 专用显式钉值（浅色合理默认值，code/heading/quote/table 等） — */
+    --md-theme-code-inline-color: #3594f7;
+    --md-theme-code-inline-bg-color: rgba(59, 170, 250, .1);
+    --md-theme-code-block-color: #a9b7c6;
+    --md-theme-code-block-bg-color: #282c34;
+    --md-theme-code-before-bg-color: var(--md-theme-code-block-bg-color);
+    --md-theme-code-copy-tips-color: var(--md-theme-color);
+    --md-theme-code-copy-tips-bg-color: var(--md-theme-bg-color);
+    --md-theme-code-active-color: var(--primary-color);
+    --md-theme-heading-color: var(--text-color);
+    --md-theme-quote-color: var(--secondary-color);
+    --md-theme-quote-border: 4px solid var(--primary-color);
+    --md-theme-quote-bg-color: var(--mute-bg-color);
+    --md-theme-table-stripe-color: var(--mute-bg-color);
+    --md-theme-table-td-border-color: var(--border-color);
+    --md-theme-table-tr-bg-color: inherit;
+
+    color: var(--md-theme-color);
+
+    > *:first-child {
+        margin-top: 12px;
+    }
+    code {
+        & > * {
+            font-size: @font-size-sm;
+            letter-spacing: 0.05em;
+        }
+        &:not(pre code) {
+            font-size: @font-size-sm;
+            line-height: normal;
+            margin: 0 4px;
+        }
+    }
+}
+
+/* —————— MdPreview 暗黑整套主题变量（高特异性覆盖库 .md-editor-dark .md-editor-preview） —————— */
+html[theme="dark"] .md-editor .md-editor-preview {
+    /* 文字 / 链接 */
+    --md-theme-color: var(--text-color);
+    --md-theme-color-reverse: var(--bg-color);
+    --md-theme-color-hover: var(--secondary-color);
+    --md-theme-color-hover-inset: var(--mute-bg-color);
+    --md-theme-link-color: var(--primary-color);
+    --md-theme-link-hover-color: var(--primary-hover-color);
+    /* 边框 / 背景 */
+    --md-theme-border-color: var(--border-color);
+    --md-theme-border-color-inset: var(--border-color);
+    --md-theme-border-color-reverse: var(--border-color);
+    --md-theme-bg-color: var(--card-color);
+    --md-theme-bg-color-inset: var(--mute-bg-color);
+    /* 代码 */
+    --md-theme-code-inline-color: #61a8ff;
+    --md-theme-code-inline-bg-color: rgba(97, 168, 255, .15);
+    --md-theme-code-block-bg-color: #1a1d21;
+    --md-theme-code-before-bg-color: var(--md-theme-code-block-bg-color);
+    --md-theme-code-copy-tips-color: var(--text-color);
+    --md-theme-code-copy-tips-bg-color: var(--card-color);
+    --md-theme-code-active-color: var(--primary-color);
+}
+
+/* —————— MdPreview 暗黑容器背景（覆盖库默认 --md-bk-color:#000 纯黑） —————— */
+html[theme="dark"] .md-editor {
+    --md-bk-color: var(--card-color);
+}
+
+/* —————— MdPreview admonition 16 种提示块（浅色，前缀直接挂 .md-editor-preview，不依赖外层 .md-editor） —————— */
+.md-editor-preview .md-editor-admonition-note { --md-admonition-color:#212121; --md-admonition-bg-color:#FFFFFF; --md-admonition-border-color:rgb(166.2,166.2,166.2); }
+.md-editor-preview .md-editor-admonition-tip  { --md-admonition-color:#616161; --md-admonition-bg-color:#F5F5F5; --md-admonition-border-color:rgb(185.8,185.8,185.8); }
+.md-editor-preview .md-editor-admonition-info { --md-admonition-color:#424242; --md-admonition-bg-color:#F0F0F0; --md-admonition-border-color:rgb(170.4,170.4,170.4); }
+.md-editor-preview .md-editor-admonition-quote{ --md-admonition-color:#455a64; --md-admonition-bg-color:#eceff1; --md-admonition-border-color:rgb(169.2,179.4,184.6); }
+.md-editor-preview .md-editor-admonition-abstract { --md-admonition-color:#0288d1; --md-admonition-bg-color:#e1f5fe; --md-admonition-border-color:rgb(135.8,201.4,236); }
+.md-editor-preview .md-editor-admonition-attention{ --md-admonition-color:#1e88e5; --md-admonition-bg-color:#e3f2fd; --md-admonition-border-color:rgb(148.2,199.6,243.4); }
+.md-editor-preview .md-editor-admonition-example  { --md-admonition-color:#5e35b1; --md-admonition-bg-color:#ede7f6; --md-admonition-border-color:rgb(179.8,159.8,218.4); }
+.md-editor-preview .md-editor-admonition-hint     { --md-admonition-color:#00897B; --md-admonition-bg-color:#E0F2F1; --md-admonition-border-color:rgb(134.4,200,193.8); }
+.md-editor-preview .md-editor-admonition-success  { --md-admonition-color:#388e3c; --md-admonition-bg-color:#e8f5e9; --md-admonition-border-color:rgb(161.6,203.8,163.8); }
+.md-editor-preview .md-editor-admonition-question { --md-admonition-color:#f9a825; --md-admonition-bg-color:#fffde7; --md-admonition-border-color:rgb(252.6,219,153.4); }
+.md-editor-preview .md-editor-admonition-caution  { --md-admonition-color:#fb8c00; --md-admonition-bg-color:#fff8e1; --md-admonition-border-color:rgb(253.4,204.8,135); }
+.md-editor-preview .md-editor-admonition-warning  { --md-admonition-color:#f57c00; --md-admonition-bg-color:#fff3e0; --md-admonition-border-color:rgb(251,195.4,134.4); }
+.md-editor-preview .md-editor-admonition-danger   { --md-admonition-color:#d84315; --md-admonition-bg-color:#ffebee; --md-admonition-border-color:rgb(239.4,167.8,151.2); }
+.md-editor-preview .md-editor-admonition-failure  { --md-admonition-color:#d32f2f; --md-admonition-bg-color:#fee2e6; --md-admonition-border-color:rgb(236.8,154.4,156.8); }
+.md-editor-preview .md-editor-admonition-bug      { --md-admonition-color:#c31a1a; --md-admonition-bg-color:#fddadd; --md-admonition-border-color:rgb(229.8,141.2,143); }
+.md-editor-preview .md-editor-admonition-error    { --md-admonition-color:#b71c1c; --md-admonition-bg-color:#fdd2d6; --md-admonition-border-color:rgb(225,137.2,139.6); }
+
+/* —————— MdPreview admonition 16 种提示块（暗黑，html[theme="dark"] 精确覆盖） —————— */
+html[theme="dark"] .md-editor-preview .md-editor-admonition-note { --md-admonition-color:#E0E0E0; --md-admonition-bg-color:#1E1E1E; --md-admonition-border-color:rgb(107.6,107.6,107.6); }
+html[theme="dark"] .md-editor-preview .md-editor-admonition-tip  { --md-admonition-color:#B0B0B0; --md-admonition-bg-color:#262626; --md-admonition-border-color:rgb(93.2,93.2,93.2); }
+html[theme="dark"] .md-editor-preview .md-editor-admonition-info { --md-admonition-color:#B3B3B3; --md-admonition-bg-color:#2B2B2B; --md-admonition-border-color:rgb(97.4,97.4,97.4); }
+html[theme="dark"] .md-editor-preview .md-editor-admonition-quote{ --md-admonition-color:#b0bec5; --md-admonition-bg-color:#263238; --md-admonition-border-color:rgb(93.2,106,112.4); }
+html[theme="dark"] .md-editor-preview .md-editor-admonition-abstract { --md-admonition-color:#81d4fa; --md-admonition-bg-color:#012f45; --md-admonition-border-color:rgb(52.2,113,141.4); }
+html[theme="dark"] .md-editor-preview .md-editor-admonition-attention{ --md-admonition-color:#64b5f6; --md-admonition-bg-color:#102a4c; --md-admonition-border-color:rgb(49.6,97.6,144); }
+html[theme="dark"] .md-editor-preview .md-editor-admonition-example  { --md-admonition-color:#9575cd; --md-admonition-bg-color:#271b52; --md-admonition-border-color:rgb(83,63,131.2); }
+html[theme="dark"] .md-editor-preview .md-editor-admonition-hint     { --md-admonition-color:#4DB6AC; --md-admonition-bg-color:#003D3A; --md-admonition-border-color:rgb(30.8,109.4,103.6); }
+html[theme="dark"] .md-editor-preview .md-editor-admonition-success  { --md-admonition-color:#81c784; --md-admonition-bg-color:#1b5e20; --md-admonition-border-color:rgb(67.8,136,72); }
+html[theme="dark"] .md-editor-preview .md-editor-admonition-question { --md-admonition-color:#ffd54f; --md-admonition-bg-color:#3e2f00; --md-admonition-border-color:rgb(139.2,113.4,31.6); }
+html[theme="dark"] .md-editor-preview .md-editor-admonition-caution  { --md-admonition-color:#ffcc80; --md-admonition-bg-color:#3e2600; --md-admonition-border-color:rgb(139.2,104.4,51.2); }
+html[theme="dark"] .md-editor-preview .md-editor-admonition-warning  { --md-admonition-color:#ffb74d; --md-admonition-bg-color:#3d2600; --md-admonition-border-color:rgb(138.6,96,30.8); }
+html[theme="dark"] .md-editor-preview .md-editor-admonition-danger   { --md-admonition-color:#ef9a9a; --md-admonition-bg-color:#3c0000; --md-admonition-border-color:rgb(131.6,61.6,61.6); }
+html[theme="dark"] .md-editor-preview .md-editor-admonition-failure  { --md-admonition-color:#ef9a9a; --md-admonition-bg-color:#3c0900; --md-admonition-border-color:rgb(131.6,67,61.6); }
+html[theme="dark"] .md-editor-preview .md-editor-admonition-bug      { --md-admonition-color:#e68381; --md-admonition-bg-color:#300000; --md-admonition-border-color:rgb(120.8,52.4,51.6); }
+html[theme="dark"] .md-editor-preview .md-editor-admonition-error    { --md-admonition-color:#ef5350; --md-admonition-bg-color:#300000; --md-admonition-border-color:rgb(124.4,33.2,32); }
+
+/* —————— MdPreview default-theme 子主题（quote 边框/底色，不依赖外层 .md-editor） —————— */
+.md-editor-preview div.default-theme {
+    --md-theme-quote-border: 5px solid var(--primary-color);
+    --md-theme-quote-bg-color: var(--mute-bg-color);
+}
+
+/* —————— 全局滚动条（Firefox + WebKit / 浅 + 深）—————— */
+
+html, body {
+    scrollbar-width: thin;
+    scrollbar-color: var(--tertiary-color) var(--bg-color);
+}
+
+/* WebKit — 所有元素通用（浅色默认） */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-color);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--tertiary-color);
+    border-radius: 9999px;
+    border: 2px solid var(--bg-color);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--mute-color);
+}
+::-webkit-scrollbar-corner {
+    background: var(--bg-color);
+}
+
+/* WebKit — 暗黑（用硬颜色，避免 Blink 在伪元素上解析 CSS var 不稳定导致切换闪白） */
+html[theme="dark"]::-webkit-scrollbar-track,
+html[theme="dark"] *::-webkit-scrollbar-track {
+    background: #0e0f11;
+}
+
+html[theme="dark"]::-webkit-scrollbar-thumb,
+html[theme="dark"] *::-webkit-scrollbar-thumb {
+    background: #495057;
+    border-color: #0e0f11;
+}
+
+html[theme="dark"]::-webkit-scrollbar-thumb:hover,
+html[theme="dark"] *::-webkit-scrollbar-thumb:hover {
+    background: #6c757d;
+}
+
+html[theme="dark"]::-webkit-scrollbar-corner,
+html[theme="dark"] *::-webkit-scrollbar-corner {
+    background: #0e0f11;
+}

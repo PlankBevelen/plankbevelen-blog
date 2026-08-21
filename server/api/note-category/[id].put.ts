@@ -3,7 +3,7 @@ import { getCollections, getDb } from '../../utils/mongo'
 
 export default defineEventHandler(async (event) => {
   try {
-    const id = Number(event?.context?.params?.id)
+    const id = String(event?.context?.params?.id || '').trim()
     const body = await readBody<{ name: string }>(event)
     const name = String(body?.name || '').trim()
     if (!id || !name) {

@@ -1,49 +1,69 @@
 import { defineEventHandler, readBody, setResponseStatus } from 'h3'
-import { sha256 } from 'js-sha256'
 import jwt from 'jsonwebtoken'
-import dotenv from 'dotenv'
-
-// 加载环境变量
-dotenv.config()
+import { sha256Hex, safeEqualString, randomTokenHex } from '../../utils/crypto-safe'
+import { consumeCaptcha } from '../../utils/captcha'
+import { assertRateLimit } from '../../utils/rate-limit'
+import { setAuthCookies, sessionMaxAgeSeconds } from '../../utils/auth-cookies'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody<{ account: string; password: string; remember?: boolean }>(event)
-  const { account, password, remember } = body || { account: '', password: '', remember: false }
+  const body = await readBody<{
+    account: string
+    password: string
+    remember?: boolean
+    captchaId?: string
+    captchaCode?: string
+  }>(event)
+  const {
+    account = '',
+    password = '',
+    remember = false,
+    captchaId = '',
+    captchaCode = '',
+  } = body || {}
 
-  const config = useRuntimeConfig()
-  const adminAccount = process.env.NUXT_ADMIN_ACCOUNT 
-  const secret = config.authSecret as string
-  const adminPassword = process.env.NUXT_ADMIN_PASSWORD 
-  if (!adminAccount || !secret || !adminPassword) {
-    setResponseStatus(event, 500)
-    return { code: 'MISSING_CONFIG', message: 'Admin credentials not configured' }
+  // 1. 登录限流
+  const rateMax = Number(process.env.LOGIN_RATE_LIMIT_MAX) || 10
+  const rateWindow = Number(process.env.LOGIN_RATE_LIMIT_WINDOW_SECONDS) || 60
+  if (!(await assertRateLimit(event, 'login', rateMax, rateWindow))) {
+    return { status: 429, msg: '登录尝试过于频繁，请稍后再试' }
   }
 
+  // 2. 验证码（一次性）
+  if (!(await consumeCaptcha(captchaId, captchaCode))) {
+    setResponseStatus(event, 400)
+    return { status: 400, msg: '验证码错误或已过期' }
+  }
+
+  // 3. 缺配置 → 500
+  const config = useRuntimeConfig()
+  const adminAccount = process.env.NUXT_ADMIN_ACCOUNT
+  const adminPasswordHash = process.env.NUXT_ADMIN_PASSWORD
+  const secret = config.authSecret as string
+  if (!adminAccount || !adminPasswordHash || !secret) {
+    setResponseStatus(event, 500)
+    return { status: 500, msg: '服务器未正确配置管理员凭据' }
+  }
+
+  // 4. 参数
   if (!account || !password) {
     setResponseStatus(event, 400)
-    return { code: 'BAD_REQUEST', message: 'Missing account or password' }
+    return { status: 400, msg: '请输入账号和密码' }
   }
-  
-  // 对前端传来的明文密码进行哈希，然后与配置的密码哈希进行比对
-  const inputHash = sha256(String(password))
-  const hash = sha256(String(adminPassword))
-  
-  if (account !== adminAccount || inputHash !== hash) {
+
+  // 5. 常量时间比对（账号 + 密码哈希）
+  const accountOk = safeEqualString(account, adminAccount)
+  const passwordOk = safeEqualString(sha256Hex(password), adminPasswordHash)
+  if (!accountOk || !passwordOk) {
     setResponseStatus(event, 401)
-    return { code: 'INVALID_CREDENTIALS', message: 'Invalid account or password' }
+    return { status: 401, msg: '账号或密码错误' }
   }
 
-  const rawExpires = remember
-    ? config.public.expirationTime
-    : config.public.keepAliveTime
-  const expiresIn = Number(rawExpires)
-  if (!Number.isFinite(expiresIn) || expiresIn <= 0) {
-    setResponseStatus(event, 500)
-    return { code: 'INVALID_CONFIG', message: 'Invalid token expiration configuration' }
-  }
+  // 6. 签发 JWT + 设置 httpOnly Cookie（响应不返回 token）
+  const expiresIn = sessionMaxAgeSeconds(remember)
   const token = jwt.sign({ sub: adminAccount }, secret, { expiresIn })
+  const csrf = randomTokenHex(16)
+  setAuthCookies(event, token, csrf, remember)
 
-  // Token 由客户端可读 cookie 保存并经请求头 token 传给 API，此处不再写 httpOnly 同名 cookie
   setResponseStatus(event, 200)
-  return { message: 'Login successful', status: 200, token }
+  return { status: 200, msg: '登录成功' }
 })

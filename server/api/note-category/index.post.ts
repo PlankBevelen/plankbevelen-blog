@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
     const message = String(error?.message || '')
     if (message.includes('已存在')) {
       setResponseStatus(event, 400)
-      return { status: 400, msg: message, data: null }
+      return { status: 400, msg: '分类已存在', data: null }
     }
     setResponseStatus(event, 500)
     return { status: 500, msg: '服务器错误', data: null }

@@ -2,8 +2,8 @@ import { defineEventHandler, setResponseStatus } from 'h3'
 import { getDb, getCollections } from '../../../utils/mongo'
 
 const SITE_URL = 'https://plankbevelen.cn'
-const SITE_AUTHOR = 'PlankBevelen'
-const SITE_NAME = 'PlankBevelen 的个人博客'
+const SITE_AUTHOR = 'plankbevelen'
+const SITE_NAME = 'plankbevelen 的个人博客'
 const SITE_DESCRIPTION =
   'plankbevelen 的个人博客，记录前端、创作和个人项目的持续实践。'
 const SITE_LOCALE = 'zh'

@@ -94,7 +94,7 @@ export default defineEventHandler(async (event) => {
   } catch (error: any) {
     if (Number(error?.statusCode) === 404) {
       setResponseStatus(event, 404)
-      return { status: 404, msg: error.message || '笔记不存在', data: null }
+      return { status: 404, msg: '笔记不存在', data: null }
     }
     setResponseStatus(event, 500)
     return { status: 500, msg: '服务器错误', data: null }

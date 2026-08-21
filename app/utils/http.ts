@@ -8,50 +8,29 @@ class Http {
   }
 
   private async request<T>(url: string, options: any = {}): Promise<T> {
-    const { getToken } = useAuthentication()
-    const token = getToken()
     const method = String(options.method || 'GET').toUpperCase()
+    const headers: Record<string, string> = { ...(options.headers || {}) }
 
-    const headers = {
-      ...(options.headers || {}),
-    }
-
-    const protectedMutationPaths = [
-      '/article',
-      '/category',
-      '/note',
-      '/note-category',
-      '/tag/sync',
-      '/upload',
-    ]
-    const shouldAttachToken = url.includes('/admin')
-      || (
-        method !== 'GET'
-        && method !== 'HEAD'
-        && protectedMutationPaths.some((prefix) => url === prefix || url.startsWith(`${prefix}/`))
-      )
-
-    if (shouldAttachToken && token) {
-      headers.token = token
+    // 非 GET 写请求：读取 CSRF cookie，设置 X-CSRF-Token（双提交）
+    if (method !== 'GET' && method !== 'HEAD') {
+      const csrf = useAuthentication().getCsrfToken()
+      if (csrf) headers['X-CSRF-Token'] = csrf
     }
 
     try {
       const response: any = await $fetch(url, {
         baseURL: this.baseURL,
         ...options,
+        credentials: 'include',
         headers,
-        onResponse() {
-
-        },
         onResponseError({ response }: any) {
           if (response.status === 401) {
-            // 处理未授权，例如跳转登录
+            // 未授权：交由调用方 / 路由守卫处理
           }
         }
       })
       return response
     } catch (error: any) {
-      // 统一错误处理
       console.error('Request Error:', error)
       throw error
     }

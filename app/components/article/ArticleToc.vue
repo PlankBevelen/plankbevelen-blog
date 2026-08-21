@@ -59,6 +59,7 @@ function onJump(item: TocItem) {
   padding: 0 !important;
   overflow-y: auto;
   scrollbar-width: thin;
+  scrollbar-color: var(--tertiary-color) transparent;
 }
 .toc-list { 
   display: flex; 

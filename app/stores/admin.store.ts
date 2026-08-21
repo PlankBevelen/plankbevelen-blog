@@ -5,52 +5,48 @@ import { useTheme } from '@/composables/useTheme'
 
 export const useAdminStore = defineStore('admin', {
   state: () => ({
-    token: '' as string,
+    authenticated: false,
     userInfo: null as any,
     theme: 'light' as 'light' | 'dark',
     locale: 'zh' as 'en' | 'zh',
   }),
   getters: {
-    // 以内存 token 为准，避免刚写入 cookie 时读不到导致进不去后台
-    isAuthenticated: (state) => !!state.token,
+    // 登录态以服务端 session 校验结果为准（JWT 存 httpOnly cookie，前端不持有明文）
+    isAuthenticated: (state) => state.authenticated,
     getTheme: (state) => state.theme,
     getLocale: (state) => state.locale,
   },
   actions: {
-    /** 从 cookie 恢复登录态（刷新 / SSR） */
-    hydrateAuth() {
-      if (this.token) return
-      const saved = useAuthentication().getToken()
-      if (saved) this.token = saved
+    /** 从服务端 session 恢复登录态（刷新 / SSR） */
+    async hydrateAuth() {
+      if (this.authenticated) return
+      try {
+        const res: any = await adminService.session()
+        this.authenticated = !!res?.authenticated
+      } catch {
+        this.authenticated = false
+      }
     },
-    async login(account: string, password: string, remember?: boolean) {
-      const rememberMe = !!remember
-      const res: any = await adminService.login(
-        account,
-        useAuthentication().hashPassword(password),
-        rememberMe
-      )
-      if (res?.status === 200 && res?.token) {
+    async login(account: string, password: string, remember: boolean, captchaId: string, captchaCode: string) {
+      const res: any = await adminService.login(account, password, remember, captchaId, captchaCode)
+      if (res?.status === 200) {
         this.userInfo = res.data ?? null
-        this.token = res.token
-        useAuthentication().setToken(res.token, rememberMe)
+        this.authenticated = true
         return true
       }
       return false
     },
     async logout() {
       try {
-        const res = await adminService.logout()
-        if (res.status === 200) {
-          this.userInfo = null
-          this.token = ''
-          useAuthentication().clearUp()
-          return true
-        }
+        await adminService.logout()
       } catch (error) {
         console.log(error, '退出登录失败')
-        return false
+      } finally {
+        this.userInfo = null
+        this.authenticated = false
+        useAuthentication().clearUp()
       }
+      return true
     },
     initPreferences() {
       const { getI18n, getTheme } = useAuthentication()

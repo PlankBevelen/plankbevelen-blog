@@ -23,6 +23,7 @@
 import { computed } from 'vue'
 import { useSidebarData } from '@/composables/useSidebarData'
 import { useGrowthTimeline } from '@/composables/useGrowthTimeline'
+import { SITE_URL } from '@/composables/useSeo'
 
 const { locale } = useI18n()
 const { data, pending } = await useSidebarData()
@@ -36,6 +37,27 @@ usePageSeo({
       ? 'A chronological record of milestones and growth notes.'
       : '按时间顺序记录成长节点与阶段性思考。'
 })
+
+// 结构化数据：ItemList（时间线）
+useHead(() => ({
+  script: [
+    {
+      key: 'timeline-ld',
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        itemListElement: growthTimeline.value.map((item, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: item.title,
+          description: item.desc,
+          url: `${SITE_URL}/timeline`,
+        })),
+      }),
+    },
+  ],
+}))
 </script>
 
 <style scoped lang="less">

@@ -1,10 +1,10 @@
 import { useAdminStore } from '~/stores/admin.store'
 
-export default defineNuxtRouteMiddleware((to) => {
+export default defineNuxtRouteMiddleware(async (to) => {
   if (!to.path.startsWith('/admin')) return
 
   const adminStore = useAdminStore()
-  adminStore.hydrateAuth()
+  await adminStore.hydrateAuth()
 
   if (to.path === '/admin/login') {
     if (adminStore.isAuthenticated) {

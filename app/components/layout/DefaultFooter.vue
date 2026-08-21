@@ -7,7 +7,10 @@
       </div>
       <div class="footer-bottom">
         <p class="copy">© {{ year }} {{ $t('footer.copyright') }}</p>
-        <a href="https://beian.miit.gov.cn/" target="_blank"> {{ $t('footer.beian') }} </a>
+        <div class="footer-links">
+          <NuxtLink :to="localePath('/privacy')" class="privacy-link">{{ $t('pages.privacy.title') }}</NuxtLink>
+          <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer"> {{ $t('footer.beian') }} </a>
+        </div>
       </div>
     </div>
   </footer>
@@ -15,6 +18,7 @@
 
 <script setup lang="ts">
 const year = new Date().getFullYear()
+const localePath = useLocalePath()
 </script>
 
 <style lang="less" scoped>
@@ -58,6 +62,11 @@ const year = new Date().getFullYear()
       display: flex;
       justify-content: space-between;
       align-items: center;
+      .footer-links {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+      }
     }
   }
 }

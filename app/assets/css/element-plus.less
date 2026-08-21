@@ -1,0 +1,206 @@
+:root[theme="dark"] {
+
+    /* Button */
+    --el-button-bg-color: #1b1d1e;
+    --el-button-text-color: #e9ecef;
+    --el-button-border-color: #343a40;
+    --el-button-hover-text-color: #61a8ff;
+    --el-button-hover-bg-color: rgba(97, 168, 255, 0.08);
+    --el-button-hover-border-color: #61a8ff;
+    --el-button-active-text-color: #fff;
+    --el-button-active-bg-color: #61a8ff;
+    --el-button-active-border-color: #61a8ff;
+
+    /* Table */
+    --el-table-bg-color: #1b1d1e;
+    --el-table-header-bg-color: #202224;
+    --el-table-tr-bg-color: #1b1d1e;
+    --el-table-border-color: #343a40;
+    --el-table-text-color: #e9ecef;
+    --el-table-header-text-color: #adb5bd;
+    --el-table-row-hover-bg-color: rgba(255, 255, 255, 0.04);
+    --el-table-current-row-bg-color: rgba(97, 168, 255, 0.08);
+    --el-table-stripe-bg-color: rgba(255, 255, 255, 0.02);
+
+    /* Input / Select */
+    --el-input-bg-color: #1b1d1e;
+    --el-input-text-color: #e9ecef;
+    --el-input-border-color: #343a40;
+    --el-input-hover-border-color: #495057;
+    --el-input-focus-border-color: #61a8ff;
+    --el-input-placeholder-color: #6c757d;
+
+    /* Tag */
+    --el-tag-bg-color: rgba(97, 168, 255, 0.1);
+    --el-tag-text-color: #61a8ff;
+    --el-tag-border-color: rgba(97, 168, 255, 0.2);
+
+    /* Pagination */
+    --el-pagination-bg-color: #1b1d1e;
+    --el-pagination-text-color: #e9ecef;
+    --el-pagination-button-bg-color: #202224;
+    --el-pagination-button-disabled-bg-color: #25282b;
+    --el-pagination-hover-color: #61a8ff;
+
+    /* Dropdown / Popover */
+    --el-dropdown-bg-color: #232628;
+    --el-dropdown-menuItem-hover-color: #61a8ff;
+    --el-dropdown-menuItem-hover-fill: rgba(255, 255, 255, 0.06);
+    --el-popover-bg-color: #232628;
+    --el-popover-border-color: #343a40;
+
+    /* Dialog / Drawer */
+    --el-dialog-bg-color: #1b1d1e;
+    --el-dialog-border-color: #343a40;
+    --el-drawer-bg-color: #1b1d1e;
+
+    /* Select dropdown */
+    --el-select-dropdown-bg-color: #232628;
+    --el-select-dropdown-hover-bg-color: rgba(255, 255, 255, 0.06);
+
+    /* Switch */
+    --el-switch-off-color: #495057;
+
+    /* Checkbox / Radio */
+    --el-checkbox-bg-color: #1b1d1e;
+    --el-checkbox-input-border: #495057;
+    --el-radio-bg-color: #1b1d1e;
+    --el-radio-input-border: #495057;
+
+    /* Empty */
+    --el-empty-text-color: #6c757d;
+
+    /* Form */
+    --el-form-label-color: #adb5bd;
+
+    /* DatePicker / Calendar */
+    --el-datepicker-bg-color: #232628;
+    --el-datepicker-border-color: #343a40;
+    --el-datepicker-text-color: #e9ecef;
+    --el-datepicker-header-text-color: #adb5bd;
+    --el-datepicker-icon-color: #adb5bd;
+    --el-datepicker-hover-text-color: #61a8ff;
+    --el-calendar-bg-color: #232628;
+    --el-calendar-border-color: #343a40;
+    --el-calendar-selected-bg-color: rgba(97, 168, 255, 0.2);
+}
+
+/* 全局裸规则覆盖 */
+:deep(.el-button) {
+    padding: 8px 16px;
+}
+.el-button+.el-button {
+    margin-left: 0;
+}
+.el-select, .el-input, .el-select-dropdown__item {
+    font-weight: 500;
+}
+.el-select-dropdown__item {
+    padding: 0 8px;
+}
+
+/* —————— Element Plus 内置可滚动容器滚动条适配（Firefox + WebKit，浅 + 深）—————— */
+
+.el-dialog__body,
+.el-drawer__body,
+.el-table__body-wrapper,
+.el-table__header-wrapper,
+.el-select-dropdown__wrap,
+.el-cascader-menu,
+.el-date-picker,
+.el-picker-panel,
+.el-transfer-panel .el-transfer-panel__body,
+.el-message-box__message,
+.el-popover {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color-dark, var(--tertiary-color)) transparent;
+}
+
+/* WebKit — 浅色（宽高/圆角与全局滚动条保持一致 8px / 9999px） */
+.el-dialog__body::-webkit-scrollbar,
+.el-drawer__body::-webkit-scrollbar,
+.el-table__body-wrapper::-webkit-scrollbar,
+.el-table__header-wrapper::-webkit-scrollbar,
+.el-select-dropdown__wrap::-webkit-scrollbar,
+.el-cascader-menu::-webkit-scrollbar,
+.el-date-picker::-webkit-scrollbar,
+.el-picker-panel::-webkit-scrollbar,
+.el-transfer-panel .el-transfer-panel__body::-webkit-scrollbar,
+.el-message-box__message::-webkit-scrollbar,
+.el-popover::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.el-dialog__body::-webkit-scrollbar-track,
+.el-drawer__body::-webkit-scrollbar-track,
+.el-table__body-wrapper::-webkit-scrollbar-track,
+.el-table__header-wrapper::-webkit-scrollbar-track,
+.el-select-dropdown__wrap::-webkit-scrollbar-track,
+.el-cascader-menu::-webkit-scrollbar-track,
+.el-date-picker::-webkit-scrollbar-track,
+.el-picker-panel::-webkit-scrollbar-track,
+.el-transfer-panel .el-transfer-panel__body::-webkit-scrollbar-track,
+.el-message-box__message::-webkit-scrollbar-track,
+.el-popover::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.el-dialog__body::-webkit-scrollbar-thumb,
+.el-drawer__body::-webkit-scrollbar-thumb,
+.el-table__body-wrapper::-webkit-scrollbar-thumb,
+.el-table__header-wrapper::-webkit-scrollbar-thumb,
+.el-select-dropdown__wrap::-webkit-scrollbar-thumb,
+.el-cascader-menu::-webkit-scrollbar-thumb,
+.el-date-picker::-webkit-scrollbar-thumb,
+.el-picker-panel::-webkit-scrollbar-thumb,
+.el-transfer-panel .el-transfer-panel__body::-webkit-scrollbar-thumb,
+.el-message-box__message::-webkit-scrollbar-thumb,
+.el-popover::-webkit-scrollbar-thumb {
+    background: var(--tertiary-color);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+}
+
+.el-dialog__body::-webkit-scrollbar-thumb:hover,
+.el-drawer__body::-webkit-scrollbar-thumb:hover,
+.el-table__body-wrapper::-webkit-scrollbar-thumb:hover,
+.el-table__header-wrapper::-webkit-scrollbar-thumb:hover,
+.el-select-dropdown__wrap::-webkit-scrollbar-thumb:hover,
+.el-cascader-menu::-webkit-scrollbar-thumb:hover,
+.el-date-picker::-webkit-scrollbar-thumb:hover,
+.el-picker-panel::-webkit-scrollbar-thumb:hover,
+.el-transfer-panel .el-transfer-panel__body::-webkit-scrollbar-thumb:hover,
+.el-message-box__message::-webkit-scrollbar-thumb:hover,
+.el-popover::-webkit-scrollbar-thumb:hover {
+    background: var(--mute-color);
+}
+
+/* WebKit — 暗黑（硬颜色，避免 Blink 切换闪白） */
+html[theme="dark"] .el-dialog__body::-webkit-scrollbar-thumb,
+html[theme="dark"] .el-drawer__body::-webkit-scrollbar-thumb,
+html[theme="dark"] .el-table__body-wrapper::-webkit-scrollbar-thumb,
+html[theme="dark"] .el-table__header-wrapper::-webkit-scrollbar-thumb,
+html[theme="dark"] .el-select-dropdown__wrap::-webkit-scrollbar-thumb,
+html[theme="dark"] .el-cascader-menu::-webkit-scrollbar-thumb,
+html[theme="dark"] .el-date-picker::-webkit-scrollbar-thumb,
+html[theme="dark"] .el-picker-panel::-webkit-scrollbar-thumb,
+html[theme="dark"] .el-transfer-panel .el-transfer-panel__body::-webkit-scrollbar-thumb,
+html[theme="dark"] .el-message-box__message::-webkit-scrollbar-thumb,
+html[theme="dark"] .el-popover::-webkit-scrollbar-thumb {
+    background: #495057;
+}
+
+html[theme="dark"] .el-dialog__body::-webkit-scrollbar-thumb:hover,
+html[theme="dark"] .el-drawer__body::-webkit-scrollbar-thumb:hover,
+html[theme="dark"] .el-table__body-wrapper::-webkit-scrollbar-thumb:hover,
+html[theme="dark"] .el-table__header-wrapper::-webkit-scrollbar-thumb:hover,
+html[theme="dark"] .el-select-dropdown__wrap::-webkit-scrollbar-thumb:hover,
+html[theme="dark"] .el-cascader-menu::-webkit-scrollbar-thumb:hover,
+html[theme="dark"] .el-date-picker::-webkit-scrollbar-thumb:hover,
+html[theme="dark"] .el-picker-panel::-webkit-scrollbar-thumb:hover,
+html[theme="dark"] .el-transfer-panel .el-transfer-panel__body::-webkit-scrollbar-thumb:hover,
+html[theme="dark"] .el-message-box__message::-webkit-scrollbar-thumb:hover,
+html[theme="dark"] .el-popover::-webkit-scrollbar-thumb:hover {
+    background: #6c757d;
+}

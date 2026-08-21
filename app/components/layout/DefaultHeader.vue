@@ -21,9 +21,9 @@
           <NuxtLink :to="localePath(item.path)" class="nav-link">{{ $t(item.key) }}</NuxtLink>
         </li>
       </ul>
-      <div class="mobile-menu-btn" v-if="isMobile" @click="toggleMobileMenu">
+      <button class="mobile-menu-btn" v-if="isMobile" type="button" :aria-expanded="mobileMenuOpen" aria-label="菜单" @click="toggleMobileMenu">
         <nuxt-icon :name="mobileMenuOpen ? 'header/close' : 'header/menu'" />
-      </div>
+      </button>
 
       <div class="controls" v-if="!isMobile">
         <el-switch 
@@ -90,12 +90,18 @@ import { useUserAgent } from '@/composables/useUseragent'
 
 const admin = useAdminStore()
 const themeSwitch = computed({ get(){ return admin.getTheme === 'dark' }, set(v){ admin.setTheme(v ? 'dark' : 'light') } })
-const currentLocale = computed(() => admin.getLocale)
+// 以 i18n 实际 locale 为唯一权威（URL 前缀决定），而非 store 里的副本，避免直连 /en/... 时高亮错位
+const { locale: i18nLocale } = useI18n()
+const currentLocale = computed(() => (i18nLocale.value === 'en' ? 'en' : 'zh'))
 const localePath = useLocalePath()
 const switchLocalePath = useSwitchLocalePath()
 
+// i18n locale 变化时同步到 store，保证 Element Plus 语言包（app.vue 的 elLocale）一致
+watch(i18nLocale, (v) => {
+  admin.setLocale(v === 'en' ? 'en' : 'zh')
+})
+
 const changeLocale = async (locale: 'en' | 'zh') => {
-  admin.setLocale(locale)
   const target = switchLocalePath(locale)
   if (target) await navigateTo(target, { replace: true })
 }
@@ -257,6 +263,8 @@ onMounted(()=>{
     cursor: pointer;
     padding: 8px;
     color: var(--text-color);
+    background: transparent;
+    border: none;
   }
 
   .mobile-menu-drawer {

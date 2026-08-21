@@ -1,7 +1,7 @@
 <template>
   <div class="home-page min-h-screen pt-header">
     <div class="container py-page">
-      <h1 class="sr-only">PlankBevelen (Plank / Bevelen)</h1>
+      <h1 class="sr-only">plankbevelen (Plank / Bevelen)</h1>
 
       <LayoutTwoColumn :loading="pending">
         <template #left>

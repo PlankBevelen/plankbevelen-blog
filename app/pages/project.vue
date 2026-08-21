@@ -66,6 +66,7 @@
 import { computed } from 'vue'
 import { useSidebarData } from '@/composables/useSidebarData'
 import { useSiteContent } from '@/composables/useSiteContent'
+import { SITE_URL } from '@/composables/useSeo'
 
 const { locale } = useI18n()
 const { data, pending } = await useSidebarData()
@@ -86,6 +87,27 @@ usePageSeo({
       ? 'A curated list of projects, experiments, and work worth keeping track of.'
       : '整理项目、实验和阶段性成果，方便持续记录与回顾。'
 })
+
+// 结构化数据：ItemList（项目列表）
+useHead(() => ({
+  script: [
+    {
+      key: 'project-ld',
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        itemListElement: projects.value.map((project, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: project.title,
+          description: project.summary,
+          url: `${SITE_URL}/project`,
+        })),
+      }),
+    },
+  ],
+}))
 </script>
 
 <style lang="less" scoped>

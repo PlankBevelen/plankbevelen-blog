@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
         mongo: 'error',
         env: process.env.NODE_ENV || 'unknown',
         elapsedMs: Date.now() - startedAt,
-        reason: error?.message || 'MongoDB ping failed'
+        reason: 'MongoDB ping failed'
       }
     }
   }

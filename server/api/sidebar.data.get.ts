@@ -71,6 +71,6 @@ export default defineEventHandler(async (event) => {
   } catch (error: any) {
     console.error('Sidebar data error:', error)
     setResponseStatus(event, 500)
-    return { status: 500, msg: '服务器错误: ' + (error?.message || '未知错误'), data: null }
+    return { status: 500, msg: '服务器错误', data: null }
   }
 })

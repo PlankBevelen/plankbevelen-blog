@@ -1,7 +1,7 @@
 <template>
   <header class="admin-header">
     <div class="header-left">
-      <el-button class="toggle-btn" text @click="$emit('toggle')">
+      <el-button class="toggle-btn" text :aria-expanded="!collapsed" aria-label="切换侧栏" @click="$emit('toggle')">
         <nuxt-icon name="admin/header/expand" class="header-icon" v-if="collapsed" />
         <nuxt-icon name="admin/header/fold" class="header-icon" v-else />
       </el-button>
@@ -25,7 +25,7 @@
       </el-tooltip>
 
       <el-tooltip :content="isDark ? '切换浅色主题' : '切换深色主题'" placement="bottom">
-        <el-button text @click="toggleTheme">
+        <el-button text :aria-label="isDark ? '切换浅色主题' : '切换深色主题'" @click="toggleTheme">
           <el-icon :size="18">
             <nuxt-icon name="header/sun" class="header-icon" v-if="isDark" />
             <nuxt-icon name="header/moon" class="header-icon" v-else />
@@ -35,12 +35,12 @@
 
       <el-dropdown trigger="click" @command="onCommand">
         <div class="avatar">
-          <img src="/img/avatar.webp" alt="avatar" width="32" height="32" />
+          <NuxtImg provider="ipx" src="/img/avatar.webp" alt="avatar" quality="60" loading="eager" width="32" height="32" />
         </div>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item disabled>
-              <span class="dropdown-name">PlankBevelen</span>
+              <span class="dropdown-name">plankbevelen</span>
             </el-dropdown-item>
             <el-dropdown-item command="frontend">访问前台</el-dropdown-item>
             <el-dropdown-item command="logout" divided class="danger-item">

@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import dayjs from 'dayjs'
 import { getDb, getCollections } from '../../../utils/mongo'
 import { getVisitLogSummary } from '../../../utils/visit-log'
+import { getUploadsBaseDir } from '../../../utils/uploads'
 
 type DirectoryStats = {
   files: number
@@ -93,7 +94,7 @@ export default defineEventHandler(async (event) => {
         ])
         .toArray(),
       getDirectoryStats(join(process.cwd(), 'public')),
-      getDirectoryStats(join(process.cwd(), 'public', 'uploads')),
+      getDirectoryStats(getUploadsBaseDir()),
       getDirectoryStats(join(process.cwd(), '.output', 'public', '_nuxt')),
       getVisitLogSummary({ days: 7 }, db)
     ])

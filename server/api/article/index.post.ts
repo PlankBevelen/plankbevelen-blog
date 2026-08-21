@@ -5,6 +5,7 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { getUploadsBaseDir } from '../../utils/uploads'
 import { normalizeUploadsInContent } from '../../utils/content'
+import { assertSafeTempId, resolveTempDir } from '../../utils/temp-id'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -13,6 +14,10 @@ export default defineEventHandler(async (event) => {
     const category = body?.category || ''
     let content = body?.content || ''
     const tempId = body?.tempId || ''
+    if (tempId && !assertSafeTempId(tempId)) {
+      setResponseStatus(event, 400)
+      return { status: 400, msg: '参数错误', data: null }
+    }
     const tagsArr = Array.isArray(body?.tags) ? body!.tags : []
     
     if (!title || !category || !content) {
@@ -33,7 +38,7 @@ export default defineEventHandler(async (event) => {
       let finalContent = content
       if (tempId && tempId.trim()) {
         const uploadsBase = getUploadsBaseDir()
-        const tempDir = path.join(uploadsBase, 'temp', tempId)
+        const tempDir = resolveTempDir(tempId)
         const legacyTempDir = path.join(uploadsBase, tempId)
         const targetDir = path.join(uploadsBase, id.toString())
         

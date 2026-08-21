@@ -133,6 +133,9 @@ export function getCollections(dbInstance?: Db) {
 
 async function ensureIndexes(dbInstance: Db) {
   const { articles, notes, categories, noteCategories, tags, siteConfigs, visitLogs } = getCollections(dbInstance)
+  // 访问日志保留周期（TTL 自动清理，默认 180 天），避免 visit_logs 无限增长
+  const visitLogTtlDays = Number(process.env.VISIT_LOG_TTL_DAYS) || 180
+  const visitLogTtlSeconds = visitLogTtlDays * 24 * 60 * 60
   await Promise.all([
     articles.createIndex({ id: 1 }, { unique: true, name: 'uniq_id' }),
     articles.createIndex({ deletedAt: 1, createdAt: -1, id: -1 }, { name: 'by_created' }),
@@ -151,6 +154,7 @@ async function ensureIndexes(dbInstance: Db) {
     siteConfigs.createIndex({ type: 1 }, { name: 'by_type' }),
     visitLogs.createIndex({ requestId: 1 }, { unique: true, name: 'uniq_request_id' }),
     visitLogs.createIndex({ visitedAt: -1 }, { name: 'by_visited_at' }),
+    visitLogs.createIndex({ visitedAt: 1 }, { expireAfterSeconds: visitLogTtlSeconds, name: 'ttl_visited_at' }),
     visitLogs.createIndex({ path: 1, visitedAt: -1 }, { name: 'by_path_visited_at' }),
     visitLogs.createIndex({ ip: 1, visitedAt: -1 }, { name: 'by_ip_visited_at' }),
     visitLogs.createIndex({ deviceType: 1, visitedAt: -1 }, { name: 'by_device_visited_at' })

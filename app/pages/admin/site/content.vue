@@ -171,7 +171,7 @@
             <BaseCard>
               <el-form label-position="top">
                 <el-form-item label="标题">
-                  <el-input v-model="editingProject.title" placeholder="PlankBevelen Blog" />
+                  <el-input v-model="editingProject.title" placeholder="plankbevelen" />
                 </el-form-item>
                 <el-form-item label="摘要">
                   <el-input v-model="editingProject.summary" placeholder="项目简述" />

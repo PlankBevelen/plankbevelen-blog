@@ -3,7 +3,7 @@
     <div class="note-topbar">
       <div class="topbar-meta">
         <span class="meta-badge">{{ currentNote?.categoryName }}</span>
-        <button class="mobile-nav-trigger" @click="sidebarOpen = true">
+        <button class="mobile-nav-trigger" type="button" :aria-expanded="sidebarOpen" @click="sidebarOpen = true">
           {{ $t('pages.notes.detail.navTrigger') }}
         </button>
       </div>
@@ -91,7 +91,7 @@ import { computed, defineAsyncComponent, ref, watch } from 'vue'
 import { createError, navigateTo, useAsyncData } from 'nuxt/app'
 import { useRoute } from 'vue-router'
 import { useAdminStore } from '@/stores/admin.store'
-import { extractSummary, SITE_URL, usePageSeo } from '@/composables/useSeo'
+import { extractSummary, SITE_URL, SITE_AUTHOR, usePageSeo } from '@/composables/useSeo'
 import noteService, { type NoteDetail } from '@/services/note.service'
 
 definePageMeta({
@@ -111,7 +111,7 @@ const AsyncMdPreview = defineAsyncComponent(() => {
 })
 
 const admin = useAdminStore()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const currentTheme = computed(() => admin.getTheme)
 const route = useRoute()
 const localePath = useLocalePath()
@@ -188,7 +188,24 @@ usePageSeo({
 })
 
 useHead(() => ({
-  link: [{ rel: 'canonical', href: canonicalUrl.value, key: 'canonical' }]
+  link: [{ rel: 'canonical', href: canonicalUrl.value, key: 'canonical' }],
+  script: [
+    {
+      key: 'note-ld',
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        url: canonicalUrl.value,
+        mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl.value },
+        headline: currentNote.value?.title,
+        description: introText.value,
+        inLanguage: locale.value === 'en' ? 'en' : 'zh-CN',
+        author: [{ '@type': 'Person', name: SITE_AUTHOR, url: SITE_URL }],
+        publisher: { '@type': 'Person', name: SITE_AUTHOR, url: SITE_URL },
+      }),
+    },
+  ],
 }))
 </script>
 
@@ -322,6 +339,7 @@ useHead(() => ({
     max-height: calc(100vh - @header-height - 40px);
     overflow-y: auto;
     scrollbar-width: thin;
+    scrollbar-color: var(--tertiary-color) transparent;
   }
 }
 

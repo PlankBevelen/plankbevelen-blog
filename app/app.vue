@@ -41,25 +41,41 @@ const elLocale = computed(() => admin.getLocale === 'en' ? en : zhCn)
 
 const { locale } = useI18n()
 const route = useRoute()
+const switchLocalePath = useSwitchLocalePath()
 
 // canonical 响应式，随路由变化自动更新，所有页面通用
 // 文章详情页会在页面级覆盖此值
 const canonicalUrl = computed(() => `${SITE_URL}${route.path || '/'}`)
 
+// 语言互链（hreflang）与 og:locale：zh 为默认语言（无前缀），en 带 /en 前缀
+const ogLocale = computed(() => (locale.value === 'en' ? 'en_US' : 'zh_CN'))
+const hreflangZh = computed(() => `${SITE_URL}${switchLocalePath('zh')}`)
+const hreflangEn = computed(() => `${SITE_URL}${switchLocalePath('en')}`)
+
 // 全局兜底: og 通用字段，页面级 useSeoMeta 会自动覆盖 title/description
 useSeoMeta({
   ogType: 'website',
-  ogSiteName: 'PlankBevelen',
+  ogSiteName: 'plankbevelen',
   ogImage: SITE_IMAGE,
   ogUrl: () => canonicalUrl.value,
+  ogLocale: () => ogLocale.value,
   twitterCard: 'summary_large_image',
   twitterImage: SITE_IMAGE,
 })
 
-// lang 和 canonical 响应式，跟随路由和语言变化
+// lang、canonical、hreflang、og:locale:alternate 响应式，跟随路由和语言变化
 useHead(() => ({
   htmlAttrs: { lang: locale.value },
-  link: [{ rel: 'canonical', href: canonicalUrl.value, key: 'canonical' }],
+  meta: [
+    { property: 'og:locale:alternate', content: 'zh_CN' },
+    { property: 'og:locale:alternate', content: 'en_US' },
+  ],
+  link: [
+    { rel: 'canonical', href: canonicalUrl.value, key: 'canonical' },
+    { rel: 'alternate', hreflang: 'zh-CN', href: hreflangZh.value, key: 'hreflang-zh' },
+    { rel: 'alternate', hreflang: 'en', href: hreflangEn.value, key: 'hreflang-en' },
+    { rel: 'alternate', hreflang: 'x-default', href: hreflangZh.value, key: 'hreflang-x-default' },
+  ],
 }))
 </script>
 

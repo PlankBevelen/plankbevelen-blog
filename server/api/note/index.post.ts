@@ -4,6 +4,7 @@ import path from 'node:path'
 import { getCollections, withTransaction } from '../../utils/mongo'
 import { getUploadsBaseDir } from '../../utils/uploads'
 import { normalizeUploadsInContent } from '../../utils/content'
+import { assertSafeTempId, resolveTempDir } from '../../utils/temp-id'
 import { updateNoteCategoryCount } from '../../utils/note-helpers'
 import { Snowflake } from '../../utils/snowflake'
 
@@ -28,6 +29,10 @@ export default defineEventHandler(async (event) => {
     const noteOrder = Number(body?.noteOrder ?? 0)
     let content = String(body?.content || '')
     const tempId = String(body?.tempId || '').trim()
+    if (tempId && !assertSafeTempId(tempId)) {
+      setResponseStatus(event, 400)
+      return { status: 400, msg: '参数错误', data: null }
+    }
 
     if (
       !title ||
@@ -57,7 +62,7 @@ export default defineEventHandler(async (event) => {
       let finalContent = content
       if (tempId) {
         const uploadsBase = getUploadsBaseDir()
-        const tempDir = path.join(uploadsBase, 'temp', tempId)
+        const tempDir = resolveTempDir(tempId)
         const legacyTempDir = path.join(uploadsBase, tempId)
         const targetDir = path.join(uploadsBase, id.toString())
 
@@ -123,9 +128,11 @@ export default defineEventHandler(async (event) => {
     return { status: 200, msg: '新增成功', data }
   } catch (error: any) {
     if (Number(error?.statusCode) === 404) {
+      console.error('新增笔记失败（404）:', error?.message || error)
       setResponseStatus(event, 404)
-      return { status: 404, msg: error.message || '分类不存在', data: null }
+      return { status: 404, msg: '分类不存在', data: null }
     }
+    console.error('新增笔记失败:', error?.message || error)
     setResponseStatus(event, 500)
     return { status: 500, msg: '服务器错误', data: null }
   }

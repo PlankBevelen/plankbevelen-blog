@@ -6,8 +6,10 @@ export default defineEventHandler(async () => {
   const baseRoutes = [
     { loc: '/', changefreq: 'daily', priority: 1.0 },
     { loc: '/article', changefreq: 'daily', priority: 0.9 },
+    { loc: '/notes', changefreq: 'daily', priority: 0.8 },
     { loc: '/about', changefreq: 'monthly', priority: 0.6 },
     { loc: '/project', changefreq: 'monthly', priority: 0.5 },
+    { loc: '/timeline', changefreq: 'monthly', priority: 0.5 },
   ]
 
   const withLocale = (loc: string) => {
@@ -21,12 +23,16 @@ export default defineEventHandler(async () => {
 
   try {
     const db = getDb()
-    const { articles: articlesCol } = getCollections(db)
+    const { articles: articlesCol, notes: notesCol } = getCollections(db)
+    const notDeleted = { $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }] }
+
     const articles: any = await articlesCol
-      .find(
-        { $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }] },
-        { projection: { _id: 0, id: 1, updatedAt: 1, createdAt: 1 } }
-      )
+      .find(notDeleted, { projection: { _id: 0, id: 1, updatedAt: 1, createdAt: 1 } })
+      .sort({ updatedAt: -1 })
+      .toArray()
+
+    const notes: any = await notesCol
+      .find(notDeleted, { projection: { _id: 0, id: 1, updatedAt: 1, createdAt: 1 } })
       .sort({ updatedAt: -1 })
       .toArray()
 
@@ -38,7 +44,15 @@ export default defineEventHandler(async () => {
       return withLocale(loc).map((x) => ({ loc: x, lastmod, changefreq, priority }))
     })
 
-    return [...staticUrls, ...articleUrls]
+    const noteUrls = notes.flatMap((note: any, index: number) => {
+      const lastmod = note.updatedAt || note.createdAt || now
+      const changefreq = index < 10 ? 'daily' : 'weekly'
+      const priority = index < 5 ? 0.7 : 0.5
+      const loc = `/notes/${note.id}`
+      return withLocale(loc).map((x) => ({ loc: x, lastmod, changefreq, priority }))
+    })
+
+    return [...staticUrls, ...articleUrls, ...noteUrls]
   } catch (error) {
     console.error('Sitemap fetch failed:', error)
     return staticUrls

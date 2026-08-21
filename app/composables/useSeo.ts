@@ -10,8 +10,8 @@
 
 export const SITE_URL = 'https://plankbevelen.cn'
 export const SITE_IMAGE = `${SITE_URL}/img/logo.webp`
-export const SITE_AUTHOR = 'PlankBevelen'
-export const SITE_NAME = 'PlankBevelen 的个人博客'
+export const SITE_AUTHOR = 'plankbevelen'
+export const SITE_NAME = 'plankbevelen 的个人博客'
 export const SITE_DESCRIPTION =
   'plankbevelen 的个人博客，记录前端、创作和个人项目的持续实践。'
 export const SITE_LOCALE = 'zh'
@@ -21,6 +21,25 @@ export const SITE_LOCALE = 'zh'
  */
 export function extractSummary(content: string, length = 160): string {
   return content.slice(0, length * 2).replace(/[#*`>\-_\[\]!]/g, '').trim().slice(0, length)
+}
+
+/**
+ * 从 Markdown 正文中提取首张图片 URL（优先上传路径 /uploads/*），作为文章专属 og:image / twitter:image
+ * 找不到时返回 null，调用方统一回退全局 SITE_IMAGE。
+ */
+export function extractFirstImage(content: string): string | null {
+  if (!content) return null
+  const mdMatch = String(content).match(/!\[[^\]]*\]\((https?:\/\/[^)]+|\/uploads\/[^)]+)\)/)
+  if (mdMatch && mdMatch[1]) {
+    const raw = mdMatch[1].trim()
+    return raw.startsWith('/') ? `${SITE_URL}${raw}` : raw
+  }
+  const htmlMatch = String(content).match(/<img[^>]+src=["'](https?:\/\/[^"']+|\/uploads\/[^"']+)["']/i)
+  if (htmlMatch && htmlMatch[1]) {
+    const raw = htmlMatch[1].trim()
+    return raw.startsWith('/') ? `${SITE_URL}${raw}` : raw
+  }
+  return null
 }
 
 /**
@@ -62,12 +81,15 @@ export function useArticleSeo(options: {
   const keywords = computed(() =>
     [...(tags.value || []), SITE_AUTHOR, 'plank', 'bevelen'].join(',')
   )
+  const articleImage = computed(() => extractFirstImage(content.value || '') || SITE_IMAGE)
 
   useSeoMeta({
     title: () => title.value || t('pages.article.articleDetail.fallback'),
     ogTitle: () => title.value || t('pages.article.articleDetail.fallback'),
     ogType: 'article',
     ogUrl: () => articleUrl.value,
+    ogImage: () => articleImage.value,
+    twitterImage: () => articleImage.value,
     description: () => description.value,
     ogDescription: () => description.value,
     keywords: () => keywords.value,
@@ -89,7 +111,7 @@ export function useArticleSeo(options: {
             '@id': articleUrl.value,
           },
           headline: title.value,
-          image: [SITE_IMAGE],
+          image: [articleImage.value],
           description: description.value,
           datePublished: createTime.value,
           dateModified: updateTime.value || createTime.value,

@@ -4,8 +4,8 @@
 
     <div class="login-card">
       <header class="login-brand">
-        <img src="/img/logo.webp" alt="PlankBevelen" class="login-brand__logo" width="56" height="56" />
-        <h1 class="login-brand__name">PlankBevelen</h1>
+        <NuxtImg provider="ipx" src="/img/logo.webp" alt="plankbevelen" quality="70" loading="eager" class="login-brand__logo" width="56" height="56" />
+        <h1 class="login-brand__name">plankbevelen</h1>
         <p class="login-brand__subtitle">后台管理</p>
       </header>
 
@@ -38,6 +38,21 @@
             />
           </el-form-item>
 
+          <el-form-item prop="captchaCode" label="验证码">
+            <div class="login-form__captcha">
+              <el-input
+                v-model="form.captchaCode"
+                placeholder="请输入验证码"
+                size="large"
+                clearable
+              />
+              <div class="captcha-image" @click="refreshCaptcha" title="点击刷新验证码">
+                <img v-if="captchaSrc" :src="captchaSrc" alt="验证码" />
+                <span v-else class="captcha-placeholder">点击加载</span>
+              </div>
+            </div>
+          </el-form-item>
+
           <div class="login-form__remember">
             <el-checkbox v-model="form.remember">记住登录状态</el-checkbox>
           </div>
@@ -58,25 +73,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { useAdminStore } from '@/stores/admin.store'
+import adminService from '@/services/admin.service'
 
 definePageMeta({ layout: false })
 
 const adminStore = useAdminStore()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
+const captchaId = ref('')
+const captchaImage = ref('')
 const form = ref({
   account: '',
   password: '',
+  captchaCode: '',
   remember: true
 })
 
+const captchaSrc = computed(() =>
+  captchaImage.value ? `data:image/svg+xml;utf8,${encodeURIComponent(captchaImage.value)}` : ''
+)
+
+const refreshCaptcha = async () => {
+  try {
+    const res: any = await adminService.captcha()
+    if (res?.status === 200 && res?.captchaId) {
+      captchaId.value = res.captchaId
+      captchaImage.value = res.image || ''
+    } else {
+      captchaImage.value = ''
+    }
+  } catch {
+    captchaImage.value = ''
+  } finally {
+    form.value.captchaCode = ''
+  }
+}
+
 const rules: FormRules = {
   account: [{ required: true, message: '请输入账号', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  captchaCode: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 
 const onSubmit = async () => {
@@ -88,7 +128,9 @@ const onSubmit = async () => {
     const success = await adminStore.login(
       form.value.account,
       form.value.password,
-      form.value.remember
+      form.value.remember,
+      captchaId.value,
+      form.value.captchaCode
     )
 
     if (success) {
@@ -97,13 +139,17 @@ const onSubmit = async () => {
       return
     }
 
-    ElMessage.error('账号或密码错误')
+    ElMessage.error('账号、密码或验证码错误')
+    await refreshCaptcha()
   } catch (error: any) {
     ElMessage.error(error?.data?.message || '登录失败，请稍后重试')
+    await refreshCaptcha()
   } finally {
     loading.value = false
   }
 }
+
+onMounted(refreshCaptcha)
 </script>
 
 <style scoped lang="less">
@@ -206,6 +252,42 @@ const onSubmit = async () => {
 .login-form__remember {
   margin: 0 0 22px;
   color: var(--secondary-color);
+}
+
+.login-form__captcha {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+
+  :deep(.el-input) {
+    flex: 1;
+  }
+}
+
+.captcha-image {
+  flex-shrink: 0;
+  width: 120px;
+  height: 40px;
+  border: 1px solid var(--border-color);
+  border-radius: @base-border-radius;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .captcha-placeholder {
+    font-size: 12px;
+    color: var(--secondary-color);
+  }
 }
 
 .login-form__submit {

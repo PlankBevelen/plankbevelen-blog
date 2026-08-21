@@ -51,6 +51,17 @@ function shouldTrackRequest(pathname: string, accept: string, method: string) {
   return true
 }
 
+function shouldTrustProxy(event: any): boolean {
+  if (process.env.TRUST_PROXY === '1') return true
+  const trustedIps = String(process.env.TRUSTED_PROXY_IPS || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  if (!trustedIps.length) return false
+  const peerIp = String(getRequestIP(event, { xForwardedFor: false }) || '')
+  return trustedIps.includes(peerIp)
+}
+
 export default defineEventHandler((event) => {
   const method = String(event.node.req.method || 'GET').toUpperCase()
   const url = getRequestURL(event)
@@ -64,7 +75,7 @@ export default defineEventHandler((event) => {
   const userAgent = String(getHeader(event, 'user-agent') || '')
   const referer = String(getHeader(event, 'referer') || '')
   const acceptLanguage = String(getHeader(event, 'accept-language') || '')
-  const ip = String(getRequestIP(event, { xForwardedFor: true }) || 'unknown')
+  const ip = String(getRequestIP(event, { xForwardedFor: shouldTrustProxy(event) }) || 'unknown')
 
   event.node.res.once('finish', () => {
     const { visitLogs } = getCollections(getDb())

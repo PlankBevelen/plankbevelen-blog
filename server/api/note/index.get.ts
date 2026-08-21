@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   try {
     const q = getQuery(event) as any
     const pageNum = Math.max(1, Number(q.page || 1))
-    const pageSize = Math.max(1, Number(q.limit || 10))
+    const pageSize = Math.min(50, Math.max(1, Number(q.limit || 10) || 10))
     const keyword = String(q.q || '').trim()
     const sort = String(q.sort || 'updated').toLowerCase()
     const categoryId = String(q.categoryId || '').trim()
