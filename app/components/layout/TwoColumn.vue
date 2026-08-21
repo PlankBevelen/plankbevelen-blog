@@ -80,7 +80,7 @@ const { showSkeleton } = useMinSkeleton(toRef(props, 'loading'))
 }
 .content {
   display: grid;
-  grid-gap: 20px;
+  grid-gap: @space-3xl;
   width: 100%;
   align-items: start;
   &.leftbigger {
@@ -97,7 +97,7 @@ const { showSkeleton } = useMinSkeleton(toRef(props, 'loading'))
 .right {
   display: flex;
   flex-direction: column;
-  gap: @base-gap;
+  gap: @space-base;
   min-width: 0;
 }
 
@@ -126,10 +126,10 @@ const { showSkeleton } = useMinSkeleton(toRef(props, 'loading'))
 .slot-wrapper {
   display: flex;
   flex-direction: column;
-  gap: @base-gap;
+  gap: @space-base;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: @screen-lg) {
   .content {
     grid-template-columns: 1fr !important;
     .left,

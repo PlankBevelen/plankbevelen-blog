@@ -527,14 +527,14 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 10px 14px;
+  padding: @space-md @space-xl;
   border: none;
-  border-radius: 6px;
+  border-radius: @small-border-radius;
   background: transparent;
   color: var(--secondary-color);
   font-size: @base-font-size;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all @transition-fast;
   text-align: left;
 
   &:hover {
@@ -553,7 +553,7 @@ onMounted(() => {
   font-size: @font-size-xs;
   background: var(--el-fill-color);
   color: var(--secondary-color);
-  padding: 2px 8px;
+  padding: 2px @space-base;
   border-radius: 10px;
 }
 
@@ -582,13 +582,13 @@ onMounted(() => {
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
-  padding: 8px 12px;
+  padding: @space-base @space-lg;
   border: none;
-  border-radius: 6px;
+  border-radius: @small-border-radius;
   background: transparent;
   color: var(--secondary-color);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all @transition-fast;
   text-align: left;
   gap: 2px;
 
@@ -621,8 +621,8 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: @space-2xl;
+  margin-bottom: @space-2xl;
   flex-wrap: wrap;
 }
 
@@ -634,7 +634,7 @@ onMounted(() => {
 }
 
 .section-desc {
-  margin: 6px 0 0;
+  margin: @space-xs 0 0;
   font-size: @font-size-sm;
   color: var(--tertiary-color);
 }
@@ -642,33 +642,33 @@ onMounted(() => {
 .section-head-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: @space-base;
 }
 
 .editor-label {
   font-size: @font-size-sm;
   color: var(--secondary-color);
-  margin-bottom: 8px;
+  margin-bottom: @space-base;
   font-weight: 500;
 }
 
 .editor-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+  gap: @space-3xl;
 }
 
 .inline-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: @space-2xl;
 }
 
 .content-editor {
   height: 420px;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: @screen-admin-narrow) {
   .editor-grid,
   .inline-grid {
     grid-template-columns: 1fr;

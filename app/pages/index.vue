@@ -153,20 +153,20 @@ useHead({
 }
 
 .container {
-  padding-top: 40px;
-  padding-bottom: 40px;
+  padding-top: @space-5xl;
+  padding-bottom: @space-5xl;
 }
 
 .home-cards {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: @space-2xl;
 }
 
 .simple-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: @space-md;
 }
 
 .simple-list-item {
@@ -174,12 +174,12 @@ useHead({
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 8px 10px;
+    gap: @space-lg;
+    padding: @space-base @space-md;
     border-radius: @base-border-radius;
     text-decoration: none;
     border: 1px solid transparent;
-    transition: all 0.2s ease;
+    transition: all @transition-fast ease;
 
     &:hover {
       border-color: var(--border-color);
@@ -209,7 +209,7 @@ useHead({
   color: var(--tertiary-color);
 }
 
-@media (max-width: 1024px) {
+@media (max-width: @screen-lg) {
   .home-cards {
     grid-template-columns: 1fr;
   }

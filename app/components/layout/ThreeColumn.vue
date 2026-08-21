@@ -94,7 +94,7 @@ const { showSkeleton } = useMinSkeleton(toRef(props, 'loading'))
 .content {
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
-  grid-gap: 20px;
+  grid-gap: @space-3xl;
   height: auto;
   position: relative;
   align-items: start;
@@ -105,7 +105,7 @@ const { showSkeleton } = useMinSkeleton(toRef(props, 'loading'))
 .right {
   display: flex;
   flex-direction: column;
-  gap: @base-gap;
+  gap: @space-base;
   min-width: 0;
 }
 
@@ -118,7 +118,7 @@ const { showSkeleton } = useMinSkeleton(toRef(props, 'loading'))
 .slot-wrapper {
   display: flex;
   flex-direction: column;
-  gap: @base-gap;
+  gap: @space-base;
 }
 
 .left .slot-wrapper > * {
@@ -133,7 +133,7 @@ const { showSkeleton } = useMinSkeleton(toRef(props, 'loading'))
   animation: fly-in-from-top-right 0.3s ease-in-out;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: @screen-lg) {
   .content {
     grid-template-columns: 1fr;
     .left {

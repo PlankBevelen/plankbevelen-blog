@@ -51,10 +51,10 @@ const latestList = computed<LatestItem[]>(() => {
     line-height: 20px;
     cursor: pointer;
     border-radius: @small-border-radius;
-    padding: 6px 8px;
+    padding: @space-xs @space-base;
     &:hover { background-color: var(--shallow-hover-bg-color); }
     &:not(:last-child) {
-      margin-bottom: @base-gap;
+      margin-bottom: @space-base;
     }
     a { text-decoration: none; }
     .title {

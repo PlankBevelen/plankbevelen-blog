@@ -109,15 +109,15 @@ onMounted(async () => {
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 10px 16px; /* 适当的间距 */
-    padding: 10px;
+    gap: @space-md @space-2xl; /* 适当的间距 */
+    padding: @space-md;
 }
 
 .cloud-word {
     display: inline-block;
     white-space: nowrap;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all @transition-base cubic-bezier(0.175, 0.885, 0.32, 1.275);
     font-weight: 500;
     user-select: none;
 
@@ -132,7 +132,7 @@ onMounted(async () => {
 .header-content {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: @space-base;
     font-weight: bold;
 }
 </style>

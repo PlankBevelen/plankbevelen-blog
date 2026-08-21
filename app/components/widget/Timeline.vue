@@ -57,7 +57,7 @@ const goTimeline = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: @space-lg;
 }
 
 .hint {
@@ -69,27 +69,27 @@ const goTimeline = () => {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: @space-xl;
 }
 
 .timeline-item {
   display: grid;
   grid-template-columns: 18px 1fr;
-  gap: 12px;
+  gap: @space-lg;
 }
 
 .dot {
   width: 10px;
   height: 10px;
-  margin-top: 6px;
+  margin-top: @space-xs;
   border-radius: 50%;
   background: var(--primary-color);
   box-shadow: 0 0 0 6px var(--shallow-active-bg-color);
 }
 
 .timeline-content {
-  padding: 12px 14px;
-  border-radius: 12px;
+  padding: @space-lg @space-xl;
+  border-radius: @large-border-radius;
   border: 1px solid var(--border-color);
   background: color-mix(in srgb, var(--card-color) 82%, #f6fbff);
 
@@ -100,13 +100,13 @@ const goTimeline = () => {
   }
 
   h3 {
-    margin: 6px 0 0;
+    margin: @space-xs 0 0;
     font-size: @font-size-md;
     color: var(--text-color);
   }
 
   p {
-    margin: 8px 0 0;
+    margin: @space-base 0 0;
     font-size: @font-size-sm;
     line-height: 1.8;
     color: var(--secondary-color);

@@ -42,26 +42,26 @@ usePageSeo({
   padding-top: @header-height;
 
   .container {
-    padding-top: 40px;
-    padding-bottom: 40px;
+    padding-top: @space-5xl;
+    padding-bottom: @space-5xl;
   }
 }
 
 .privacy-card {
   :deep(.card-content) {
-    padding: 40px;
+    padding: @space-5xl;
   }
 }
 
 .privacy-title {
-  margin: 0 0 8px;
+  margin: 0 0 @space-base;
   font-size: @font-size-xxl;
   font-weight: 700;
   color: var(--text-color);
 }
 
 .privacy-updated {
-  margin: 0 0 24px;
+  margin: 0 0 @space-4xl;
   font-size: @font-size-xs;
   color: var(--tertiary-color);
 }
@@ -74,10 +74,10 @@ usePageSeo({
 }
 
 .privacy-section {
-  margin-bottom: 24px;
+  margin-bottom: @space-4xl;
 
   &__title {
-    margin: 0 0 8px;
+    margin: 0 0 @space-base;
     font-size: @font-size-lg;
     font-weight: 600;
     color: var(--text-color);

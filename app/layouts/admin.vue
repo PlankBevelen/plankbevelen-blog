@@ -69,7 +69,7 @@ const navTitle = computed(() => navTitleMap[route.path] || '管理后台')
 .admin-content {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: @space-3xl;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
   background-color: var(--bg-color);

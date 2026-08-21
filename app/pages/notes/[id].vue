@@ -219,7 +219,7 @@ useHead(() => ({
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: @space-2xl;
   padding-top: 22px;
   padding-bottom: 18px;
 }
@@ -227,7 +227,7 @@ useHead(() => ({
 .back-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: @space-xs;
   color: var(--secondary-color);
   text-decoration: none;
   font-size: @font-size-sm;
@@ -240,12 +240,12 @@ useHead(() => ({
 .topbar-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: @space-lg;
 }
 
 .meta-badge {
-  padding: 7px 12px;
-  border-radius: 999px;
+  padding: 7px @space-lg;
+  border-radius: @radius-pill;
   background: color-mix(in srgb, var(--primary-color) 8%, transparent);
   color: var(--primary-color);
   font-size: @font-size-xs;
@@ -256,14 +256,14 @@ useHead(() => ({
   border: 1px solid var(--border-color);
   background: var(--card-color);
   color: var(--text-color);
-  border-radius: 999px;
-  padding: 7px 12px;
+  border-radius: @radius-pill;
+  padding: 7px @space-lg;
   font-size: @font-size-xs;
 }
 
 .note-heading {
   margin-bottom: 18px;
-  padding-bottom: 14px;
+  padding-bottom: @space-xl;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -274,7 +274,7 @@ useHead(() => ({
 }
 
 .note-title {
-  margin: 8px 0 0;
+  margin: @space-base 0 0;
   font-size: clamp(24px, 3vw, 34px);
   line-height: 1.25;
   color: var(--text-color);
@@ -285,7 +285,7 @@ useHead(() => ({
   position: relative;
   :deep(.content) {
     grid-template-columns: 260px minmax(0, 1fr) 220px;
-    gap: 20px;
+    gap: @space-3xl;
   }
 }
 
@@ -294,15 +294,15 @@ useHead(() => ({
   border-radius: @small-border-radius;
   border: 1px solid var(--border-color);
   background-color: var(--card-color);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: @shadow-card;
 
   :deep(.card-content) {
-    padding: 16px 24px;
+    padding: @space-2xl @space-4xl;
   }
 
   &:hover {
     transform: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: @shadow-card;
   }
 }
 
@@ -313,20 +313,20 @@ useHead(() => ({
     border-radius: @small-border-radius;
     border: 1px solid var(--border-color);
     background-color: var(--card-color);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: @shadow-card;
 
     &:hover {
       transform: none;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      box-shadow: @shadow-card;
     }
   }
 
   :deep(.card-content) {
-    padding: 16px 24px;
+    padding: @space-2xl @space-4xl;
   }
 
   :deep(.card-header) {
-    padding: 16px 24px;
+    padding: @space-2xl @space-4xl;
   }
 }
 
@@ -345,23 +345,23 @@ useHead(() => ({
 
 .content-card {
   border-radius: @small-border-radius;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: @shadow-card;
 
   &:hover {
     transform: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: @shadow-card;
   }
 }
 
 .note-loading,
 .note-empty {
-  padding-top: 12px;
+  padding-top: @space-lg;
 }
 
 .mobile-sidebar-mask {
   position: fixed;
   inset: 0;
-  z-index: 1100;
+  z-index: @z-mask;
   background: rgba(15, 23, 42, 0.32);
   display: flex;
   justify-content: flex-start;
@@ -379,7 +379,7 @@ useHead(() => ({
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: @space-xl;
   font-size: @font-size-md;
   color: var(--text-color);
 }
@@ -395,19 +395,19 @@ useHead(() => ({
   overflow: hidden;
   border-radius: @small-border-radius;
   border: 1px solid var(--border-color);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: @shadow-card;
 
   :deep(.card-content) {
-    padding: 16px 24px;
+    padding: @space-2xl @space-4xl;
   }
 
   &:hover {
     transform: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: @shadow-card;
   }
 }
 
-@media (max-width: 960px) {
+@media (max-width: @screen-tablet) {
   .mobile-nav-trigger {
     display: inline-flex;
   }

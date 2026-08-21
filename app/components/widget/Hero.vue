@@ -61,18 +61,18 @@ const heroTitleFontSize = computed(() => (
 
 .hero-content {
   position: relative;
-  z-index: 2;
-  padding: 12px 6px;
+  z-index: @z-raised;
+  padding: @space-lg @space-xs;
 }
 
 .hero-kicker {
   margin: 0;
-  font-size: 14px;
+  font-size: @font-size-sm;
   color: var(--primary-color);
 }
 
 .hero-title {
-  margin: 14px 0 0;
+  margin: @space-xl 0 0;
   line-height: 1.08;
   font-size: clamp(40px, 6vw, 84px);
   color: var(--text-color);
@@ -81,22 +81,22 @@ const heroTitleFontSize = computed(() => (
 
 .hero-desc {
   margin-top: 18px;
-  font-size: 16px;
+  font-size: @base-font-size;
   line-height: 1.8;
   color: var(--secondary-color);
 }
 
 .hero-stack {
-  margin-top: 12px;
-  font-size: 18px;
+  margin-top: @space-lg;
+  font-size: @font-size-lg;
   color: color-mix(in srgb, var(--text-color) 80%, #8197af);
 }
 
 .hero-actions {
-  margin-top: 24px;
+  margin-top: @space-4xl;
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: @space-lg;
 }
 
 .hero-btn {
@@ -105,11 +105,11 @@ const heroTitleFontSize = computed(() => (
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 20px;
-  border-radius: 12px;
+  padding: 0 @space-3xl;
+  border-radius: @large-border-radius;
   text-decoration: none;
   font-size: 15px;
-  transition: all 0.2s ease;
+  transition: all @transition-fast ease;
 }
 
 .hero-btn--primary {

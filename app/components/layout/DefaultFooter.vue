@@ -23,34 +23,34 @@ const localePath = useLocalePath()
 
 <style lang="less" scoped>
 .footer {
-  padding: 20px 0;
+  padding: @space-3xl 0;
   background-color: var(--header-color);
   border-top: 1px solid var(--border-color);
   .footer-content {
     text-align: center;
     height: 100%;
     .site-info {
-       margin-bottom: 20px;
+       margin-bottom: @space-3xl;
        h3 {
-        font-size: 24px;
+        font-size: @font-size-2xl;
         font-weight: bold;
         color: var(--text-color);
-        margin-bottom: 10px;
+        margin-bottom: @space-md;
        }
        p {
-        font-size: 16px;
+        font-size: @base-font-size;
         font-weight: normal;
         color: var(--mute-color);
        }
     }
     .footer-bottom {      
       p {
-        font-size: 14px;
+        font-size: @font-size-sm;
         font-weight: normal;
         color: var(--mute-color);
       }
       a {
-        font-size: 14px;
+        font-size: @font-size-sm;
         font-weight: normal;
         color: var(--mute-color);
         text-decoration: none;
@@ -64,7 +64,7 @@ const localePath = useLocalePath()
       align-items: center;
       .footer-links {
         display: flex;
-        gap: 20px;
+        gap: @space-3xl;
         align-items: center;
       }
     }

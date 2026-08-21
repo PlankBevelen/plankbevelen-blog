@@ -141,16 +141,16 @@ const onLogout = async () => {
 }
 
 .sidebar-icon {
-  margin: 0 8px 0 0;
+  margin: 0 @space-base 0 0;
   font-size: @base-font-size;
 }
 
 .sidebar-logo {
-  height: 60px;
+  height: @admin-header-height;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 16px;
+  gap: @space-md;
+  padding: 0 @space-2xl;
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
   overflow: hidden;
@@ -158,7 +158,7 @@ const onLogout = async () => {
   .logo-img {
     width: 32px;
     height: 32px;
-    border-radius: 8px;
+    border-radius: @base-border-radius;
     object-fit: cover;
     flex-shrink: 0;
   }
@@ -178,7 +178,7 @@ const onLogout = async () => {
 }
 
 .logo-subtitle {
-  font-size: 12px;
+  font-size: @font-size-xs;
   color: var(--tertiary-color);
   white-space: nowrap;
 }
@@ -187,12 +187,12 @@ const onLogout = async () => {
   flex: 1;
   border: none !important;
   background-color: transparent !important;
-  padding: 12px 8px;
+  padding: @space-lg @space-base;
   overflow-y: auto;
   overflow-x: hidden;
 
   &.el-menu--collapse {
-    padding: 12px 4px;
+    padding: @space-lg @space-2xs;
     width: @sidebar-collapsed-width !important;
   }
 
@@ -201,7 +201,7 @@ const onLogout = async () => {
     height: 44px;
     line-height: 44px;
     border-radius: @base-border-radius;
-    margin-bottom: 4px;
+    margin-bottom: @space-2xs;
     font-size: @font-size-sm;
     color: var(--secondary-color);
     transition: background-color 0.15s, color 0.15s;
@@ -233,7 +233,7 @@ const onLogout = async () => {
 }
 
 .sidebar-footer {
-  padding: 12px 8px;
+  padding: @space-lg @space-base;
   border-top: 1px solid var(--border-color);
   flex-shrink: 0;
 
@@ -256,10 +256,10 @@ const onLogout = async () => {
   .logout-btn {
     width: 100%;
     justify-content: flex-start;
-    gap: 8px;
+    gap: @space-base;
     color: var(--tertiary-color);
     font-size: @font-size-sm;
-    padding: 0 12px;
+    padding: 0 @space-lg;
     height: 36px;
 
     &:hover {
@@ -277,7 +277,7 @@ const onLogout = async () => {
   }
 
   .sidebar-footer {
-    padding: 12px 4px;
+    padding: @space-lg @space-2xs;
   }
 }
 
@@ -301,7 +301,7 @@ const onLogout = async () => {
 :deep(.el-menu--popup) {
   background-color: var(--card-color) !important;
   border: 1px solid var(--border-color);
-  padding: 8px;
+  padding: @space-base;
   border-radius: @base-border-radius;
 }
 
@@ -309,8 +309,8 @@ const onLogout = async () => {
   height: 38px;
   line-height: 38px;
   border-radius: @base-border-radius;
-  padding: 0 12px;
-  margin-bottom: 4px;
+  padding: 0 @space-lg;
+  margin-bottom: @space-2xs;
   color: var(--secondary-color);
 
   &:hover {

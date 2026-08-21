@@ -105,23 +105,23 @@ const onCommand = async (cmd: string) => {
 
 <style scoped lang="less">
 .admin-header {
-  height: 60px;
+  height: @admin-header-height;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 @space-3xl;
   background-color: var(--card-color);
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: @z-dropdown;
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: @space-lg;
   min-width: 0;
 }
 
@@ -141,13 +141,13 @@ const onCommand = async (cmd: string) => {
 .title-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: @space-2xs;
   min-width: 0;
 }
 
 .header-date {
   margin: 0;
-  font-size: 12px;
+  font-size: @font-size-xs;
   color: var(--tertiary-color);
 }
 
@@ -164,7 +164,7 @@ const onCommand = async (cmd: string) => {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: @space-2xs;
 
   .el-button {
     width: 36px;
@@ -186,9 +186,9 @@ const onCommand = async (cmd: string) => {
   border-radius: 50%;
   overflow: hidden;
   cursor: pointer;
-  margin-left: 4px;
+  margin-left: @space-2xs;
   border: 2px solid var(--border-color);
-  transition: border-color 0.2s;
+  transition: border-color @transition-fast;
 
   &:hover {
     border-color: var(--primary-color);

@@ -37,7 +37,7 @@ const contactList = [
 .contact-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: @space-xl;
   margin: 0;
   padding: 0;
 }
@@ -48,11 +48,11 @@ const contactList = [
   display: flex;
   align-items: center;
   border-radius: @large-border-radius;
-  gap: 12px;
+  gap: @space-lg;
   border: 1px solid color-mix(in srgb, var(--primary-color) 22%, var(--border-color));
-  padding: 6px 12px;
+  padding: @space-xs @space-lg;
   text-decoration: none;
-  transition: border-color 0.2s ease, transform 0.2s ease;
+  transition: border-color @transition-fast ease, transform @transition-fast ease;
 }
 
 .icon-wrap {
@@ -69,7 +69,7 @@ const contactList = [
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: @space-2xs;
 }
 
 .label {
@@ -86,7 +86,7 @@ const contactList = [
   word-break: break-word;
 }
 
-@media (max-width: 960px) {
+@media (max-width: @screen-tablet) {
   .contact-grid {
     grid-template-columns: 1fr;
   }

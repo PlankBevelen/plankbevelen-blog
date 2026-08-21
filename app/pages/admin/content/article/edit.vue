@@ -281,7 +281,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: @space-2xl;
 }
 
 .edit-title {
@@ -293,13 +293,13 @@ onMounted(() => {
 
 .edit-actions {
   display: flex;
-  gap: 12px;
+  gap: @space-lg;
 }
 
 .editor-layout {
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
-  gap: 24px;
+  gap: @space-4xl;
   min-height: calc(100vh - 200px);
 }
 
@@ -310,26 +310,26 @@ onMounted(() => {
 .meta-cards {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 20px;
+  gap: @space-lg;
+  margin-top: @space-3xl;
 }
 
 .meta-item {
-  padding: 14px;
+  padding: @space-xl;
   border-radius: 18px;
   border: 1px solid var(--border-color);
   background: var(--bg-color, #f7f9fc);
 
   span {
     display: block;
-    font-size: 12px;
+    font-size: @font-size-xs;
     color: var(--tertiary-color);
   }
 
   strong {
     display: block;
-    margin-top: 8px;
-    font-size: 18px;
+    margin-top: @space-base;
+    font-size: @font-size-lg;
     color: var(--text-color);
   }
 }
@@ -345,7 +345,7 @@ onMounted(() => {
 }
 
 .editor-tip {
-  font-size: 12px;
+  font-size: @font-size-xs;
   color: var(--tertiary-color);
 }
 
@@ -354,7 +354,7 @@ onMounted(() => {
   min-height: 560px;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: @screen-admin-narrow) {
   .edit-toolbar {
     flex-direction: column;
     align-items: flex-start;

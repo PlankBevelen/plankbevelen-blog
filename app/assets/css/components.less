@@ -1,7 +1,7 @@
 /* —————— MdPreview 容器：与 BaseCard 同频的 0.3s 颜色过渡，消除主题切换时的“边界感” —————— */
 .md-editor {
     border: none;
-    transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+    transition: background-color @transition-base ease-in-out, border-color @transition-base ease-in-out;
 }
 
 .md-editor-preview {
@@ -41,7 +41,7 @@
     color: var(--md-theme-color);
 
     > *:first-child {
-        margin-top: 12px;
+        margin-top: @space-lg;
     }
     code {
         & > * {
@@ -51,7 +51,7 @@
         &:not(pre code) {
             font-size: @font-size-sm;
             line-height: normal;
-            margin: 0 4px;
+            margin: 0 @space-2xs;
         }
     }
 }
@@ -145,7 +145,7 @@ html, body {
 }
 ::-webkit-scrollbar-thumb {
     background: var(--tertiary-color);
-    border-radius: 9999px;
+    border-radius: @radius-pill;
     border: 2px solid var(--bg-color);
 }
 ::-webkit-scrollbar-thumb:hover {

@@ -111,20 +111,20 @@ usePageSeo({
 
   .container {
     padding-top: 34px;
-    padding-bottom: 40px;
+    padding-bottom: @space-5xl;
   }
 }
 
 .notes-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: @space-2xl;
 }
 
 .note-card {
   cursor: pointer;
   border: 1px solid var(--border-color);
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: transform @transition-fast ease, border-color @transition-fast ease, box-shadow @transition-fast ease;
 
   &:hover {
     transform: translateY(-4px);
@@ -137,7 +137,7 @@ usePageSeo({
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: @space-md;
 }
 
 .note-count {
@@ -146,14 +146,14 @@ usePageSeo({
 }
 
 .note-title {
-  margin: 6px 0 0;
+  margin: @space-xs 0 0;
   font-size: @font-size-lg;
   line-height: 1.45;
   color: var(--text-color);
 }
 
 .note-summary {
-  margin: 10px 0 0;
+  margin: @space-md 0 0;
   color: var(--secondary-color);
   line-height: 1.85;
   font-size: @font-size-sm;
@@ -161,11 +161,11 @@ usePageSeo({
 }
 
 .note-meta {
-  margin-top: 12px;
+  margin-top: @space-lg;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: @space-md;
 }
 
 .note-time {
@@ -174,10 +174,10 @@ usePageSeo({
 }
 
 .notes-empty {
-  padding: 36px 0 12px;
+  padding: 36px 0 @space-lg;
 }
 
-@media (max-width: 960px) {
+@media (max-width: @screen-tablet) {
   .notes-grid {
     grid-template-columns: 1fr;
   }

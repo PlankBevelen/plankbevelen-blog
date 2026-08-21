@@ -106,7 +106,7 @@ const AsyncMdPreview = defineAsyncComponent(() => {
 
   .title-wrapper {
     margin: 0;
-    margin-bottom: 12px;
+    margin-bottom: @space-lg;
     line-height: normal;
   }
 
@@ -127,15 +127,15 @@ const AsyncMdPreview = defineAsyncComponent(() => {
     color: var(--tertiary-color);
     font-size: @font-size-xs;
     display: flex;
-    gap: 8px;
+    gap: @space-base;
     text-wrap: auto;
-    margin-bottom: 12px;
+    margin-bottom: @space-lg;
   }
 
   .content {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: @space-base;
 
     :deep(.md-editor-preview) {
       font-size: @font-size-sm !important;
@@ -169,6 +169,6 @@ const AsyncMdPreview = defineAsyncComponent(() => {
 .ops {
   display: flex;
   justify-content: flex-end;
-  gap: 4px;
+  gap: @space-2xs;
 }
 </style>

@@ -284,7 +284,7 @@ onMounted(() => {
 .log-meta {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: @space-2xs;
 
   strong {
     color: var(--text-color);
@@ -293,7 +293,7 @@ onMounted(() => {
 
   span {
     color: var(--secondary-color);
-    font-size: 12px;
+    font-size: @font-size-xs;
     line-height: 1.6;
     word-break: break-all;
   }
@@ -302,10 +302,10 @@ onMounted(() => {
 .log-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: @space-base;
 }
 
-@media (max-width: 960px) {
+@media (max-width: @screen-tablet) {
   .logs-hero,
   .insight-grid {
     grid-template-columns: 1fr;

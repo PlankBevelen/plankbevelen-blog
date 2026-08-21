@@ -31,8 +31,8 @@ const props = defineProps({
   border-radius: @small-border-radius;
   border: 1px solid var(--border-color);
   background-color: var(--card-color);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease-in-out;
+  box-shadow: @shadow-card;
+  transition: all @transition-base ease-in-out;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -40,15 +40,15 @@ const props = defineProps({
   .card-header {
     font-size: @font-size-sm;
     font-weight: bold;
-    padding: 16px 24px;
+    padding: @space-2xl @space-4xl;
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
   }
 
   .card-content {
     position: relative;
-    z-index: 2;
-    padding: 16px 24px;
+    z-index: @z-raised;
+    padding: @space-2xl @space-4xl;
     flex: 1;
   }
   &:hover {
@@ -62,7 +62,7 @@ const props = defineProps({
       content: "";
       position: absolute;
       background: var(--primary-color);
-      z-index: 1;
+      z-index: @z-base;
       pointer-events: none;
       border-radius: @small-border-radius;
     }

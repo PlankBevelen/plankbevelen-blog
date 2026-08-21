@@ -332,7 +332,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: @space-2xl;
 }
 
 .edit-title {
@@ -344,13 +344,13 @@ onMounted(() => {
 
 .edit-actions {
   display: flex;
-  gap: 12px;
+  gap: @space-lg;
 }
 
 .editor-layout {
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
-  gap: 24px;
+  gap: @space-4xl;
   min-height: calc(100vh - 200px);
 }
 
@@ -359,8 +359,8 @@ onMounted(() => {
 }
 
 .field-hint {
-  margin: 6px 0 0;
-  font-size: 12px;
+  margin: @space-xs 0 0;
+  font-size: @font-size-xs;
   line-height: 1.5;
   color: var(--tertiary-color);
 }
@@ -380,13 +380,13 @@ onMounted(() => {
 }
 
 .editor-tip {
-  font-size: 12px;
+  font-size: @font-size-xs;
   color: var(--tertiary-color);
 }
 
 .content-error {
-  margin: 10px 0 0;
-  font-size: 12px;
+  margin: @space-md 0 0;
+  font-size: @font-size-xs;
   color: var(--el-color-danger);
 }
 
@@ -395,7 +395,7 @@ onMounted(() => {
   min-height: 560px;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: @screen-admin-narrow) {
   .edit-toolbar {
     flex-direction: column;
     align-items: flex-start;

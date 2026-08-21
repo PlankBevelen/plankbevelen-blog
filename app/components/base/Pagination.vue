@@ -108,12 +108,12 @@ const emitPage = (nextPage: number) => {
 
 <style scoped lang="less">
 .base-pagination {
-  padding-top: 20px;
+  padding-top: @space-3xl;
   border-top: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: @space-2xl;
 }
 
 .total {
@@ -127,13 +127,13 @@ const emitPage = (nextPage: number) => {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: @space-lg;
 }
 
 .pages {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: @space-xs;
 }
 
 .nav-btn,
@@ -152,7 +152,7 @@ const emitPage = (nextPage: number) => {
 }
 
 .nav-btn {
-  padding: 8px 14px;
+  padding: @space-base @space-xl;
 
   &:hover:not(:disabled) {
     color: var(--primary-color);
@@ -169,7 +169,7 @@ const emitPage = (nextPage: number) => {
 .page-btn {
   min-width: 36px;
   height: 36px;
-  padding: 0 8px;
+  padding: 0 @space-base;
 
   &:hover:not(.active) {
     color: var(--primary-color);

@@ -125,11 +125,11 @@ watch(
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: @space-5xl;
 }
 .list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: @space-3xl;
 }
 </style>

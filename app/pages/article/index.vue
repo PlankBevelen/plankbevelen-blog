@@ -110,8 +110,8 @@ usePageSeo({
   min-height: 100vh;
   padding-top: @header-height;
   .container {
-    padding-top: 40px;
-    padding-bottom: 40px;
+    padding-top: @space-5xl;
+    padding-bottom: @space-5xl;
   }
 }
 :deep(.navBar) {
@@ -135,7 +135,7 @@ usePageSeo({
   .searchArea {
     display: flex;
     align-items: center;
-    gap: @base-gap;
+    gap: @space-base;
   }
 }
 </style>

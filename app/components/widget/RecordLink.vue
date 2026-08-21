@@ -35,7 +35,7 @@ const recordLink = ref([
     .links {
         display: flex;
         flex-direction: column;
-        gap: @base-gap;
+        gap: @space-base;
     }
     .link-item {
         .link {
@@ -44,17 +44,17 @@ const recordLink = ref([
             justify-content: space-between;            
             text-decoration: none;
             border-radius: @small-border-radius;
-            padding: 6px 8px;
+            padding: @space-xs @space-base;
             .title {
                 color: var(--primary-color);
-                font-size: 14px;
+                font-size: @font-size-sm;
             }
             .target {
                 color: var(--tertiary-color);
                 background-color: var(--mute-bg-color);
-                padding: 4px 8px;
+                padding: @space-2xs @space-base;
                 border-radius: @small-border-radius;
-                font-size: 11px;
+                font-size: @font-size-2xs;
             }
             &:hover {
                 background-color: var(--shallow-hover-bg-color);

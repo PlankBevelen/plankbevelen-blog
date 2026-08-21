@@ -282,30 +282,30 @@ const onSend = async () => {
 <style scoped lang="less">
 .agent-card {
   :deep(.card-content) {
-    padding: 18px 20px;
+    padding: 18px @space-3xl;
   }
 }
 
 .agent-layout {
   display: grid;
   grid-template-columns: minmax(240px, 320px) 1fr;
-  gap: 16px;
+  gap: @space-2xl;
 }
 
 .agent-side {
   border: 1px solid var(--border-color);
   border-radius: 10px;
-  padding: 14px;
+  padding: @space-xl;
   background: color-mix(in srgb, var(--card-color) 86%, #f7fbff);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: @space-lg;
 }
 
 .agent-status-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: @space-md;
   font-size: @font-size-sm;
   color: var(--text-color);
 }
@@ -346,7 +346,7 @@ const onSend = async () => {
 .agent-examples {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: @space-base;
 }
 
 .examples-title {
@@ -359,12 +359,12 @@ const onSend = async () => {
   border: 1px solid var(--border-color);
   background: var(--card-color);
   color: var(--text-color);
-  border-radius: 8px;
-  padding: 8px 10px;
+  border-radius: @base-border-radius;
+  padding: @space-base @space-md;
   font-size: @font-size-xs;
   line-height: 1.6;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all @transition-fast ease;
 
   &:hover {
     border-color: var(--primary-color);
@@ -385,7 +385,7 @@ const onSend = async () => {
 .messages {
   flex: 1;
   overflow-y: auto;
-  padding: 12px;
+  padding: @space-lg;
   background:
     linear-gradient(to right, color-mix(in srgb, var(--primary-color) 8%, transparent) 1px, transparent 1px),
     linear-gradient(to bottom, color-mix(in srgb, var(--primary-color) 8%, transparent) 1px, transparent 1px),
@@ -395,7 +395,7 @@ const onSend = async () => {
 
 .message-item {
   display: flex;
-  margin-bottom: 10px;
+  margin-bottom: @space-md;
 
   &.user {
     justify-content: flex-end;
@@ -413,7 +413,7 @@ const onSend = async () => {
 
 .bubble {
   max-width: min(100%, 680px);
-  padding: 10px 12px;
+  padding: @space-md @space-lg;
   border-radius: 10px;
   border: 1px solid var(--border-color);
   background: var(--card-color);
@@ -428,7 +428,7 @@ const onSend = async () => {
   display: inline-block;
   width: 6px;
   height: 16px;
-  margin-left: 4px;
+  margin-left: @space-2xs;
   vertical-align: middle;
   background: var(--primary-color);
   animation: blink 0.9s infinite;
@@ -436,10 +436,10 @@ const onSend = async () => {
 
 .input-row {
   border-top: 1px solid var(--border-color);
-  padding: 10px;
+  padding: @space-md;
   display: flex;
   align-items: flex-end;
-  gap: 10px;
+  gap: @space-md;
   background: var(--card-color);
 }
 
@@ -454,7 +454,7 @@ const onSend = async () => {
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: @screen-lg) {
   .agent-layout {
     grid-template-columns: 1fr;
   }

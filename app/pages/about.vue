@@ -74,8 +74,8 @@ useHead(() => ({
   padding-top: @header-height;
 
   .container {
-    padding-top: 40px;
-    padding-bottom: 40px;
+    padding-top: @space-5xl;
+    padding-bottom: @space-5xl;
   }
 }
 </style>

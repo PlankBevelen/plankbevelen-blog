@@ -10,6 +10,6 @@ definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
 <style lang="less" scoped>
 .admin-index {
-  padding: 24px 0;
+  padding: @space-4xl 0;
 }
 </style>

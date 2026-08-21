@@ -254,9 +254,9 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 20px;
-  padding: 24px 28px;
-  border-radius: 24px;
+  gap: @space-3xl;
+  padding: @space-4xl 28px;
+  border-radius: @radius-xl;
   background:
     radial-gradient(circle at right top, rgba(230, 162, 60, 0.14), transparent 24%),
     linear-gradient(140deg, var(--card-color), color-mix(in srgb, var(--card-color) 85%, #fff7e6));
@@ -264,8 +264,8 @@ onBeforeUnmount(() => {
 }
 
 .stats-kicker {
-  margin: 0 0 8px;
-  font-size: 12px;
+  margin: 0 0 @space-base;
+  font-size: @font-size-xs;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -274,14 +274,14 @@ onBeforeUnmount(() => {
 
 .stats-title {
   margin: 0;
-  font-size: 30px;
+  font-size: @font-size-3xl;
   color: var(--text-color);
 }
 
 .stats-desc {
-  margin: 12px 0 0;
+  margin: @space-lg 0 0;
   max-width: 640px;
-  font-size: 14px;
+  font-size: @font-size-sm;
   line-height: 1.8;
   color: var(--secondary-color);
 }
@@ -289,7 +289,7 @@ onBeforeUnmount(() => {
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
+  gap: @space-4xl;
 }
 
 .chart-container {
@@ -301,7 +301,7 @@ onBeforeUnmount(() => {
   grid-column: span 2;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: @screen-lg) {
   .stats-hero {
     flex-direction: column;
   }

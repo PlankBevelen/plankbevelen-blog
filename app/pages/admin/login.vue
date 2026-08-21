@@ -159,7 +159,7 @@ onMounted(refreshCaptcha)
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 20px;
+  padding: 32px @space-3xl;
   overflow: hidden;
   background-color: var(--bg-color);
 }
@@ -177,10 +177,10 @@ onMounted(refreshCaptcha)
 
 .login-card {
   position: relative;
-  z-index: 1;
+  z-index: @z-base;
   width: min(420px, 100%);
-  padding: 40px 36px 36px;
-  border-radius: 16px;
+  padding: @space-5xl 36px 36px;
+  border-radius: @extra-large-border-radius;
   background-color: var(--card-color);
   border: 1px solid color-mix(in srgb, var(--primary-color) 22%, var(--border-color));
   box-shadow: 0 12px 32px color-mix(in srgb, var(--text-color) 6%, transparent);
@@ -195,7 +195,7 @@ onMounted(refreshCaptcha)
   display: block;
   margin: 0 auto;
   box-sizing: content-box;
-  padding: 8px;
+  padding: @space-base;
   border-radius: 14px;
   border: 1px solid var(--border-color);
   background-color: var(--card-color);
@@ -211,8 +211,8 @@ onMounted(refreshCaptcha)
 }
 
 .login-brand__subtitle {
-  margin: 10px 0 0;
-  font-size: 14px;
+  margin: @space-md 0 0;
+  font-size: @font-size-sm;
   color: var(--primary-color);
   letter-spacing: 0.12em;
 }
@@ -235,7 +235,7 @@ onMounted(refreshCaptcha)
     border-radius: @base-border-radius;
     box-shadow: 0 0 0 1px var(--border-color);
     background-color: transparent;
-    padding: 4px 12px;
+    padding: @space-2xs @space-lg;
 
     &:hover,
     &.is-focus {
@@ -256,7 +256,7 @@ onMounted(refreshCaptcha)
 
 .login-form__captcha {
   display: flex;
-  gap: 12px;
+  gap: @space-lg;
   align-items: center;
   width: 100%;
 
@@ -285,7 +285,7 @@ onMounted(refreshCaptcha)
   }
 
   .captcha-placeholder {
-    font-size: 12px;
+    font-size: @font-size-xs;
     color: var(--secondary-color);
   }
 }
@@ -301,7 +301,7 @@ onMounted(refreshCaptcha)
 
 @media (max-width: 480px) {
   .login-page {
-    padding: 24px 16px;
+    padding: @space-4xl @space-2xl;
   }
 
   .login-card {

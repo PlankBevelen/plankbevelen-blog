@@ -64,11 +64,11 @@ function onJump(item: TocItem) {
 .toc-list { 
   display: flex; 
   flex-direction: column; 
-  gap: @base-gap; 
+  gap: @space-base; 
   .toc-item { 
     cursor: pointer; 
     border-radius: @small-border-radius; 
-    padding: 4px 6px; 
+    padding: @space-2xs @space-xs; 
     &:hover {
       background-color: var(--shallow-hover-bg-color);
     }
@@ -81,19 +81,19 @@ function onJump(item: TocItem) {
       font-weight: 600;
     }
     &.lvl-2 {
-      padding-left: 8px;
+      padding-left: @space-base;
     }
     &.lvl-3 {
-      padding-left: 16px;
+      padding-left: @space-2xl;
     }
     &.lvl-4 {
-      padding-left: 24px;
+      padding-left: @space-4xl;
     }
     &.lvl-5 {
       padding-left: 32px;
     }
     &.lvl-6 {
-      padding-left: 40px;
+      padding-left: @space-5xl;
     }
   }
 }

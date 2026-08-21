@@ -173,9 +173,9 @@ onMounted(() => {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 20px;
-  padding: 24px 28px;
-  border-radius: 24px;
+  gap: @space-3xl;
+  padding: @space-4xl 28px;
+  border-radius: @radius-xl;
   border: 1px solid rgba(0, 105, 217, 0.14);
   background:
     radial-gradient(circle at top right, rgba(0, 105, 217, 0.12), transparent 26%),
@@ -183,8 +183,8 @@ onMounted(() => {
 }
 
 .site-kicker {
-  margin: 0 0 8px;
-  font-size: 12px;
+  margin: 0 0 @space-base;
+  font-size: @font-size-xs;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -193,14 +193,14 @@ onMounted(() => {
 
 .site-title {
   margin: 0;
-  font-size: 30px;
+  font-size: @font-size-3xl;
   color: var(--text-color);
 }
 
 .site-desc {
-  margin: 12px 0 0;
+  margin: @space-lg 0 0;
   max-width: 640px;
-  font-size: 14px;
+  font-size: @font-size-sm;
   line-height: 1.8;
   color: var(--secondary-color);
 }
@@ -208,30 +208,30 @@ onMounted(() => {
 .content-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: @space-2xl;
 }
 
 .content-metric {
-  padding: 16px;
+  padding: @space-2xl;
   border-radius: 18px;
   background: var(--bg-color, #f7f9fc);
   border: 1px solid var(--border-color);
 
   span {
     display: block;
-    font-size: 12px;
+    font-size: @font-size-xs;
     color: var(--tertiary-color);
   }
 
   strong {
     display: block;
-    margin-top: 8px;
-    font-size: 20px;
+    margin-top: @space-base;
+    font-size: @font-size-xl;
     color: var(--text-color);
   }
 }
 
-@media (max-width: 960px) {
+@media (max-width: @screen-tablet) {
   .site-hero {
     flex-direction: column;
   }

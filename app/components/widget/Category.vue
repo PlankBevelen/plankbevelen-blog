@@ -55,14 +55,14 @@ function onSelect(item: Category) {
 .categoryList {
     display: flex;
     flex-direction: column;
-    gap: @base-gap;
+    gap: @space-base;
     .category-item {
         display: flex;
         align-items: center;
         justify-content: space-between;            
         text-decoration: none;
         border-radius: @small-border-radius;
-        padding: 6px 8px;
+        padding: @space-xs @space-base;
         cursor: pointer;
         &:hover { background-color: var(--shallow-hover-bg-color); }
         .name {
@@ -71,7 +71,7 @@ function onSelect(item: Category) {
         .count {
             color: var(--tertiary-color);
             background-color: var(--mute-bg-color);
-            padding: 4px 8px;
+            padding: @space-2xs @space-base;
             border-radius: @small-border-radius;
             font-size: @font-size-2xs;
         }

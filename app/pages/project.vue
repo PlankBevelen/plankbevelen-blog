@@ -116,19 +116,19 @@ useHead(() => ({
   padding-top: @header-height;
 
   .container {
-    padding-top: 40px;
-    padding-bottom: 40px;
+    padding-top: @space-5xl;
+    padding-bottom: @space-5xl;
   }
 }
 
 .project-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: @space-3xl;
 }
 
 .project-top {
-  padding-bottom: 14px;
+  padding-bottom: @space-xl;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -136,7 +136,7 @@ useHead(() => ({
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: @space-md;
 
   h2 {
     margin: 0;
@@ -147,30 +147,30 @@ useHead(() => ({
 }
 
 .project-stats {
-  margin-top: 10px;
+  margin-top: @space-md;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: @space-md;
 
   span {
     font-size: @font-size-xs;
     color: var(--tertiary-color);
     border: 1px solid var(--border-color);
-    border-radius: 999px;
-    padding: 5px 10px;
+    border-radius: @radius-pill;
+    padding: 5px @space-md;
     background: color-mix(in srgb, var(--card-color) 74%, #f5f8fd);
   }
 }
 
 .project-summary {
-  margin: 16px 0 0;
-  font-size: 18px;
+  margin: @space-2xl 0 0;
+  font-size: @font-size-lg;
   color: var(--secondary-color);
   line-height: 1.8;
 }
 
 .project-description {
-  margin: 12px 0 0;
+  margin: @space-lg 0 0;
   font-size: @font-size-sm;
   line-height: 1.9;
   color: var(--text-color);
@@ -179,12 +179,12 @@ useHead(() => ({
 .project-highlights {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 16px;
+  gap: @space-md;
+  margin-top: @space-2xl;
 }
 
 .highlight-item {
-  padding: 12px 14px;
+  padding: @space-lg @space-xl;
   border-radius: 10px;
   border: 1px solid var(--border-color);
   background: color-mix(in srgb, var(--card-color) 72%, #f6f9ff);
@@ -196,15 +196,15 @@ useHead(() => ({
 .project-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 16px;
+  gap: @space-md;
+  margin-top: @space-2xl;
 }
 
 .project-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 16px;
+  gap: @space-xl;
+  margin-top: @space-2xl;
 
   a {
     text-decoration: none;
@@ -217,13 +217,13 @@ useHead(() => ({
   }
 }
 
-@media (max-width: 960px) {
+@media (max-width: @screen-tablet) {
   .project-title-wrap {
     flex-direction: column;
     align-items: flex-start;
 
     h2 {
-      font-size: 28px;
+      font-size: @font-size-xxl;
     }
   }
 

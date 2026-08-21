@@ -159,9 +159,9 @@ onMounted(() => {
     flex-direction: column;
 
     .header {
-        margin-bottom: 24px;
+        margin-bottom: @space-4xl;
         .title {
-            font-size: 24px;
+            font-size: @font-size-2xl;
             font-weight: 600;
             color: var(--text-color);
             margin: 0;
@@ -196,7 +196,7 @@ onMounted(() => {
         
         .actions {
             display: flex;
-            gap: 16px;
+            gap: @space-2xl;
             align-items: center;
         }
     }

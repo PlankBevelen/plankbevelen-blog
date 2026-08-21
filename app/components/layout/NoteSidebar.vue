@@ -125,15 +125,15 @@ function onSelectItem(groupId: string, itemId: string) {
 
 .flat-items {
   list-style: none;
-  margin: 0 0 4px;
+  margin: 0 0 @space-2xs;
   padding: 0;
 }
 
 .nav-group {
   position: relative;
   &:not(:last-child) {
-    margin-bottom: 8px;
-    padding-bottom: 8px;
+    margin-bottom: @space-base;
+    padding-bottom: @space-base;
     &::after {
       content: '';
       position: absolute;
@@ -150,7 +150,7 @@ function onSelectItem(groupId: string, itemId: string) {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 8px;
+  padding: @space-base;
   border: none;
   background: transparent;
   color: var(--text-color);
@@ -173,7 +173,7 @@ function onSelectItem(groupId: string, itemId: string) {
   display: flex;
   align-items: center;
   color: var(--secondary-color);
-  transition: transform 0.2s ease;
+  transition: transform @transition-fast ease;
   flex-shrink: 0;
 
   &.expanded {
@@ -190,7 +190,7 @@ function onSelectItem(groupId: string, itemId: string) {
 
 .nav-item {
   width: 100%;
-  padding: 6px 8px 6px 16px;
+  padding: @space-xs @space-base @space-xs @space-2xl;
   border: none;
   background: transparent;
   color: var(--secondary-color);
@@ -201,7 +201,7 @@ function onSelectItem(groupId: string, itemId: string) {
   border-radius: @small-border-radius;
 
   &.flat {
-    padding-left: 8px;
+    padding-left: @space-base;
   }
 
   &:hover {

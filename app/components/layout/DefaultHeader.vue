@@ -145,9 +145,9 @@ onMounted(()=>{
   height: @header-height;
   background-color: var(--header-color);
   color: var(--text-color);
-  z-index: 1000;
+  z-index: @z-header;
   border-bottom: 1px solid var(--border-color);
-  transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  transition: transform @transition-base ease-in-out, background-color @transition-base ease-in-out;
 
   &.hidden {
     transform: translateY(-100%);
@@ -161,7 +161,7 @@ onMounted(()=>{
     .logo {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: @space-base;
       .logo-img {
         width: 40px;
         height: 40px;
@@ -179,7 +179,7 @@ onMounted(()=>{
       align-items: center;
       list-style: none;
       .nav-item {
-        margin-left: 20px;        
+        margin-left: @space-3xl;        
       }
       .nav-link {
         color: var(--text-color);
@@ -197,7 +197,7 @@ onMounted(()=>{
           background: var(--active-color);
           transform: scaleX(0);
           transform-origin: left center;
-          transition: transform 0.3s ease-in-out;
+          transition: transform @transition-base ease-in-out;
         }
         &.router-link-active {
           color: var(--active-color);
@@ -212,7 +212,7 @@ onMounted(()=>{
     }
     .controls {
       display: flex;
-      gap: 12px;
+      gap: @space-lg;
       align-items: center;
       .lang {
         position: relative;
@@ -230,19 +230,19 @@ onMounted(()=>{
           opacity: 0;
           background-color: var(--header-color);
           color: var(--text-color);
-          padding: 8px 12px;
+          padding: @space-base @space-lg;
           border-radius: @small-border-radius;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          box-shadow: @shadow-card;
           flex-direction: column;
-          gap: @base-gap;
+          gap: @space-base;
           transform: translateX(-50%) scaleY(0);
           transform-origin: top center;
-          transition: transform 0.3s ease-in-out, opacity 0.2s ease-in-out;
+          transition: transform @transition-base ease-in-out, opacity @transition-fast ease-in-out;
           pointer-events: none;
           will-change: transform, opacity;
           .lang-item {
             cursor: pointer;
-            padding: 4px 8px;
+            padding: @space-2xs @space-base;
             border-radius: @small-border-radius;
             &.active {
               background-color: var(--active-color);
@@ -259,9 +259,9 @@ onMounted(()=>{
 
   // 移动端样式
   .mobile-menu-btn {
-    font-size: 24px;
+    font-size: @font-size-2xl;
     cursor: pointer;
-    padding: 8px;
+    padding: @space-base;
     color: var(--text-color);
     background: transparent;
     border: none;
@@ -274,25 +274,25 @@ onMounted(()=>{
     width: 100%;
     background-color: var(--header-color);
     border-bottom: 1px solid var(--border-color);
-    padding: 20px;
+    padding: @space-3xl;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: @space-3xl;
 
     .mobile-nav-list {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: @space-2xl;
       list-style: none;
 
       .mobile-nav-item {
         .mobile-nav-link {
           display: block;
-          font-size: 16px;
+          font-size: @base-font-size;
           color: var(--text-color);
           text-decoration: none;
-          padding: 8px 0;
+          padding: @space-base 0;
           border-bottom: 1px dashed var(--border-color);
           
           &.router-link-active {
@@ -308,22 +308,22 @@ onMounted(()=>{
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-top: 10px;
+      padding-top: @space-md;
       
       .control-item {
         display: flex;
         align-items: center;
-        gap: 10px;
-        font-size: 14px;
+        gap: @space-md;
+        font-size: @font-size-sm;
         
         .lang-toggle {
           display: flex;
           align-items: center;
-          gap: 4px;
+          gap: @space-2xs;
           
           .lang-opt {
             cursor: pointer;
-            padding: 2px 6px;
+            padding: 2px @space-xs;
             border-radius: 4px;
             font-size: var(--el-font-size-small);
             &.active {
@@ -339,7 +339,7 @@ onMounted(()=>{
 
 .slide-fade-enter-active,
 .slide-fade-leave-active {
-  transition: all 0.3s ease-out;
+  transition: all @transition-base ease-out;
 }
 
 .slide-fade-enter-from,

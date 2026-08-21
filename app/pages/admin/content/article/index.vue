@@ -146,9 +146,9 @@ const handleDelete = async (id: string) => {
     
 
     .header {
-        margin-bottom: 24px;
+        margin-bottom: @space-4xl;
         .title {
-            font-size: 24px;
+            font-size: @font-size-2xl;
             font-weight: 600;
             color: var(--text-color);
             margin: 0;
@@ -183,7 +183,7 @@ const handleDelete = async (id: string) => {
         
         .actions {
             display: flex;
-            gap: 16px;
+            gap: @space-2xl;
             align-items: center;
         }
     }
@@ -208,17 +208,17 @@ const handleDelete = async (id: string) => {
         .tags-wrapper {
             display: flex;
             flex-wrap: wrap;
-            gap: 4px;
+            gap: @space-2xs;
             
             .tag-item {
-                margin-right: 4px;
+                margin-right: @space-2xs;
             }
         }
 
         .pagination-wrapper {
             display: flex; 
             justify-content: flex-end; 
-            padding: 16px;
+            padding: @space-2xl;
             margin-top: auto;
             border-top: 1px solid var(--border-color);
         }

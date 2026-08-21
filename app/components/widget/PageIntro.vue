@@ -49,12 +49,12 @@ const AsyncMdPreview = defineAsyncComponent(() => {
 }
 
 .header {
-  margin-bottom: 14px;
+  margin-bottom: @space-xl;
 }
 
 .kicker {
-  margin: 0 0 6px;
-  font-size: 12px;
+  margin: 0 0 @space-xs;
+  font-size: @font-size-xs;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -62,7 +62,7 @@ const AsyncMdPreview = defineAsyncComponent(() => {
 }
 
 .title {
-  margin: 12px 0 0 0;
+  margin: @space-lg 0 0 0;
   font-size: @font-size-xxl;
   font-weight: 600;
   color: var(--text-color);
