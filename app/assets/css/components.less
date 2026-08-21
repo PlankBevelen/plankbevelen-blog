@@ -56,6 +56,14 @@
     }
 }
 
+/* —————— 代码块禁止横向滚动条：长行自动换行，仅保留纵向滚动（覆盖库默认 overflow: auto）—————— */
+.md-editor-preview .md-editor-code pre code,
+.md-editor-preview .md-editor-code pre code .md-editor-code-block {
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere !important;
+    overflow-x: hidden !important;
+}
+
 /* —————— MdPreview 暗黑整套主题变量（高特异性覆盖库 .md-editor-dark .md-editor-preview） —————— */
 html[theme="dark"] .md-editor .md-editor-preview {
     /* 文字 / 链接 */
