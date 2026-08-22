@@ -11,7 +11,8 @@
       "article": "文章",
       "about": "关于",
       "project": "项目",
-      "notes": "笔记"
+      "notes": "笔记",
+      "friends": "友链"
     }
   },
   "footer": {
@@ -143,6 +144,13 @@
         "title": "联系我们",
         "body": "如对本隐私说明有任何疑问，可通过邮箱 {'plankbevelen@gmail.com'} 联系我们。"
       }
+    },
+    "friends": {
+      "title": "友链",
+      "meta": {
+        "description": "plankbevelen 的友情链接，欢迎申请友链。",
+        "keywords": "友链, 友情链接, 博客友链"
+      }
     }
   },
   "hero": {
@@ -157,5 +165,43 @@
     "title": "联系我",
     "email": "邮箱",
     "wechat": "微信"
+  },
+  "friends": {
+    "title": "友链",
+    "apply": "申请友链",
+    "applyTitle": "申请友链",
+    "empty": "暂无友链，欢迎成为第一个！",
+    "submitSuccess": "提交成功，等待审核",
+    "submitFailed": "提交失败，请稍后重试",
+    "notice": {
+      "title": "友链须知",
+      "item1": "内容健康、无违法违规信息，站点长期稳定更新。",
+      "item2": "技术 / 个人博客优先，商业推广或低质站点可能被拒绝。",
+      "item3": "请先添加本站友链，再提交申请，审核通过后互链展示。",
+      "item4": "请填写真实可访问的站点地址与图标，信息不实将被拒绝。"
+    },
+    "myself": {
+      "title": "本站信息",
+      "name": "站名",
+      "url": "网址",
+      "desc": "简介",
+      "copy": "复制友链信息",
+      "copied": "已复制"
+    },
+    "form": {
+      "name": "站点名称",
+      "url": "站点地址",
+      "description": "站点简介",
+      "avatar": "图标地址（可选）",
+      "captcha": "验证码",
+      "submit": "提交申请",
+      "cancel": "取消",
+      "invalidUrl": "请输入有效的 http/https 地址"
+    },
+    "rules": {
+      "name": "请输入站点名称",
+      "url": "请输入站点地址",
+      "captcha": "请输入验证码"
+    }
   }
 }

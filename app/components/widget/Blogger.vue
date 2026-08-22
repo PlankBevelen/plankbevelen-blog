@@ -1,16 +1,10 @@
 <template>    
   <BaseCard type="blogger" animation class="text-center">
-    <div class="mx-auto mb-3 h-[140px] w-[140px] overflow-hidden rounded-card">
-      <NuxtImg
-        provider="ipx"
-        src="/img/avatar.webp"
+    <div class="mx-auto mb-3 h-[200px] w-[200px] overflow-hidden rounded-card">
+      <img
+        src="/img/avatar.webp?v=20260822"
         alt="avatar"
-        class="h-full w-full object-cover"
-        loading="eager"
-        fetchpriority="high"
-        quality="60"
-        :width="140"
-        :height="140"
+        class="h-full w-full object-cover"  
       />
     </div>
     <div class="mb-3 text-title font-bold text-text">

@@ -39,7 +39,8 @@ const navTitleMap: Record<string, string> = {
   '/admin/site/content': '站点内容',
   '/admin/site/info': '站点信息',
   '/admin/site/data': '站点数据',
-  '/admin/site/logs': '访问日志'
+  '/admin/site/logs': '访问日志',
+  '/admin/site/friend-links': '友链管理'
 }
 
 const toggleCollapsed = () => {

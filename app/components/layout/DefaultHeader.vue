@@ -2,16 +2,12 @@
   <header class="header" :class="{ 'is-mobile': isMobile }">
     <div class="headerWrapper container">
       <div class="logo">
-        <NuxtImg
-          provider="ipx"
-          src="/img/logo.webp"
+        <img
+          src="/favicon.ico"
           alt="logo"
-          quality="70"
           loading="eager"
           fetchpriority="high"
           class="logo-img"
-          width="40"
-          height="40"
         />
         <span class="logo-text cursor-pointer hover:scale-105 transition-transform duration-300" @click="navigateTo('/')">{{ $t('site.name') }}</span>
       </div>
@@ -112,6 +108,7 @@ const navList = [
   { key: 'header.nav.article', path: '/article' },
   { key: 'header.nav.project', path: '/project' },
   { key: 'header.nav.about', path: '/about' },
+  { key: 'header.nav.friends', path: '/friends' },
 ]
 
 const { isMobile } = useUserAgent()
@@ -163,8 +160,8 @@ onMounted(()=>{
       align-items: center;
       gap: @space-base;
       .logo-img {
-        width: 40px;
-        height: 40px;
+        width: 54px;
+        height: 54px;
         object-fit: cover;        
         border-radius: @small-border-radius;
       }

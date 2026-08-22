@@ -35,7 +35,7 @@
 
       <el-dropdown trigger="click" @command="onCommand">
         <div class="avatar">
-          <NuxtImg provider="ipx" src="/img/avatar.webp" alt="avatar" quality="60" loading="eager" width="32" height="32" />
+          <img src="/img/avatar.webp?v=20260822" alt="avatar" loading="eager" width="32" height="32" />
         </div>
         <template #dropdown>
           <el-dropdown-menu>

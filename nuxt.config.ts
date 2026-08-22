@@ -91,7 +91,7 @@ export default defineNuxtConfig({
   },
   vite: {
     css: {
-      preprocessorMaxWorkers: 0,  // 禁用预处理器多线程，避免在服务器端运行时出现问题
+      preprocessorMaxWorkers: 0,
       preprocessorOptions: {
         less: {
           additionalData: '@import "@/assets/css/variables.less";',
@@ -102,14 +102,14 @@ export default defineNuxtConfig({
     build: {
       chunkSizeWarningLimit: 1500,
       sourcemap: false,
-    }
+      reportCompressedSize: false,  
+    },
   },
   image: {
     provider: 'ipx',
     ipx: {
       baseURL: '/_ipx',
       maxAge: 60 * 60 * 24 * 365,
-      // format: ['webp', 'avif', 'png', 'jpg'],
       modifiers: {
         quality: 80
       },
@@ -132,8 +132,12 @@ export default defineNuxtConfig({
     externals: {
       inline: ['element-plus', '@popperjs/core']
     },
-    // 压缩静态资源
     serveStatic: true,
-    compressPublicAssets: false,
+    compressPublicAssets: false, 
+    esbuild: {
+      options: {
+        target: 'node20',
+      },
+    },
   },
 })

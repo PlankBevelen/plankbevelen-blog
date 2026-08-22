@@ -1,7 +1,7 @@
 <template>
   <aside class="sidebar" :class="{ collapsed: isCollapsed }">
     <div class="sidebar-logo">
-      <NuxtImg provider="ipx" src="/img/logo.webp" alt="logo" quality="70" loading="eager" class="logo-img" width="32" height="32" />
+      <img src="/favicon.ico" alt="logo" loading="eager" class="logo-img" width="32" height="32" />
       <div v-show="!isCollapsed" class="logo-copy">
         <span class="logo-text">plankbevelen</span>
         <span class="logo-subtitle">Admin Console</span>
@@ -59,6 +59,9 @@
         <el-menu-item index="3-3" @click="navigateTo('/admin/site/logs')">
           访问日志
         </el-menu-item>
+        <el-menu-item index="3-4" @click="navigateTo('/admin/site/friend-links')">
+          友链管理
+        </el-menu-item>
       </el-sub-menu>
     </el-menu>
 
@@ -99,6 +102,7 @@ const activeIndex = computed(() => {
   if (path.startsWith('/admin/site/info')) return '3-1'
   if (path.startsWith('/admin/site/data')) return '3-2'
   if (path.startsWith('/admin/site/logs')) return '3-3'
+  if (path.startsWith('/admin/site/friend-links')) return '3-4'
   return '1'
 })
 

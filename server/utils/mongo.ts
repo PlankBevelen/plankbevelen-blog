@@ -63,6 +63,20 @@ export type TagDoc = {
   updatedAt: Date
 }
 
+export type FriendLinkDoc = {
+  id: number
+  name: string
+  url: string
+  normalizedUrl: string
+  description: string
+  avatar: string
+  status: 'pending' | 'approved' | 'rejected'
+  submitterIp?: string
+  createdAt: Date
+  updatedAt: Date
+  deletedAt?: Date | null
+}
+
 export type SiteConfigDoc = {
   _id: string
   type: string
@@ -125,6 +139,7 @@ export function getCollections(dbInstance?: Db) {
     categories: d.collection<CategoryDoc>('categories'),
     noteCategories: d.collection<NoteCategoryDoc>('note_categories'),
     tags: d.collection<TagDoc>('tags'),
+    friendLinks: d.collection<FriendLinkDoc>('friend_links'),
     counters: d.collection<CounterDoc>('counters'),
     siteConfigs: d.collection<SiteConfigDoc>('site_configs'),
     visitLogs: d.collection<VisitLogDoc>('visit_logs')
@@ -132,7 +147,7 @@ export function getCollections(dbInstance?: Db) {
 }
 
 async function ensureIndexes(dbInstance: Db) {
-  const { articles, notes, categories, noteCategories, tags, siteConfigs, visitLogs } = getCollections(dbInstance)
+  const { articles, notes, categories, noteCategories, tags, friendLinks, siteConfigs, visitLogs } = getCollections(dbInstance)
   // 访问日志保留周期（TTL 自动清理，默认 180 天），避免 visit_logs 无限增长
   const visitLogTtlDays = Number(process.env.VISIT_LOG_TTL_DAYS) || 180
   const visitLogTtlSeconds = visitLogTtlDays * 24 * 60 * 60
@@ -151,6 +166,8 @@ async function ensureIndexes(dbInstance: Db) {
     noteCategories.createIndex({ id: 1 }, { unique: true, name: 'uniq_id' }),
     noteCategories.createIndex({ name: 1 }, { unique: true, name: 'uniq_name' }),
     tags.createIndex({ name: 1 }, { unique: true, name: 'uniq_name' }),
+    friendLinks.createIndex({ id: 1 }, { unique: true, name: 'uniq_id' }),
+    friendLinks.createIndex({ status: 1, deletedAt: 1, id: 1 }, { name: 'by_status' }),
     siteConfigs.createIndex({ type: 1 }, { name: 'by_type' }),
     visitLogs.createIndex({ requestId: 1 }, { unique: true, name: 'uniq_request_id' }),
     visitLogs.createIndex({ visitedAt: -1 }, { name: 'by_visited_at' }),

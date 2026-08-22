@@ -3,7 +3,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "nuxt build",
+    "build": "node --max-old-space-size=2048 node_modules/nuxt/bin/nuxt.mjs build",
     "dev": "nuxt dev",
     "dev:local": "nuxt dev --dotenv .env.development --host 127.0.0.1 --port 3000",
     "dev:host": "nuxt dev --dotenv .env.development --host 0.0.0.0 --port 3000",
@@ -11,7 +11,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "serve": "vite",
-    "start": "node .output/server/index.mjs",
+    "start": "node --max-old-space-size=768 .output/server/index.mjs",
     "security:test": "node scripts/security/run.mjs"
   },
   "dependencies": {

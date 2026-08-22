@@ -11,7 +11,8 @@
       "article": "Articles",
       "about": "About",
       "project": "Projects",
-      "notes": "Notes"
+      "notes": "Notes",
+      "friends": "Friends"
     }
   },
   "footer": {
@@ -143,6 +144,13 @@
         "title": "Contact Us",
         "body": "If you have any questions about this privacy policy, please contact us at {'plankbevelen@gmail.com'}."
       }
+    },
+    "friends": {
+      "title": "Friends",
+      "meta": {
+        "description": "Friend links of plankbevelen. Apply to be a friend.",
+        "keywords": "friends, friend links, blogroll"
+      }
     }
   },
   "hero": {
@@ -157,6 +165,44 @@
     "title": "Contact Me",
     "email": "Email",
     "wechat": "Wechat"
+  },
+  "friends": {
+    "title": "Friends",
+    "apply": "Apply",
+    "applyTitle": "Apply for Friend Link",
+    "empty": "No friends yet. Be the first!",
+    "submitSuccess": "Submitted, awaiting review",
+    "submitFailed": "Submission failed, please try again",
+    "notice": {
+      "title": "Guidelines",
+      "item1": "Healthy, legal content with a stable and regularly-updated site.",
+      "item2": "Tech / personal blogs are preferred; promotional or low-quality sites may be rejected.",
+      "item3": "Please add our link first, then submit your application for a mutual link after approval.",
+      "item4": "Please provide a real and accessible site URL and icon; false information will be rejected."
+    },
+    "myself": {
+      "title": "About This Site",
+      "name": "Name",
+      "url": "URL",
+      "desc": "Description",
+      "copy": "Copy Link Info",
+      "copied": "Copied"
+    },
+    "form": {
+      "name": "Site Name",
+      "url": "Site URL",
+      "description": "Description",
+      "avatar": "Icon URL (optional)",
+      "captcha": "Captcha",
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "invalidUrl": "Please enter a valid http/https URL"
+    },
+    "rules": {
+      "name": "Please enter the site name",
+      "url": "Please enter the site URL",
+      "captcha": "Please enter the captcha"
+    }
   }
 }
 
