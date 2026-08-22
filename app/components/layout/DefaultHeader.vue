@@ -107,8 +107,8 @@ const navList = [
   { key: 'header.nav.notes', path: '/notes' },
   { key: 'header.nav.article', path: '/article' },
   { key: 'header.nav.project', path: '/project' },
-  { key: 'header.nav.about', path: '/about' },
   { key: 'header.nav.friends', path: '/friends' },
+  { key: 'header.nav.about', path: '/about' },
 ]
 
 const { isMobile } = useUserAgent()
