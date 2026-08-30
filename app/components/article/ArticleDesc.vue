@@ -6,20 +6,22 @@
       </NuxtLink>
     </h2>
     <div class="meta">
-      <span class="category">{{ article.category }}</span>
+      <span class="meta-item category">{{ article.category }}</span>
       <span class="dot">·</span>
-      <span class="flex gap-1 items-center">
+      <span class="meta-item">
         <nuxt-icon name="article/create-time" />
-        {{ formatDateTime(article.createTime) }}
+        <span>{{ formatDateTime(article.createTime) }}</span>
       </span>
-      <span class="flex gap-1 items-center">
+      <span class="meta-item">
         <nuxt-icon name="article/update-time" />
-        {{ formatDateTime(article.updateTime) }}
+        <span>{{ formatDateTime(article.updateTime) }}</span>
       </span>
-      <div class="flex gap-1 items-center">
+      <span v-if="article.tags?.length" class="meta-item tags">
         <nuxt-icon name="article/tag" />
-        <span v-for="tag in article.tags" :key="tag">{{ tag }}</span>
-      </div>
+        <span class="tag-list">
+          <span v-for="tag in article.tags" :key="tag" class="tag">{{ tag }}</span>
+        </span>
+      </span>
     </div>
     <div class="content">
       <div class="md-wrapper" :class="{ 'is-collapsed': !isExpand }">
@@ -42,7 +44,7 @@
         <el-button type="primary" link size="small" @click="isExpand = !isExpand">
           {{ isExpand ? '收起' : '展开更多' }}
         </el-button>
-        <NuxtLink :to="localePath('/article/' + article.id)">
+        <NuxtLink :to="localePath('/article/' + article.id)" class="read-more-link">
           <el-button type="primary" link size="small">阅读全文</el-button>
         </NuxtLink>
       </div>
@@ -127,9 +129,38 @@ const AsyncMdPreview = defineAsyncComponent(() => {
     color: var(--tertiary-color);
     font-size: @font-size-xs;
     display: flex;
-    gap: @space-base;
-    text-wrap: auto;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: @space-lg;
+    row-gap: @space-xs;
     margin-bottom: @space-lg;
+
+    .meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: @space-2xs;
+      min-width: 0;
+      max-width: 100%;
+      flex: 0 1 auto;
+    }
+
+    .category {
+      color: var(--primary-color);
+    }
+
+    .tags {
+      align-items: flex-start;
+    }
+
+    .tag-list {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: @space-2xs @space-base;
+    }
+
+    .tag {
+      white-space: nowrap;
+    }
   }
 
   .content {
@@ -168,7 +199,13 @@ const AsyncMdPreview = defineAsyncComponent(() => {
 
 .ops {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: @space-2xs;
+
+  .read-more-link {
+    display: inline-flex;
+    align-items: center;
+  }
 }
 </style>

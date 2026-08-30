@@ -1,7 +1,7 @@
 {
   "site": {
     "name": "plankbevelen",
-    "description": "plankbevelen 个人技术博客，分享前端开发、工程实践与学习记录。",
+    "description": "plankbevelen 个人技术博客，分享前端开发、工程实践与学习记录",
     "keywords": "plankbevelen, plank, bevelen, 前端开发, 编程博客, 技术文章, 个人博客"
   },
   "header": {
@@ -17,8 +17,8 @@
   },
   "footer": {
     "title": "plankbevelen",
-    "description": "个人技术博客，分享编码经验与实践总结。",
-    "copyright": "plankbevelen. 保留所有权利。",
+    "description": "个人技术博客，分享编码经验与实践总结",
+    "copyright": "plankbevelen. 保留所有权利",
     "beian": "蜀ICP备2024114585号"
   },
   "theme": {
@@ -73,14 +73,14 @@
     "home": {
       "title": "plankbevelen",
       "meta": {
-        "description": "plankbevelen 个人技术博客，分享编码教程、开发经验与技术思考。",
+        "description": "plankbevelen 个人技术博客，分享编码教程、开发经验与技术思考",
         "keywords": "plankbevelen, plank, bevelen, 前端, 后端, 工程化, 技术博客"
       }
     },
     "article": {
       "title": "文章",
       "meta": {
-        "description": "浏览 plankbevelen 的全部技术文章与编码教程。",
+        "description": "浏览 plankbevelen 的全部技术文章与编码教程",
         "keywords": "技术文章, 编程教程, web 开发, 前端开发, 后端开发"
       },
       "search": {
@@ -100,26 +100,26 @@
     "about": {
       "title": "关于",
       "meta": {
-        "description": "了解 plankbevelen 的技术方向、项目实践与创作理念。",
+        "description": "了解 plankbevelen 的技术方向、项目实践与创作理念",
         "keywords": "关于, 个人介绍, 技术博主, 开发者"
       }
     },
     "notes": {
       "title": "笔记",
       "meta": {
-        "description": "按分类卡片浏览整理过的笔记内容。"
+        "description": "按分类卡片浏览整理过的笔记内容"
       },
       "empty": "暂时还没有笔记分类",
       "countUnit": "{count} 篇",
-      "categorySummary": "{name} 分类下当前共有 {count} 篇笔记。",
+      "categorySummary": "{name} 分类下当前共有 {count} 篇笔记",
       "categoryFirstNote": "首篇：{title}（共 {count} 篇）",
-      "categoryEmpty": "{name} 分类已经创建，等待后续内容归档。",
+      "categoryEmpty": "{name} 分类已经创建，等待后续内容归档",
       "detail": {
         "backToList": "返回笔记",
         "navTrigger": "目录导航",
         "mobileNav": "导航",
         "notFound": "没有找到这篇笔记",
-        "defaultIntro": "这是该分类下默认展示的第一篇笔记，适合作为查阅入口。",
+        "defaultIntro": "这是该分类下默认展示的第一篇笔记，适合作为查阅入口",
         "title": "笔记",
         "errorParam": "参数错误",
         "errorNotFound": "笔记不存在"
@@ -128,27 +128,27 @@
     "privacy": {
       "title": "隐私说明",
       "meta": {
-        "description": "本站隐私说明：采集哪些访问信息、如何使用与保存，以及联系方式。"
+        "description": "本站隐私说明：采集哪些访问信息、如何使用与保存，以及联系方式"
       },
       "updated": "最后更新：2026 年 8 月",
-      "intro": "本页面说明本站（plankbevelen.cn）如何采集、使用和保存访问信息。",
+      "intro": "本页面说明本站（plankbevelen.cn）如何采集、使用和保存访问信息",
       "collect": {
         "title": "我们采集哪些信息",
         "body": "本站会记录访问日志，包括：IP 地址、User-Agent（浏览器与设备信息）、访问路径与访问时间。这些信息仅用于访问统计（如页面浏览量、访客数）与安全排查。"
       },
       "usage": {
         "title": "信息用途与保存期限",
-        "body": "访问日志仅用于本站访问统计与安全防护，不用于识别个人身份，也不会向第三方出售或共享。日志会保留一定周期后自动清理（默认 180 天）。"
+        "body": "访问日志仅用于本站访问统计与安全防护，不用于识别个人身份，也不会向第三方出售或共享。日志会保留一定周期后自动清理（默认 180 天）"
       },
       "contact": {
         "title": "联系我们",
-        "body": "如对本隐私说明有任何疑问，可通过邮箱 {'plankbevelen@gmail.com'} 联系我们。"
+        "body": "如对本隐私说明有任何疑问，可通过邮箱 {'plankbevelen@gmail.com'} 联系我们"
       }
     },
     "friends": {
       "title": "友链",
       "meta": {
-        "description": "plankbevelen 的友情链接，欢迎申请友链。",
+        "description": "plankbevelen 的友情链接，欢迎申请友链",
         "keywords": "友链, 友情链接, 博客友链"
       }
     }
@@ -175,10 +175,10 @@
     "submitFailed": "提交失败，请稍后重试",
     "notice": {
       "title": "友链须知",
-      "item1": "内容健康、无违法违规信息，站点长期稳定更新。",
-      "item2": "技术 / 个人博客优先，商业推广或低质站点可能被拒绝。",
-      "item3": "请先添加本站友链，再提交申请，审核通过后互链展示。",
-      "item4": "请填写真实可访问的站点地址与图标，信息不实将被拒绝。"
+      "item1": "内容健康、无违法违规信息，站点长期稳定更新",
+      "item2": "技术 / 个人博客优先，商业推广或低质站点可能被拒绝",
+      "item3": "请先添加本站友链，再提交申请，审核通过后互链展示",
+      "item4": "请填写真实可访问的站点地址与图标，信息不实将被拒绝"
     },
     "myself": {
       "title": "本站信息",

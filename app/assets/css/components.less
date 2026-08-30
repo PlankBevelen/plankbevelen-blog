@@ -41,7 +41,38 @@
     color: var(--md-theme-color);
 
     > *:first-child {
-        margin-top: @space-lg;
+        margin-top: 0;
+    }
+
+    ul,
+    ol {
+        margin: @space-lg 0;
+        padding-left: 1.5em;
+    }
+
+    ul {
+        list-style: disc;
+    }
+
+    ol {
+        list-style: decimal;
+    }
+
+    li {
+        list-style: inherit;
+        line-height: 1.75;
+    }
+
+    li + li {
+        margin-top: @space-xs;
+    }
+
+    ul ul {
+        list-style: circle;
+    }
+
+    ul ul ul {
+        list-style: square;
     }
     code {
         & > * {

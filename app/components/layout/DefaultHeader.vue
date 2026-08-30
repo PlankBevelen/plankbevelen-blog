@@ -2,13 +2,13 @@
   <header class="header" :class="{ 'is-mobile': isMobile }">
     <div class="headerWrapper container">
       <div class="logo">
-        <img
+        <!-- <img
           src="/favicon.ico"
           alt="logo"
           loading="eager"
           fetchpriority="high"
           class="logo-img"
-        />
+        /> -->
         <span class="logo-text cursor-pointer hover:scale-105 transition-transform duration-300" @click="navigateTo('/')">{{ $t('site.name') }}</span>
       </div>
       

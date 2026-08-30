@@ -1,6 +1,6 @@
 <template>    
   <BaseCard type="blogger" animation class="text-center">
-    <div class="mx-auto mb-3 h-[200px] w-[200px] overflow-hidden rounded-card">
+    <div class="mx-auto mb-3 h-[200px] w-[200px] overflow-hidden">
       <img
         src="/img/avatar.webp?v=20260822"
         alt="avatar"
