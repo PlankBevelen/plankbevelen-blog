@@ -41,38 +41,7 @@
     color: var(--md-theme-color);
 
     > *:first-child {
-        margin-top: 0;
-    }
-
-    ul,
-    ol {
-        margin: @space-lg 0;
-        padding-left: 1.5em;
-    }
-
-    ul {
-        list-style: disc;
-    }
-
-    ol {
-        list-style: decimal;
-    }
-
-    li {
-        list-style: inherit;
-        line-height: 1.75;
-    }
-
-    li + li {
-        margin-top: @space-xs;
-    }
-
-    ul ul {
-        list-style: circle;
-    }
-
-    ul ul ul {
-        list-style: square;
+        margin-top: @space-lg;
     }
     code {
         & > * {
@@ -87,9 +56,10 @@
     }
 }
 
-/* —————— 代码块禁止横向滚动条：长行自动换行，仅保留纵向滚动（覆盖库默认 overflow: auto）—————— */
+/* —————— 代码块：小字号 + 禁止横向滚动条 —————— */
 .md-editor-preview .md-editor-code pre code,
 .md-editor-preview .md-editor-code pre code .md-editor-code-block {
+    font-size: 13px;
     white-space: pre-wrap !important;
     overflow-wrap: anywhere !important;
     overflow-x: hidden !important;
@@ -165,6 +135,28 @@ html[theme="dark"] .md-editor-preview .md-editor-admonition-error    { --md-admo
 .md-editor-preview div.default-theme {
     --md-theme-quote-border: 5px solid var(--primary-color);
     --md-theme-quote-bg-color: var(--mute-bg-color);
+}
+
+/* —————— Mermaid 图表主题配色（浅色） —————— */
+.md-editor-preview {
+    --md-mermaid-theme: default;
+    --md-mermaid-primary-color: var(--primary-color);
+    --md-mermaid-line-color: var(--secondary-color);
+    --md-mermaid-node-border: var(--border-color);
+    --md-mermaid-node-fill: var(--card-color);
+    --md-mermaid-label-color: var(--text-color);
+    --md-mermaid-edge-label-color: var(--secondary-color);
+}
+
+/* —————— Mermaid 图表主题配色（暗黑） —————— */
+html[theme="dark"] .md-editor-preview {
+    --md-mermaid-theme: dark;
+    --md-mermaid-primary-color: var(--primary-color);
+    --md-mermaid-line-color: #6c757d;
+    --md-mermaid-node-border: var(--border-color);
+    --md-mermaid-node-fill: #1a1d21;
+    --md-mermaid-label-color: var(--text-color);
+    --md-mermaid-edge-label-color: #8b949e;
 }
 
 /* —————— 全局滚动条（Firefox + WebKit / 浅 + 深）—————— */
