@@ -27,29 +27,8 @@ export type ArticleDoc = {
   deletedAt?: Date | null
 }
 
-export type NoteDoc = {
-  id: number
-  title: string
-  categoryId: string
-  chapter: string
-  chapterOrder?: number
-  noteOrder?: number
-  content: string
-  createdAt: Date
-  updatedAt: Date
-  deletedAt?: Date | null
-}
-
 export type CategoryDoc = {
   id: number
-  name: string
-  count: number
-  createdAt: Date
-  updatedAt: Date
-}
-
-export type NoteCategoryDoc = {
-  id: string
   name: string
   count: number
   createdAt: Date
@@ -135,9 +114,7 @@ export function getCollections(dbInstance?: Db) {
   const d = dbInstance || getDb()
   return {
     articles: d.collection<ArticleDoc>('articles'),
-    notes: d.collection<NoteDoc>('notes'),
     categories: d.collection<CategoryDoc>('categories'),
-    noteCategories: d.collection<NoteCategoryDoc>('note_categories'),
     tags: d.collection<TagDoc>('tags'),
     friendLinks: d.collection<FriendLinkDoc>('friend_links'),
     counters: d.collection<CounterDoc>('counters'),
@@ -147,7 +124,7 @@ export function getCollections(dbInstance?: Db) {
 }
 
 async function ensureIndexes(dbInstance: Db) {
-  const { articles, notes, categories, noteCategories, tags, friendLinks, siteConfigs, visitLogs } = getCollections(dbInstance)
+  const { articles, categories, tags, friendLinks, siteConfigs, visitLogs } = getCollections(dbInstance)
   // 访问日志保留周期（TTL 自动清理，默认 180 天），避免 visit_logs 无限增长
   const visitLogTtlDays = Number(process.env.VISIT_LOG_TTL_DAYS) || 180
   const visitLogTtlSeconds = visitLogTtlDays * 24 * 60 * 60
@@ -157,14 +134,7 @@ async function ensureIndexes(dbInstance: Db) {
     articles.createIndex({ deletedAt: 1, updatedAt: -1, createdAt: -1, id: -1 }, { name: 'by_updated' }),
     articles.createIndex({ categoryId: 1 }, { name: 'by_category' }),
     articles.createIndex({ title: 'text', tags: 'text' }, { name: 'text_title_tags' }),
-    notes.createIndex({ id: 1 }, { unique: true, name: 'uniq_id' }),
-    notes.createIndex({ deletedAt: 1, createdAt: -1, id: -1 }, { name: 'by_created' }),
-    notes.createIndex({ deletedAt: 1, updatedAt: -1, createdAt: -1, id: -1 }, { name: 'by_updated' }),
-    notes.createIndex({ categoryId: 1 }, { name: 'by_category' }),
-    notes.createIndex({ title: 'text', tags: 'text' }, { name: 'text_title_tags' }),
     categories.createIndex({ id: 1 }, { unique: true, name: 'uniq_id' }),
-    noteCategories.createIndex({ id: 1 }, { unique: true, name: 'uniq_id' }),
-    noteCategories.createIndex({ name: 1 }, { unique: true, name: 'uniq_name' }),
     tags.createIndex({ name: 1 }, { unique: true, name: 'uniq_name' }),
     friendLinks.createIndex({ id: 1 }, { unique: true, name: 'uniq_id' }),
     friendLinks.createIndex({ status: 1, deletedAt: 1, id: 1 }, { name: 'by_status' }),
