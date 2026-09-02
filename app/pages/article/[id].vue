@@ -14,22 +14,23 @@
           <BaseCard class="detailCard" tag="article">
             <h1 class="title">{{ article?.title }}</h1>
             <div class="meta">
-              <span class="category">{{ articleCategory }}</span>
-              <span class="dot">·</span>
-              <span class="time">{{ timeText }}</span>
-              <div class="tags" v-if="(article?.tags || []).length">
-                <nuxt-icon name="article/tag" />
-                <span v-for="tag in article?.tags || []" :key="tag">{{
-                  tag
-                }}</span>
-              </div>
+              <span class="meta-item category">{{ articleCategory }}</span>
+              <span class="meta-item">{{ timeText }}</span>
+              <template v-if="(article?.tags || []).length">
+                <span class="meta-item meta-tag-icon"><nuxt-icon name="article/tag" /></span>
+                <span
+                  v-for="tag in article?.tags || []"
+                  :key="tag"
+                  class="meta-item"
+                  >{{ tag }}</span
+                >
+              </template>
             </div>
             <Suspense>
               <template #default>
                 <AsyncMdPreview
                   :modelValue="displayContent"
                   :theme="currentTheme"
-                  :noMermaid="true"
                   :noKatex="true"
                 />
               </template>
@@ -149,47 +150,59 @@ useArticleSeo({
 }
 .detailCard {
   :deep(.card-content) {
-    padding: @space-4xl @space-4xl @space-3xl @space-4xl;
+    padding: @space-5xl @space-5xl @space-3xl @space-5xl;
   }
 }
 .title {
   font-size: @font-size-xxl;
   font-weight: 700;
   color: var(--text-color);
-  margin-bottom: @space-lg;
+  margin-bottom: @space-3xl;
   text-align: center;
 }
+// 容器不用 flex，交给行内流：片段像段落里的词一样逐个折行，
+// 不会因为宽度不够就让整项掉到下一行、上一行留大片空白
 .meta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  column-gap: @space-lg;
-  row-gap: @space-xs;
+  text-align: center;
+  line-height: 1.9;
   color: var(--secondary-color);
   font-size: @font-size-sm;
-  margin-bottom: @space-4xl;
-  padding-bottom: @space-2xl;
+  margin-bottom: @space-5xl;
+  padding-bottom: @space-3xl;
   border-bottom: 1px solid var(--border-color);
+
+  // 每项自己是 inline-flex：对外是行内盒（跟着行内流折行），
+  // 对内仍是 flex（align-items 把图标和文字垂直居中）
+  //
+  // vertical-align: middle 不能省。inline-flex 盒子暴露给外层行内流的基线取自
+  // 它第一个 flex item：纯文字项给出真实文字基线，而图标项的第一个 item 是
+  // .nuxt-icon（内部 svg 被 reset.less 设成 display: block，没有基线，只能按
+  // 盒子下边缘合成），两者差几 px，category 就和图标项不在一条线上了。
+  .meta-item {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+    gap: @space-2xs;
+    white-space: nowrap;
+    margin: 0 @space-xs;
+  }
+
   .category {
     color: var(--primary-color);
   }
-  .dot {
-    font-weight: bold;
-  }
-  .tags {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: @space-2xs;
+
+  // 标签图标是后面这串标签的引导符，贴近第一个标签
+  .meta-tag-icon {
+    margin-right: 0;
+
     :deep(.nuxt-icon) {
       font-size: @font-size-md;
     }
   }
 }
 .prev-next {
-  margin-top: @space-4xl;
-  padding-top: @space-2xl;
+  margin-top: @space-5xl;
+  padding-top: @space-3xl;
   border-top: 1px solid var(--border-color);
   display: flex;
   width: 100%;
