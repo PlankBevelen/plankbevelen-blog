@@ -34,7 +34,7 @@ usePageSeo({
   title: () => (locale.value === 'en' ? 'Timeline' : '时间线'),
   description: () =>
     locale.value === 'en'
-      ? 'A chronological record of milestones and growth notes.'
+      ? 'A chronological record of milestones and growth moments.'
       : '按时间顺序记录成长节点与阶段性思考。'
 })
 
