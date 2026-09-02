@@ -13,8 +13,6 @@ const ADMIN_EXEMPT = [
 const PROTECTED_MUTATION_PREFIXES = [
   '/api/article',
   '/api/category',
-  '/api/note',
-  '/api/note-category',
   '/api/tag/sync',
   '/api/upload',
 ]
