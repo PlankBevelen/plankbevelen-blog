@@ -1,4 +1,4 @@
-This is my personal tech blog. I focus on frontend engineering, backend practice, and product design, and I record useful technical notes and thoughts.
+This is my personal tech blog. I focus on frontend engineering, backend practice, and product design, and I record useful technical thoughts.
 
 The site emphasizes simplicity: the home page shows the latest posts, categories, and a tag cloud. You can also use the search on article pages to quickly locate content.
 
