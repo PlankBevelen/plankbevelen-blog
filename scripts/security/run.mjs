@@ -27,15 +27,15 @@ const jsonHeaders = { 'content-type': 'application/json' }
 async function main() {
   // —— CSRF ——
   {
-    const { status } = await request('/api/note-category', { method: 'POST', headers: jsonHeaders, body: '{}' })
+    const { status } = await request('/api/tag', { method: 'POST', headers: jsonHeaders, body: '{}' })
     record('CSRF-1 无 Origin 写请求被拒(403)', status === 403, `got ${status}`)
   }
   {
-    const { status } = await request('/api/note-category', { method: 'POST', headers: { ...jsonHeaders, origin: BASE }, body: '{}' })
+    const { status } = await request('/api/tag', { method: 'POST', headers: { ...jsonHeaders, origin: BASE }, body: '{}' })
     record('CSRF-2 有 Origin 无 CSRF token 被拒(403)', status === 403, `got ${status}`)
   }
   {
-    const { status } = await request('/api/note-category', { method: 'GET' })
+    const { status } = await request('/api/tag', { method: 'GET' })
     record('CSRF-3 公开读不触发 CSRF(200)', status === 200, `got ${status}`)
   }
 
@@ -81,8 +81,8 @@ async function main() {
   // —— sitemap ——
   {
     const { status, body } = await request('/api/sitemap-urls')
-    const hasNotes = Array.isArray(body) && body.some((u) => String(u?.loc).includes('/notes'))
-    record('SITEMAP-1 sitemap 含 /notes', status === 200 && hasNotes, `got ${status}`)
+    const hasArticles = Array.isArray(body) && body.some((u) => String(u?.loc).includes('/article'))
+    record('SITEMAP-1 sitemap 含 /article', status === 200 && hasArticles, `got ${status}`)
   }
 
   const failed = results.filter((r) => !r.ok).length
