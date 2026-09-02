@@ -11,7 +11,6 @@
       "article": "文章",
       "about": "关于",
       "project": "项目",
-      "notes": "笔记",
       "friends": "友链"
     }
   },
@@ -57,7 +56,9 @@
     "title": "推荐网站"
   },
   "tag": {
-    "title": "标签云"
+    "title": "标签云",
+    "filterBy": "按标签 {name} 筛选，共 {count} 篇",
+    "clearFilter": "取消 {name} 筛选"
   },
   "home": {
     "featuredProjects": {
@@ -104,27 +105,6 @@
         "keywords": "关于, 个人介绍, 技术博主, 开发者"
       }
     },
-    "notes": {
-      "title": "笔记",
-      "meta": {
-        "description": "按分类卡片浏览整理过的笔记内容"
-      },
-      "empty": "暂时还没有笔记分类",
-      "countUnit": "{count} 篇",
-      "categorySummary": "{name} 分类下当前共有 {count} 篇笔记",
-      "categoryFirstNote": "首篇：{title}（共 {count} 篇）",
-      "categoryEmpty": "{name} 分类已经创建，等待后续内容归档",
-      "detail": {
-        "backToList": "返回笔记",
-        "navTrigger": "目录导航",
-        "mobileNav": "导航",
-        "notFound": "没有找到这篇笔记",
-        "defaultIntro": "这是该分类下默认展示的第一篇笔记，适合作为查阅入口",
-        "title": "笔记",
-        "errorParam": "参数错误",
-        "errorNotFound": "笔记不存在"
-      }
-    },
     "privacy": {
       "title": "隐私说明",
       "meta": {
@@ -134,7 +114,7 @@
       "intro": "本页面说明本站（plankbevelen.cn）如何采集、使用和保存访问信息",
       "collect": {
         "title": "我们采集哪些信息",
-        "body": "本站会记录访问日志，包括：IP 地址、User-Agent（浏览器与设备信息）、访问路径与访问时间。这些信息仅用于访问统计（如页面浏览量、访客数）与安全排查。"
+        "body": "本站会记录访问日志，包括：IP 地址、User-Agent（浏览器与设备信息）、访问路径与访问时间。这些信息仅用于访问统计（如页面浏览量、访客数）与安全排查"
       },
       "usage": {
         "title": "信息用途与保存期限",
@@ -157,7 +137,7 @@
     "kicker": "你好，欢迎来到我的站点",
     "title1": "构建有趣且",
     "title2": "实用的东西",
-    "desc": "一个热爱技术的开发者，专注于有趣且实用的产品。在这里分享我的项目、想法和学习笔记",
+    "desc": "一个热爱技术的开发者，专注于有趣且实用的产品。在这里分享我的项目、想法和思考",
     "article": "浏览文章",
     "project": "查看项目"
   },
@@ -194,6 +174,7 @@
       "description": "站点简介",
       "avatar": "图标地址（可选）",
       "captcha": "验证码",
+      "captchaRefresh": "点击刷新验证码",
       "submit": "提交申请",
       "cancel": "取消",
       "invalidUrl": "请输入有效的 http/https 地址"
