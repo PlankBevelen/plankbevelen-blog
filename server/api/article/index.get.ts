@@ -3,12 +3,41 @@ import { getDb, getCollections } from '../../utils/mongo'
 
 function sliceMdSafely(content: string, length: number): string {
   if (content.length <= length) return content
-  let sliced = content.slice(0, length)
-  const fenceCount = (sliced.match(/```/g) || []).length
-  if (fenceCount % 2 !== 0) {
-    sliced += '\n```'
+
+  // 找出所有围栏标记的位置，配对成 [开, 闭] 区间
+  const fences: number[] = []
+  const re = /^[ \t]*```/gm
+  let m: RegExpExecArray | null
+  while ((m = re.exec(content)) !== null) {
+    fences.push(m.index)
   }
-  return sliced
+
+  let cut = length
+
+  for (let i = 0; i < fences.length; i += 2) {
+    const open = fences[i]!
+    const close = fences[i + 1]
+
+    // 截断点在这个围栏开始之前，后面的围栏更靠后，不用再看
+    if (cut <= open) break
+
+    // 围栏没有闭合标记（文档本身不完整），从开始处截掉
+    if (close === undefined) {
+      cut = open
+      break
+    }
+
+    // 闭合行的末尾：包含 ``` 三个字符本身
+    const closeEnd = close + content.slice(close).indexOf('```') + 3
+
+    // 截断点落在围栏内部 —— 退到围栏之前，别留半个代码块
+    if (cut < closeEnd) {
+      cut = open
+      break
+    }
+  }
+
+  return content.slice(0, cut).trimEnd()
 }
 
 export default defineEventHandler(async (event) => {
