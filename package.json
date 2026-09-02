@@ -1,21 +1,28 @@
 {
-  "name": "plankbevelen-blog",
+  "name": "plankbevelen",
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "nuxt build",
+    "build": "node --max-old-space-size=2048 node_modules/nuxt/bin/nuxt.mjs build",
     "dev": "nuxt dev",
+    "dev:local": "nuxt dev --dotenv .env.development --host 127.0.0.1 --port 3000",
+    "dev:host": "nuxt dev --dotenv .env.development --host 0.0.0.0 --port 3000",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "serve": "vite"
+    "serve": "vite",
+    "start": "node --max-old-space-size=768 .output/server/index.mjs",
+    "security:test": "node scripts/security/run.mjs"
   },
   "dependencies": {
     "@nuxt/image": "^2.0.0",
     "@nuxtjs/i18n": "^10.2.3",
+    "@intlify/utils": "^1.0.1",
     "@nuxtjs/seo": "^3.3.0",
+    "@nuxtjs/tailwindcss": "^6.14.0",
     "@pinia/nuxt": "^0.11.3",
     "@popperjs/core": "^2.11.8",
+    "@types/three": "^0.183.1",
     "@vavt/md-editor-extension": "^3.0.0",
     "@vueuse/core": "^14.0.0",
     "axios": "^1.13.2",
@@ -23,52 +30,40 @@
     "dotenv": "^17.2.3",
     "echarts": "^6.0.0",
     "element-plus": "^2.11.8",
+    "gsap": "^3.14.2",
     "ipx": "3.0.0",
     "js-cookie": "^3.0.5",
     "js-sha256": "^0.11.1",
     "jsonwebtoken": "^9.0.2",
     "less": "^4.4.2",
     "less-loader": "^12.3.0",
-    "loadash": "^1.0.0",
     "lodash-es": "^4.17.21",
+    "markdown-it": "^13.0.1",
     "md-editor-v3": "^6.2.0",
+    "mongodb": "^6.15.0",
     "mysql2": "^3.15.3",
-    "nuxt": "^4.2.1",
+    "nuxt": "~4.4.2",
     "nuxt-icon": "1.0.0-beta.7",
     "pinia": "^3.0.4",
+    "redis": "^6.2.1",
+    "sanitize-html": "^2.11.0",
     "sharp": "^0.34.5",
-    "vite-plugin-compression": "^0.5.1",
+    "svg-captcha": "^1.4.0",
+    "three": "^0.183.2",
     "vue": "^3.5.24",
     "vue-i18n": "^11.1.12",
     "vue-router": "^4.6.3"
   },
   "devDependencies": {
     "@element-plus/nuxt": "^1.1.4",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/sanitize-html": "^2.16.1",
     "autoprefixer": "^10.4.22",
     "nuxt-icons": "^4.0.0",
+    "postcss": "^8.4.49",
     "postcss-preset-env": "^10.4.0",
-    "postcss-pxtorem": "^6.1.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "ipx": "^3.0.0"
-    },
-    "onlyBuiltDependencies": [
-      "sharp"
-    ],
-    "supportedArchitectures": {
-      "os": [
-        "linux",
-        "win32"
-      ],
-      "cpu": [
-        "x64",
-        "arm64"
-      ],
-      "libc": [
-        "glibc",
-        "musl"
-      ]
-    }
+    "postcss-pxtorem": "^6.1.0",
+    "rollup-plugin-visualizer": "^7.0.1",
+    "tailwindcss": "^3.4.19"
   }
 }
