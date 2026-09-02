@@ -11,7 +11,6 @@
       "article": "Articles",
       "about": "About",
       "project": "Projects",
-      "notes": "Notes",
       "friends": "Friends"
     }
   },
@@ -63,7 +62,9 @@
     "title": "Recommended Websites"
   },
   "tag": {
-    "title": "Tag Cloud"
+    "title": "Tag Cloud",
+    "filterBy": "Filter by {name}, {count} posts",
+    "clearFilter": "Clear {name} filter"
   },
   "toc": {
     "title": "Table of Contents",
@@ -104,27 +105,6 @@
         "keywords": "about, plankbevelen, plank, bevelen, plankbevelen, developer introduction, tech blogger, programming background"
       }
     },
-    "notes": {
-      "title": "Notes",
-      "meta": {
-        "description": "Browse notes by category cards."
-      },
-      "empty": "No note categories yet.",
-      "countUnit": "{count} notes",
-      "categorySummary": "{name} contains {count} notes.",
-      "categoryFirstNote": "Starts with “{title}” ({count} notes).",
-      "categoryEmpty": "{name} is ready for future notes.",
-      "detail": {
-        "backToList": "Back to Notes",
-        "navTrigger": "Table of Contents",
-        "mobileNav": "Navigation",
-        "notFound": "Note not found",
-        "defaultIntro": "This is the first note in this category.",
-        "title": "Notes",
-        "errorParam": "Invalid parameters",
-        "errorNotFound": "Note does not exist"
-      }
-    },
     "privacy": {
       "title": "Privacy Policy",
       "meta": {
@@ -157,7 +137,7 @@
     "kicker": "Hello, Welcome to My Site",
     "title1": "Build Fun and Useful Things",
     "title2": "With a Focus on Fun and Useful Products",
-    "desc": "A Developer Passionate About Technology, Focused on Fun and Useful Products. Share My Projects, Ideas, and Learning Notes Here.",
+    "desc": "A Developer Passionate About Technology, Focused on Fun and Useful Products. Share My Projects, Ideas, and Thoughts Here.",
     "article": "Browse Articles",
     "project": "View Projects"
   },
@@ -194,6 +174,7 @@
       "description": "Description",
       "avatar": "Icon URL (optional)",
       "captcha": "Captcha",
+      "captchaRefresh": "Click to refresh captcha",
       "submit": "Submit",
       "cancel": "Cancel",
       "invalidUrl": "Please enter a valid http/https URL"
