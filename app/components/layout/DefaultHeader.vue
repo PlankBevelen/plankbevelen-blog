@@ -104,7 +104,6 @@ const changeLocale = async (locale: 'en' | 'zh') => {
 
 const navList = [
   { key: 'header.nav.home', path: '/' },
-  { key: 'header.nav.notes', path: '/notes' },
   { key: 'header.nav.article', path: '/article' },
   { key: 'header.nav.project', path: '/project' },
   { key: 'header.nav.friends', path: '/friends' },
