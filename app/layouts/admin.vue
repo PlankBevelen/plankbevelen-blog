@@ -1,53 +1,75 @@
 <template>
-  <Header v-if="!hidden" :collapsed="isCollapsed" :navTitle="navTitle" @toggle="toggleCollapsed" />
-  <main id="main">
-    <SideBar :isCollapsed="isCollapsed" v-if="!hidden" />
-    <template v-if="!hidden">
-      <div class="content">
-        <NuxtPage />
+  <div class="admin-layout">
+    <template v-if="!isLoginPage">
+      <LayoutAdminSideBar :isCollapsed="isCollapsed" />
+      <div class="admin-main">
+        <LayoutAdminHeader
+          :collapsed="isCollapsed"
+          :navTitle="navTitle"
+          @toggle="toggleCollapsed"
+        />
+        <div class="admin-content">
+          <NuxtPage />
+        </div>
       </div>
     </template>
     <template v-else>
       <NuxtPage />
     </template>
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">
-import Header from './adminLayout/Header.vue'
-import SideBar from './adminLayout/SideBar.vue'
-import { useRouter } from 'vue-router'
-import { ref, computed } from 'vue'
-const router = useRouter()
+import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
-const hidden = computed(() => {
-  return router.currentRoute.value.path === '/admin/login'
-})
-
+const route = useRoute()
+const isLoginPage = computed(() => route.path === '/admin/login')
 const isCollapsed = ref(false)
-const toggleCollapsed = () => { isCollapsed.value = !isCollapsed.value }
 
-const navTitle = computed(() => {
-  const path = router.currentRoute.value.path
-  if (path === '/admin' || path === '/admin/') return '控制台'
-  if (path === '/admin/login') return '登录'
-  return '管理'
-})
+const navTitleMap: Record<string, string> = {
+  '/admin': '控制台',
+  '/admin/content/article': '文章管理',
+  '/admin/content/article/edit': '编辑文章',
+  '/admin/content/category': '分类管理',
+  '/admin/content/statistics': '统计分析',
+  '/admin/site/content': '站点内容',
+  '/admin/site/info': '站点信息',
+  '/admin/site/data': '站点数据',
+  '/admin/site/logs': '访问日志',
+  '/admin/site/friend-links': '友链管理'
+}
+
+const toggleCollapsed = () => {
+  isCollapsed.value = !isCollapsed.value
+}
+
+const navTitle = computed(() => navTitleMap[route.path] || '管理后台')
 </script>
 
 <style scoped lang="less">
-#main {
+.admin-layout {
   display: flex;
-  height: calc(100vh - @header-height);
-  min-height: calc(100vh - @header-height);
-  .content {
-    flex: 1;
-    height: 100%;
-    padding: 20px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--tertiary-color) transparent;
-    background-color: #fff;
-  }
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: var(--admin-bg-color, #f5f7fa);
+}
+
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: @space-3xl;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+  background-color: var(--bg-color);
 }
 </style>

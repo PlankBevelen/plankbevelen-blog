@@ -1,27 +1,36 @@
 {
   "site": {
-    "name": "PlankBevelen的博客",
-    "description": "个人技术博客，分享前端开发、Web 技术、编程经验和技术文章",
-    "keywords": "plankbevelen, plank, bevelen, PlankBevelen, Plank, Bevelen, 个人博客, 前端开发, Web 技术, 编程经验, 技术文章"
+    "name": "plankbevelen",
+    "description": "plankbevelen 个人技术博客，分享前端开发、工程实践与学习记录",
+    "keywords": "plankbevelen, plank, bevelen, 前端开发, 编程博客, 技术文章, 个人博客"
   },
   "header": {
-    "title": "PlankBevelen的博客",
+    "title": "plankbevelen",
     "nav": {
       "home": "首页",
       "article": "文章",
       "about": "关于",
-      "project": "项目介绍"
+      "project": "项目",
+      "friends": "友链"
     }
   },
   "footer": {
-    "title": "PlankBevelen的博客",
-    "description": "记录生活，分享技术，追求美好",
-    "copyright": "PlankBevelen. 保留所有权利",
-    "beian": "蜀ICP备2024114585号"  
+    "title": "plankbevelen",
+    "description": "个人技术博客，分享编码经验与实践总结",
+    "copyright": "plankbevelen. 保留所有权利",
+    "beian": "蜀ICP备2024114585号"
   },
   "theme": {
-    "light": "浅色",  
+    "light": "浅色",
     "dark": "深色"
+  },
+  "common": {
+    "close": "关闭"
+  },
+  "pagination": {
+    "prev": "上一页",
+    "next": "下一页",
+    "total": "共 {total} 篇文章"
   },
   "lang": {
     "zh": "中文",
@@ -31,22 +40,31 @@
     "profession": "前端开发工程师",
     "location": "中国 - 成都",
     "stats": {
-      "articles": "文章数",
-      "categories": "分类数",
-      "tags": "标签数"
+      "articles": "文章",
+      "categories": "分类",
+      "tags": "标签"
     }
   },
   "category": {
     "title": "分类"
   },
   "latest": {
-    "title": "最新文章"
+    "title": "最新文章",
+    "empty": "暂无文章"
   },
   "recordLink": {
-    "title": "推荐网站链接" 
+    "title": "推荐网站"
   },
   "tag": {
-    "title": "标签云"
+    "title": "标签云",
+    "filterBy": "按标签 {name} 筛选，共 {count} 篇",
+    "clearFilter": "取消 {name} 筛选"
+  },
+  "home": {
+    "featuredProjects": {
+      "title": "精选项目",
+      "empty": "暂无项目"
+    }
   },
   "toc": {
     "title": "目录",
@@ -54,17 +72,17 @@
   },
   "pages": {
     "home": {
-      "title": "PlankBevelen Blog",
+      "title": "plankbevelen",
       "meta": {
-        "description": "PlankBevelen的个人技术博客 - 分享编程教程、开发经验和科技见解",
-        "keywords": "plankbevelen, plank, bevelen, PlankBevelen, Web开发教程, 编程博客, 编码经验, 前端开发, 后端开发, 软件工程, 技术博客, 个人博客"
+        "description": "plankbevelen 个人技术博客，分享编码教程、开发经验与技术思考",
+        "keywords": "plankbevelen, plank, bevelen, 前端, 后端, 工程化, 技术博客"
       }
     },
     "article": {
       "title": "文章",
       "meta": {
-        "description": "浏览PlankBevelen博客上的所有技术文章和编程教程",
-        "keywords": "plankbevelen, plank, bevelen, PlankBevelen, 编程文章, 编码教程, Web开发指南, 技术学习资源, PlankBevelen文章, 前端教程, 后端教程" 
+        "description": "浏览 plankbevelen 的全部技术文章与编码教程",
+        "keywords": "技术文章, 编程教程, web 开发, 前端开发, 后端开发"
       },
       "search": {
         "placeholder": "搜索文章",
@@ -73,19 +91,98 @@
       "articleDetail": {
         "fallback": "文章详情",
         "meta": {
-          "description": "文章详情 - 技术文章和编程教程的详细内容",
-          "keywords": "plankbevelen, plank, bevelen, PlankBevelen"
+          "description": "文章详情",
+          "keywords": "plankbevelen, plank, bevelen, 技术文章"
         },
-        "prev": "上一篇", 
+        "prev": "上一篇",
         "next": "下一篇"
       }
     },
     "about": {
       "title": "关于",
       "meta": {
-        "description": "了解更多关于PlankBevelen - 一位热衷于分享知识和编码经验的开发者",
-        "keywords": "关于PlankBevelen, plankbevelen, plank, bevelen, PlankBevelen, 开发者介绍, 技术博主, 编程背景, 个人介绍, 技术分享者"
+        "description": "了解 plankbevelen 的技术方向、项目实践与创作理念",
+        "keywords": "关于, 个人介绍, 技术博主, 开发者"
       }
+    },
+    "privacy": {
+      "title": "隐私说明",
+      "meta": {
+        "description": "本站隐私说明：采集哪些访问信息、如何使用与保存，以及联系方式"
+      },
+      "updated": "最后更新：2026 年 8 月",
+      "intro": "本页面说明本站（plankbevelen.cn）如何采集、使用和保存访问信息",
+      "collect": {
+        "title": "我们采集哪些信息",
+        "body": "本站会记录访问日志，包括：IP 地址、User-Agent（浏览器与设备信息）、访问路径与访问时间。这些信息仅用于访问统计（如页面浏览量、访客数）与安全排查"
+      },
+      "usage": {
+        "title": "信息用途与保存期限",
+        "body": "访问日志仅用于本站访问统计与安全防护，不用于识别个人身份，也不会向第三方出售或共享。日志会保留一定周期后自动清理（默认 180 天）"
+      },
+      "contact": {
+        "title": "联系我们",
+        "body": "如对本隐私说明有任何疑问，可通过邮箱 {'plankbevelen@gmail.com'} 联系我们"
+      }
+    },
+    "friends": {
+      "title": "友链",
+      "meta": {
+        "description": "plankbevelen 的友情链接，欢迎申请友链",
+        "keywords": "友链, 友情链接, 博客友链"
+      }
+    }
+  },
+  "hero": {
+    "kicker": "你好，欢迎来到我的站点",
+    "title1": "构建有趣且",
+    "title2": "实用的东西",
+    "desc": "一个热爱技术的开发者，专注于有趣且实用的产品。在这里分享我的项目、想法和思考",
+    "article": "浏览文章",
+    "project": "查看项目"
+  },
+  "contact": {
+    "title": "联系我",
+    "email": "邮箱",
+    "wechat": "微信"
+  },
+  "friends": {
+    "title": "友链",
+    "apply": "申请友链",
+    "applyTitle": "申请友链",
+    "empty": "暂无友链，欢迎成为第一个！",
+    "submitSuccess": "提交成功，等待审核",
+    "submitFailed": "提交失败，请稍后重试",
+    "notice": {
+      "title": "友链须知",
+      "item1": "内容健康、无违法违规信息，站点长期稳定更新",
+      "item2": "技术 / 个人博客优先，商业推广或低质站点可能被拒绝",
+      "item3": "请先添加本站友链，再提交申请，审核通过后互链展示",
+      "item4": "请填写真实可访问的站点地址与图标，信息不实将被拒绝"
+    },
+    "myself": {
+      "title": "本站信息",
+      "name": "站名",
+      "url": "网址",
+      "desc": "简介",
+      "copy": "复制友链信息",
+      "copied": "已复制"
+    },
+    "form": {
+      "name": "站点名称",
+      "url": "站点地址",
+      "description": "站点简介",
+      "avatar": "图标地址（可选）",
+      "captcha": "验证码",
+      "captchaRefresh": "点击刷新验证码",
+      "submit": "提交申请",
+      "cancel": "取消",
+      "invalidUrl": "请输入有效的 http/https 地址"
+    },
+    "rules": {
+      "name": "请输入站点名称",
+      "url": "请输入站点地址",
+      "captcha": "请输入验证码"
     }
   }
 }

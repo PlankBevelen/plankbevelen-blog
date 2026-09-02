@@ -1,4 +1,4 @@
-import { initDB, closeDB } from "../utils/db";
+import { initDB, closeDB } from "../utils/mongo";
 
 export default defineNitroPlugin(async (nuxtApp) => {
   let retryTimer: NodeJS.Timeout | null = null
@@ -15,6 +15,7 @@ export default defineNitroPlugin(async (nuxtApp) => {
         console.error('db connect retry failure:', e?.message || e)
       }
     }, 60 * 1000)
+    ;(retryTimer as any).unref?.()
   } 
 
   nuxtApp.hooks.hook('close', async () => {

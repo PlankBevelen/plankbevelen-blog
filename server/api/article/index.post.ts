@@ -1,8 +1,11 @@
 import { defineEventHandler, readBody, setResponseStatus } from 'h3'
-import { execute, query, withTransaction } from '../../utils/db'
+import { withTransaction, getCollections, getNextSequence } from '../../utils/mongo'
 import { updateTagsCount, updateCategoryCount } from '../../utils/article-helpers'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { getUploadsBaseDir } from '../../utils/uploads'
+import { normalizeUploadsInContent } from '../../utils/content'
+import { assertSafeTempId, resolveTempDir } from '../../utils/temp-id'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -11,67 +14,90 @@ export default defineEventHandler(async (event) => {
     const category = body?.category || ''
     let content = body?.content || ''
     const tempId = body?.tempId || ''
-    const tagsStr = Array.isArray(body?.tags) ? body!.tags.join(',') : ''
+    if (tempId && !assertSafeTempId(tempId)) {
+      setResponseStatus(event, 400)
+      return { status: 400, msg: '参数错误', data: null }
+    }
+    const tagsArr = Array.isArray(body?.tags) ? body!.tags : []
     
     if (!title || !category || !content) {
       setResponseStatus(event, 400)
       return { status: 400, msg: '参数错误', data: null }
     }
 
-    const data = await withTransaction(async (conn) => {
-      const result: any = await execute(
-        'INSERT INTO articles (title, tags, category_id, file_path) VALUES (?, ?, ?, ?)',
-        [title, tagsStr, category, ''],
-        conn
-      )
-      const id = result?.insertId
+    const categoryId = Number(category)
+    if (!categoryId) {
+      setResponseStatus(event, 400)
+      return { status: 400, msg: '参数错误', data: null }
+    }
+
+    const data = await withTransaction(async (ctx) => {
+      const { articles } = getCollections(ctx.db)
+      const id = await getNextSequence('articles', ctx)
       
       let finalContent = content
       if (tempId && tempId.trim()) {
-        const tempDir = path.join(process.cwd(), 'public', 'uploads', tempId)
-        const targetDir = path.join(process.cwd(), 'public', 'uploads', id.toString())
+        const uploadsBase = getUploadsBaseDir()
+        const tempDir = resolveTempDir(tempId)
+        const legacyTempDir = path.join(uploadsBase, tempId)
+        const targetDir = path.join(uploadsBase, id.toString())
         
         try {
-          await fs.access(tempDir)
+          let sourceDir = tempDir
           try {
-            await fs.rename(tempDir, targetDir)
+            await fs.access(sourceDir)
+          } catch {
+            sourceDir = legacyTempDir
+            await fs.access(sourceDir)
+          }
+          try {
+            await fs.rename(sourceDir, targetDir)
           } catch (err: any) {
             if (err && err.code === 'EXDEV') {
-              await (fs as any).cp(tempDir, targetDir, { recursive: true })
-              await (fs as any).rm(tempDir, { recursive: true, force: true })
+              await (fs as any).cp(sourceDir, targetDir, { recursive: true })
+              await (fs as any).rm(sourceDir, { recursive: true, force: true })
             } else {
               throw err
             }
           }
           
-          finalContent = finalContent.replace(new RegExp(`/uploads/${tempId}/`, 'g'), `/uploads/${id}/`)
+          finalContent = finalContent
+            .replace(new RegExp(`/uploads/temp/${tempId}/`, 'g'), `/uploads/${id}/`)
+            .replace(new RegExp(`/uploads/${tempId}/`, 'g'), `/uploads/${id}/`)
         } catch (e) {
           // Ignore if temp dir doesn't exist
         }
       }
 
-      // 写入文件到 public/md
-      const mdDir = path.join(process.cwd(), 'public', 'md')
-      const fileName = `article-${id}.md`
-      const absPath = path.join(mdDir, fileName)
-      const relPath = `/md/${fileName}`
-      try {
-        await fs.mkdir(mdDir, { recursive: true })
-        await fs.writeFile(absPath, finalContent, 'utf-8')
-      } catch (e) {
-        console.error('写入文章文件失败:', e)
-        // 抛出错误以触发事务回滚
-        throw new Error('文件写入失败')
-      }
-      
-      await execute('UPDATE articles SET file_path = ? WHERE id = ?', [relPath, id], conn)
+      finalContent = normalizeUploadsInContent(finalContent)
       
       // 更新标签和分类计数
-      await updateTagsCount(null, tagsStr, conn)
-      await updateCategoryCount(null, category, conn)
+      await updateTagsCount(null, tagsArr, ctx)
+      await updateCategoryCount(null, categoryId, ctx)
 
-      const rows: any = await query('SELECT * FROM articles WHERE id = ?', [id], conn)
-      return rows?.[0] || { id, title, file_path: relPath, tags: tagsStr, category_id: category }
+      const now = new Date()
+      await articles.insertOne(
+        {
+          id,
+          title,
+          tags: tagsArr.map(t => String(t).trim()).filter(Boolean),
+          categoryId,
+          content: finalContent,
+          createdAt: now,
+          updatedAt: now
+        },
+        ctx.session ? { session: ctx.session } : undefined
+      )
+
+      return {
+        id: String(id),
+        title,
+        tags: tagsArr.map(t => String(t).trim()).filter(Boolean),
+        category: String(categoryId),
+        content: finalContent,
+        createTime: now,
+        updateTime: now
+      }
     })
 
     setResponseStatus(event, 200)
@@ -79,7 +105,6 @@ export default defineEventHandler(async (event) => {
   } catch (error: any) {
     console.error('新增文章失败:', error)
     setResponseStatus(event, 500)
-    const msg = error.message === '文件写入失败' ? '文件写入失败' : '服务器错误'
-    return { status: 500, msg, data: null }
+    return { status: 500, msg: '服务器错误', data: null }
   }
 })

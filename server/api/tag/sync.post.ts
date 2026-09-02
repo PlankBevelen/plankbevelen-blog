@@ -1,5 +1,5 @@
 import { defineEventHandler, readBody, setResponseStatus } from 'h3'
-import { execute, query } from '../../utils/db'
+import { withTransaction, getCollections } from '../../utils/mongo'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -11,12 +11,22 @@ export default defineEventHandler(async (event) => {
     const addTags = normalize(add)
     const removeTags = normalize(remove)
 
-    for (const tag of addTags) {
-      await execute('INSERT INTO `tags` (`name`, `count`) VALUES (?, 0) ON DUPLICATE KEY UPDATE `name`=`name`', [tag])
-    }
-    for (const tag of removeTags) {
-      await execute('DELETE FROM `tags` WHERE `name` = ? AND `count` <= 0', [tag])
-    }
+    await withTransaction(async (ctx) => {
+      const { tags } = getCollections(ctx.db)
+      const now = new Date()
+      const opts = ctx.session ? { session: ctx.session } : undefined
+
+      await Promise.all([
+        ...addTags.map(name =>
+          tags.updateOne(
+            { name },
+            { $setOnInsert: { createdAt: now, count: 0 }, $set: { updatedAt: now } },
+            { ...opts, upsert: true }
+          )
+        ),
+        ...removeTags.map(name => tags.deleteOne({ name, count: { $lte: 0 } }, opts))
+      ])
+    })
 
     setResponseStatus(event, 200)
     return { status: 200, msg: '同步成功', data: { add: addTags.length, remove: removeTags.length } }

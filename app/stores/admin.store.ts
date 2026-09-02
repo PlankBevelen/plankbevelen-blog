@@ -5,51 +5,56 @@ import { useTheme } from '@/composables/useTheme'
 
 export const useAdminStore = defineStore('admin', {
   state: () => ({
+    authenticated: false,
     userInfo: null as any,
     theme: 'light' as 'light' | 'dark',
     locale: 'zh' as 'en' | 'zh',
   }),
   getters: {
-    isAuthenticated: (state) => { return !!useAuthentication().getToken() },
+    // 登录态以服务端 session 校验结果为准（JWT 存 httpOnly cookie，前端不持有明文）
+    isAuthenticated: (state) => state.authenticated,
     getTheme: (state) => state.theme,
     getLocale: (state) => state.locale,
   },
-  actions: {        
-    async login(account: string, password: string, remember?: boolean) {
+  actions: {
+    /** 从服务端 session 恢复登录态（刷新 / SSR） */
+    async hydrateAuth() {
+      if (this.authenticated) return
       try {
-        const res: any = await adminService.login(account, useAuthentication().hashPassword(password), remember || false)
-        if (res.status === 200) {
-          this.userInfo = res.data
-          useAuthentication().setToken(res.token, remember)
-          return true
-        }
-      } catch (error) {
-        console.log(error, '登录失败')
-        return false
+        const res: any = await adminService.session()
+        this.authenticated = !!res?.authenticated
+      } catch {
+        this.authenticated = false
       }
     },
+    async login(account: string, password: string, remember: boolean, captchaId: string, captchaCode: string) {
+      const res: any = await adminService.login(account, password, remember, captchaId, captchaCode)
+      if (res?.status === 200) {
+        this.userInfo = res.data ?? null
+        this.authenticated = true
+        return true
+      }
+      return false
+    },
     async logout() {
-        try {
-            const res = await adminService.logout()
-            if (res.status === 200) {
-                this.userInfo = null
-                useAuthentication().clearUp()
-                return true
-            }
-        } catch (error) {
-            console.log(error, '退出登录失败')
-            return false
-        }
+      try {
+        await adminService.logout()
+      } catch (error) {
+        console.log(error, '退出登录失败')
+      } finally {
+        this.userInfo = null
+        this.authenticated = false
+        useAuthentication().clearUp()
+      }
+      return true
     },
     initPreferences() {
       const { getI18n, getTheme } = useAuthentication()
-      // 语言（从 Cookie 读取并保存到 Store）
       const savedLocale = getI18n()
-      this.locale = (savedLocale === 'en' ? 'en' : 'zh')
-      // 主题
+      this.locale = savedLocale === 'en' ? 'en' : 'zh'
       const savedTheme = getTheme()
       const { currentTheme } = useTheme()
-      currentTheme.value = (savedTheme === 'dark' ? 'dark' : 'light')
+      currentTheme.value = savedTheme === 'dark' ? 'dark' : 'light'
       this.theme = currentTheme.value
       if (typeof document !== 'undefined') {
         const root = document.documentElement
@@ -58,26 +63,25 @@ export const useAdminStore = defineStore('admin', {
       }
     },
     setLocale(locale: 'en' | 'zh') {
-      this.locale = locale as 'en' | 'zh'
-      const { setI18n } = useAuthentication()
-      setI18n(locale)
+      this.locale = locale
+      useAuthentication().setI18n(locale)
     },
     setTheme(theme: 'light' | 'dark') {
-        const { setTheme } = useAuthentication()
-        const { currentTheme } = useTheme()
-        currentTheme.value = theme
-        this.theme = theme
-        setTheme(theme)
-        if (typeof document !== 'undefined') {
-            const root = document.documentElement
-            if (theme === 'dark') root.setAttribute('theme', 'dark')
-            else root.removeAttribute('theme')
-        }
+      const { setTheme } = useAuthentication()
+      const { currentTheme } = useTheme()
+      currentTheme.value = theme
+      this.theme = theme
+      setTheme(theme)
+      if (typeof document !== 'undefined') {
+        const root = document.documentElement
+        if (theme === 'dark') root.setAttribute('theme', 'dark')
+        else root.removeAttribute('theme')
+      }
     },
     toggleTheme() {
-        const { currentTheme } = useTheme()
-        const next = currentTheme.value === 'light' ? 'dark' : 'light'
-        this.setTheme(next)
-    }        
-  }
+      const { currentTheme } = useTheme()
+      const next = currentTheme.value === 'light' ? 'dark' : 'light'
+      this.setTheme(next)
+    },
+  },
 })

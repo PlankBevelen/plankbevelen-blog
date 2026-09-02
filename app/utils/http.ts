@@ -1,10 +1,5 @@
 import { useAuthentication } from "@/composables/useAuthentication"
-import { createError } from "h3"
 
-/**
- * 统一的 HTTP 请求工具，基于 $fetch 封装
- * 自动处理 baseURL, token 注入, 响应解包和错误处理
- */
 class Http {
   private baseURL: string
 
@@ -13,42 +8,29 @@ class Http {
   }
 
   private async request<T>(url: string, options: any = {}): Promise<T> {
-    const { getToken } = useAuthentication()
-    const token = getToken()
+    const method = String(options.method || 'GET').toUpperCase()
+    const headers: Record<string, string> = { ...(options.headers || {}) }
 
-    // 默认 Headers
-    const headers = {
-      ...(options.headers || {}),
-    }
-
-    // 注入 Token (针对 /admin 接口)
-    if (url.includes('/admin') && token) {
-      headers.token = token
+    // 非 GET 写请求：读取 CSRF cookie，设置 X-CSRF-Token（双提交）
+    if (method !== 'GET' && method !== 'HEAD') {
+      const csrf = useAuthentication().getCsrfToken()
+      if (csrf) headers['X-CSRF-Token'] = csrf
     }
 
     try {
       const response: any = await $fetch(url, {
         baseURL: this.baseURL,
         ...options,
+        credentials: 'include',
         headers,
-        // 自动解析响应
-        onResponse({ response }) {
-          // 这里可以进行全局的响应拦截处理
-          // 例如统一的错误提示等
-        },
-        onResponseError({ response }) {
-          // 处理 4xx, 5xx 错误
+        onResponseError({ response }: any) {
           if (response.status === 401) {
-            // 处理未授权，例如跳转登录
+            // 未授权：交由调用方 / 路由守卫处理
           }
         }
       })
-
-      // 假设后端返回格式为 { status: 200, data: ..., msg: ... }
-      // 这里可以根据实际情况解包
       return response
     } catch (error: any) {
-      // 统一错误处理
       console.error('Request Error:', error)
       throw error
     }

@@ -1,129 +1,141 @@
 <template>
   <div class="article">
     <div class="container">
-      <ThreeColumnLayout :loading="homePending">
+      <LayoutThreeColumn :loading="homePending">
         <template #left>
-          <BloggerCard :articleCount="stats?.articles || 0" :categoryCount="stats?.categories || 0" :tagCount="stats?.tags || 0" />
-          <RecordLinkCard />
+          <WidgetBlogger
+            :articleCount="stats?.articles || 0"
+            :categoryCount="stats?.categories || 0"
+            :tagCount="stats?.tags || 0"
+          />
+          <WidgetRecordLink />
         </template>
         <template #middle>
-          <Card class="navBar">
+          <BaseCard class="navBar">
             <div class="breadcrumb">
-              <NuxtLink :to="localePath('/article')">{{ $t('pages.article.title') }}</NuxtLink>
+              <NuxtLink :to="localePath('/article')">{{
+                $t("pages.article.title")
+              }}</NuxtLink>
               <template v-if="breadcrumbSuffix">
                 <span> / </span>
                 <span>{{ breadcrumbSuffix }}</span>
               </template>
             </div>
             <div class="searchArea">
-              <el-input v-model="keyword" :placeholder="$t('pages.article.search.placeholder')" clearable />
-              <el-button type="primary" @click="onSearch">{{ $t('pages.article.search.btn') }}</el-button>
+              <el-input
+                v-model="keyword"
+                :placeholder="$t('pages.article.search.placeholder')"
+                clearable
+              />
+              <el-button type="primary" @click="onSearch">{{
+                $t("pages.article.search.btn")
+              }}</el-button>
             </div>
-          </Card>
-          <ArticleList :q="currentQuery" />                    
+          </BaseCard>
+          <ArticleList :q="currentQuery" />
         </template>
         <template #right>
-          <CategoryCard :categories="homeData.categories" @select="onSelectCategory"/>
-          <TagCard :tags="homeData.tags" />
+          <WidgetCategory
+            :categories="homeData?.categories"
+            @select="onSelectCategory"
+          />
+          <WidgetTag :tags="homeData?.tags" />
         </template>
-      </ThreeColumnLayout>
+      </LayoutThreeColumn>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
-const localePath = useLocalePath()
-import { navigateTo, useAsyncData, useHead } from 'nuxt/app'
-import Card from '@/components/cards/card.vue'
-import ArticleList from '@/components/article/articleList.vue'
-import CategoryCard from '@/components/cards/category.vue'
-import TagCard from '@/components/cards/tag.vue'
-import ThreeColumnLayout from '~/components/layouts/ThreeColumnLayout.vue'
-import BloggerCard from '@/components/cards/blogger.vue'
-import RecordLinkCard from '@/components/cards/recordLink.vue'
-import http from '~/utils/http'
+import { ref, computed, watch } from "vue";
+import { useRoute } from "vue-router";
+import { navigateTo } from "nuxt/app";
+import { usePageSeo } from "@/composables/useSeo";
+import { useSidebarData } from "@/composables/useSidebarData";
 
-const { t } = useI18n() 
+const { t } = useI18n();
+const localePath = useLocalePath();
+const route = useRoute();
 
-const keyword = ref('')
-
-const route = useRoute()
-keyword.value = String(route.query.q || '')
+const keyword = ref(String(route.query.q || ""));
 
 const currentQuery = computed(() => {
-    const cat = String(route.query.category || '')
-    if (cat) return cat
-    return String(route.query.q || '')
-})
+  const cat = String(route.query.category || "");
+  if (cat) return cat;
+  return String(route.query.q || "");
+});
 
 const breadcrumbSuffix = computed(() => {
-    const cat = String(route.query.category || '')
-    if (cat) return `${cat}`
-    const q = String(route.query.q || '').trim()
-    if (q) return q
-    return ''
-})
+  const cat = String(route.query.category || "");
+  if (cat) return cat;
+  const q = String(route.query.q || "").trim();
+  if (q) return q;
+  return "";
+});
 
-const { data: homeData, pending: homePending } = await useAsyncData('article-page-home-data', async () => { 
-    const res = await http.get('/api/home.data') as any 
-    console.log(res, res.status, res.data)
-    if(res.status === 200) {
-      return res.data
-    }
-    return null
-})
+const { data: homeData, pending: homePending } = await useSidebarData();
 
-const stats = computed(() => homeData.value?.stats || null)
+const stats = computed(() => homeData.value?.stats || null);
 
 const onSearch = async () => {
-    const target = localePath('/article')
-    await navigateTo({ path: target, query: { q: keyword.value || undefined } })
-}
+  await navigateTo({
+    path: localePath("/article"),
+    query: { q: keyword.value || undefined },
+  });
+};
 
 const onSelectCategory = async (item: any) => {
-    const target = localePath('/article')
-    await navigateTo({ path: target, query: { category: item.name } })
-}
+  await navigateTo({
+    path: localePath("/article"),
+    query: { category: item.name },
+  });
+};
 
-watch(() => route.query.q, (val) => { keyword.value = String(val || '') })
+watch(
+  () => route.query.q,
+  (val) => {
+    keyword.value = String(val || "");
+  },
+);
 
-useHead({
-  title: t('pages.article.title'),
-  meta: [
-      { name: 'description', content: t('pages.article.meta.description') },
-      { name: 'keywords', content: t('pages.article.meta.keywords') }
-  ]
-})
-
+// SEO：canonical 由 app.vue 统一处理
+usePageSeo({
+  title: t("pages.article.title"),
+  description: t("pages.article.meta.description"),
+});
 </script>
 
 <style lang="less" scoped>
 .article {
-    min-height: 100vh;
-    padding-top: @header-height;
-    .container {
-        padding: 40px 0;
-    }
+  min-height: 100vh;
+  padding-top: @header-height;
+  .container {
+    padding-top: @space-5xl;
+    padding-bottom: @space-5xl;
+  }
 }
-:deep(.navBar) { 
-    .card-content {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+:deep(.navBar) {
+  .card-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .breadcrumb {
+    font-size: @font-size-md;
+    font-weight: bold;
+    line-height: normal;
+    a {
+      text-decoration: none;
+      color: var(--text-color);
+      &:hover {
+        color: var(--primary-hover-color);
+      }
     }
-    .breadcrumb {
-        font-size: @font-size-md;
-        font-weight: bold;
-        line-height: normal;
-        a { text-decoration: none; color: var(--text-color); &:hover { color: var(--primary-hover-color); } }
-    }
-    .searchArea {
-        display: flex;
-        align-items: center;
-        gap: @base-gap;
-    }
+  }
+  .searchArea {
+    display: flex;
+    align-items: center;
+    gap: @space-base;
+  }
 }
-.searchArea { display: flex; align-items: center; gap: 8px; }
 </style>

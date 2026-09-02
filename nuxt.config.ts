@@ -1,11 +1,10 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import viteCompression from 'vite-plugin-compression'
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-09-15',
   devtools: { enabled: true },
-  css: ['@/assets/css/global.less', '@/assets/css/theme.less', '@/assets/css/variables.less'],
-  modules: ['nuxt-icons', '@pinia/nuxt', '@nuxt/image', '@nuxtjs/seo', '@element-plus/nuxt', '@nuxtjs/i18n'],
+  css: ['@/assets/css/tailwind.css', '@/assets/css/variables.less', '@/assets/css/theme.less', '@/assets/css/reset.less', '@/assets/css/element-plus.less', '@/assets/css/components.less'],
+  modules: ['nuxt-icons', '@pinia/nuxt', '@nuxt/image', '@nuxtjs/seo', '@element-plus/nuxt', '@nuxtjs/i18n', '@nuxtjs/tailwindcss'],
   ssr: true,
   // i18n 
   i18n: {
@@ -42,32 +41,36 @@ export default defineNuxtConfig({
     head: {
       htmlAttrs: {
         lang: 'zh'
-      },
+      },      
+      title: 'plankbevelen',
+      titleTemplate: '%s | plankbevelen',
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'icon', type: 'image/webp', href: '/img/logo.webp' },
         { rel: 'apple-touch-icon', href: '/img/logo.webp' }
       ],
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'format-detection', content: 'telephone=no' },
-        { name: 'keywords', content: 'plankbevelen, plank, bevelen, PlankBevelen, 个人博客, 前端开发, Web 技术, 编程经验, 技术文章' },
-        { name: 'description', content: '个人技术博客，分享前端开发、Web 技术、编程经验和技术文章' },
+        { name: 'author', content: 'plankbevelen' },
+        { name: 'baidu-site-verification', content: 'codeva-sJBNhZ2pRR' },
       ]
     }
   },
   runtimeConfig: {  
-    authSecret: process.env.NUXT_AUTH_SECRET || 'dev-secret',
+    authSecret: process.env.NUXT_AUTH_SECRET || '',
     public: {
       baseUrl: process.env.NUXT_BASE_URL || '/',
-      cookiePrefix: process.env.NUXT_PUBLIC_COOKIE_PREFIX || '',
-      expirationTime: process.env.NUXT_EXPIRATION_TIME || '432000',
-      keepAliveTime: process.env.NUXT_KEEP_ALIVE_TIME || '432000',
+      agentHealthUrl: process.env.NUXT_PUBLIC_AGENT_HEALTH_URL || 'http://127.0.0.1:6543/health',
+      agentChatUrl: process.env.NUXT_PUBLIC_AGENT_CHAT_URL || 'http://127.0.0.1:6543/chat',
+      cookiePrefix: process.env.NUXT_PUBLIC_COOKIE_PREFIX || 'plankbevelen_',
+      expirationTime: process.env.NUXT_EXPIRATION_TIME || '43200',
+      keepAliveTime: process.env.NUXT_KEEP_ALIVE_TIME || '604800',
     }
   },  
   postcss: {
     plugins: {
+      tailwindcss: {},
       'postcss-preset-env': {
         stage: 1,
         features: {
@@ -87,44 +90,26 @@ export default defineNuxtConfig({
     }
   },
   vite: {
-    plugins: [
-      viteCompression({
-        verbose: true,
-        disable: false,
-        threshold: 10240,
-        algorithm: 'gzip',
-        ext: '.gz',
-      })
-    ],
     css: {
+      preprocessorMaxWorkers: 0,
       preprocessorOptions: {
         less: {
-          additionalData: '@import "@/assets/css/global.less"; @import "@/assets/css/theme.less"; @import "@/assets/css/variables.less";',
+          additionalData: '@import "@/assets/css/variables.less";',
           javascriptEnabled: true,
         }
       }
     },
     build: {
       chunkSizeWarningLimit: 1500,
-      rollupOptions: {
-        output: {
-          manualChunks(id) {
-            if (id.includes('node_modules')) {
-              if (id.includes('md-editor-v3')) {
-                return 'md-editor-v3'
-              }
-            }
-          }
-        }
-      }
-    }
+      sourcemap: false,
+      reportCompressedSize: false,  
+    },
   },
   image: {
     provider: 'ipx',
     ipx: {
       baseURL: '/_ipx',
       maxAge: 60 * 60 * 24 * 365,
-      // format: ['webp', 'avif', 'png', 'jpg'],
       modifiers: {
         quality: 80
       },
@@ -141,14 +126,18 @@ export default defineNuxtConfig({
   },
   nitro: {
     prerender: {
-      crawlLinks: true,
-      routes: ['/sitemap.xml', '/robots.txt']
+      crawlLinks: false,
+      routes: []
     },
     externals: {
       inline: ['element-plus', '@popperjs/core']
     },
-    // 压缩静态资源
     serveStatic: true,
-    compressPublicAssets: true,
+    compressPublicAssets: false, 
+    esbuild: {
+      options: {
+        target: 'node20',
+      },
+    },
   },
 })

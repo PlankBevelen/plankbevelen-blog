@@ -1,75 +1,54 @@
-import { sha256 } from 'js-sha256'
-
 export const useAuthentication = () => {
   const config = useRuntimeConfig()
-  
-  const tokenKey = computed(() => config.public.cookiePrefix + 'user_token')
+
+  const csrfKey = computed(() => config.public.cookiePrefix + 'csrf')
   const i18nKey = computed(() => config.public.cookiePrefix + 'i18n')
   const themeKey = computed(() => config.public.cookiePrefix + 'theme')
-  const expirationTime = computed(() => Number(config.public.expirationTime))
-  const keepAliveTime = computed(() => Number(config.public.keepAliveTime))
-  const baseUrl = computed(() => config.public.baseUrl || '/')
 
-  const getToken = () => {
-    const c = useCookie<string | undefined>(tokenKey.value)
+  const cookieOptions = {
+    path: '/' as const,
+    sameSite: 'lax' as const,
+  }
+
+  /** 读取 CSRF cookie（双提交用），JWT 由服务端 httpOnly cookie 持有，不再暴露明文 */
+  const getCsrfToken = () => {
+    const c = useCookie<string | undefined>(csrfKey.value, cookieOptions)
     return c.value || ''
   }
 
-  const setToken = (token: string, keepAlive?: boolean) => {
-    const opts: any = { path: baseUrl.value || '/', sameSite: 'lax' }
-    opts.maxAge = keepAlive ? expirationTime.value : keepAliveTime.value
-    const c = useCookie<string | undefined>(tokenKey.value, opts)
-    c.value = token
-    return c
-  }
-
-  const removeToken = () => {
-    const c = useCookie<string | undefined>(tokenKey.value, { path: baseUrl.value || '/', sameSite: 'lax' })
-    c.value = undefined
-    return c
-  }
-
   const setI18n = (locale: string) => {
-    const c = useCookie<string | undefined>(i18nKey.value, { path: baseUrl.value || '/', sameSite: 'lax' })
+    const c = useCookie<string | undefined>(i18nKey.value, cookieOptions)
     c.value = locale
     return c
   }
 
   const getI18n = () => {
-    const c = useCookie<string | undefined>(i18nKey.value)
+    const c = useCookie<string | undefined>(i18nKey.value, cookieOptions)
     return c.value || 'zh'
   }
 
   const setTheme = (theme: string) => {
-    const c = useCookie<string | undefined>(themeKey.value, { path: baseUrl.value || '/', sameSite: 'lax' })
+    const c = useCookie<string | undefined>(themeKey.value, cookieOptions)
     c.value = theme
     return c
   }
 
   const getTheme = () => {
-    const c = useCookie<string | undefined>(themeKey.value)
+    const c = useCookie<string | undefined>(themeKey.value, cookieOptions)
     return c.value || 'light'
   }
 
-  const hashPassword = (password: string) => {
-    return password
-  }
-
   const clearUp = () => {
-    removeToken()
     setI18n('zh')
     setTheme('light')
   }
 
   return {
-    getToken,
-    setToken,
-    removeToken,
+    getCsrfToken,
     setI18n,
     getI18n,
     setTheme,
     getTheme,
-    hashPassword,
     clearUp,
   }
 }

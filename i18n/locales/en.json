@@ -1,27 +1,36 @@
 {
   "site": {
-    "name": "PlankBevelen's Blog",
+    "name": "plankbevelen",
     "description": "Personal tech blog sharing coding experience and articles",
-    "keywords": "plankbevelen, plank, bevelen, PlankBevelen, Web development tutorials, programming blog, coding experiences, frontend development, backend development, software engineering, tech blog, personal blog"
+    "keywords": "plankbevelen, plank, bevelen, plankbevelen, Web development tutorials, programming blog, coding experiences, frontend development, backend development, software engineering, tech blog, personal blog"
   },
   "header": {
-    "title": "PlankBevelen's Blog",
+    "title": "plankbevelen",
     "nav": {
       "home": "Home",
       "article": "Articles",
       "about": "About",
-      "project": "Projects"
+      "project": "Projects",
+      "friends": "Friends"
     }
   },
   "footer": {
-    "title": "PlankBevelen's Blog",
+    "title": "plankbevelen",
     "description": "Personal tech blog sharing coding experience and articles",
-    "copyright": "PlankBevelen. All Rights Reserved.",
+    "copyright": "plankbevelen. All Rights Reserved.",
     "beian": "蜀ICP备2024114585号"  
   },
   "theme": {
     "light": "Light",
     "dark": "Dark"
+  },
+  "common": {
+    "close": "Close"
+  },
+  "pagination": {
+    "prev": "Previous",
+    "next": "Next",
+    "total": "{total} articles in total"
   },
   "lang": {
     "zh": "中文",
@@ -40,13 +49,22 @@
     "title": "Categories"
   },
   "latest": {
-    "title": "Latest Articles"
+    "title": "Latest Articles",
+    "empty": "No articles yet"
+  },
+  "home": {
+    "featuredProjects": {
+      "title": "Featured Projects",
+      "empty": "No projects yet"
+    }
   },
   "recordLink": {
     "title": "Recommended Websites"
   },
   "tag": {
-    "title": "Tag Cloud"
+    "title": "Tag Cloud",
+    "filterBy": "Filter by {name}, {count} posts",
+    "clearFilter": "Clear {name} filter"
   },
   "toc": {
     "title": "Table of Contents",
@@ -54,17 +72,17 @@
   },
   "pages": {
     "home": {
-      "title": "PlankBevelen Blog",
+      "title": "plankbevelen",
       "meta": {
-        "description": "Personal tech blog by PlankBevelen - Sharing coding tutorials, development experiences and tech insights",
-        "keywords": "plankbevelen, plank, bevelen, PlankBevelen, web development tutorials, programming blog, coding experiences, frontend development, backend development, software engineering"
+        "description": "Personal tech blog by plankbevelen - Sharing coding tutorials, development experiences and tech insights",
+        "keywords": "plankbevelen, plank, bevelen, plankbevelen, web development tutorials, programming blog, coding experiences, frontend development, backend development, software engineering"
       }
     },
     "article": {
       "title": "Articles",
       "meta": {        
-        "description": "Browse all tech articles and coding tutorials on PlankBevelen's blog",
-        "keywords": "plankbevelen, plank, bevelen, PlankBevelen, programming articles, coding tutorials, web development guides, tech learning resources, PlankBevelen articles"
+        "description": "Browse all tech articles and coding tutorials on plankbevelen's blog",
+        "keywords": "plankbevelen, plank, bevelen, plankbevelen, programming articles, coding tutorials, web development guides, tech learning resources, plankbevelen articles"
       },
       "search": {
         "placeholder": "Search articles",
@@ -74,19 +92,98 @@
         "fallback": "Article Detail",
         "meta": {
         "description": "Article Detail",
-        "keywords": "plankbevelen, plank, bevelen, PlankBevelen"
+        "keywords": "plankbevelen, plank, bevelen, plankbevelen"
+        },
+        "prev": "Previous Article",
+        "next": "Next Article"
+      }
+    },
+    "about": {
+      "title": "About",
+      "meta": {
+        "description": "Learn more about plankbevelen - A developer passionate about sharing knowledge and coding experiences",
+        "keywords": "about, plankbevelen, plank, bevelen, plankbevelen, developer introduction, tech blogger, programming background"
+      }
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "meta": {
+        "description": "Privacy policy for this site: what visit information is collected, how it is used and retained, and how to contact us."
       },
-      "prev": "Previous Article",
-      "next": "Next Article"
+      "updated": "Last updated: August 2026",
+      "intro": "This page explains how this site (plankbevelen.cn) collects, uses, and retains visit information.",
+      "collect": {
+        "title": "What We Collect",
+        "body": "This site records access logs, including: IP address, User-Agent (browser and device information), visit path, and visit time. This information is used solely for visit statistics (such as page views and visitor counts) and security troubleshooting."
+      },
+      "usage": {
+        "title": "How We Use and Retain It",
+        "body": "Access logs are used only for site statistics and security protection. They are not used to identify individuals and are never sold or shared with third parties. Logs are automatically purged after a retention period (180 days by default)."
+      },
+      "contact": {
+        "title": "Contact Us",
+        "body": "If you have any questions about this privacy policy, please contact us at {'plankbevelen@gmail.com'}."
+      }
+    },
+    "friends": {
+      "title": "Friends",
+      "meta": {
+        "description": "Friend links of plankbevelen. Apply to be a friend.",
+        "keywords": "friends, friend links, blogroll"
+      }
     }
   },
-  "about": {
-    "title": "About",
-    "meta": {
-      "description": "Learn more about PlankBevelen - A developer passionate about sharing knowledge and coding experiences",
-      "keywords": "about, plankbevelen, plank, bevelen, PlankBevelen, developer introduction, tech blogger, programming background"
+  "hero": {
+    "kicker": "Hello, Welcome to My Site",
+    "title1": "Build Fun and Useful Things",
+    "title2": "With a Focus on Fun and Useful Products",
+    "desc": "A Developer Passionate About Technology, Focused on Fun and Useful Products. Share My Projects, Ideas, and Thoughts Here.",
+    "article": "Browse Articles",
+    "project": "View Projects"
+  },
+  "contact": {
+    "title": "Contact Me",
+    "email": "Email",
+    "wechat": "Wechat"
+  },
+  "friends": {
+    "title": "Friends",
+    "apply": "Apply",
+    "applyTitle": "Apply for Friend Link",
+    "empty": "No friends yet. Be the first!",
+    "submitSuccess": "Submitted, awaiting review",
+    "submitFailed": "Submission failed, please try again",
+    "notice": {
+      "title": "Guidelines",
+      "item1": "Healthy, legal content with a stable and regularly-updated site.",
+      "item2": "Tech / personal blogs are preferred; promotional or low-quality sites may be rejected.",
+      "item3": "Please add our link first, then submit your application for a mutual link after approval.",
+      "item4": "Please provide a real and accessible site URL and icon; false information will be rejected."
+    },
+    "myself": {
+      "title": "About This Site",
+      "name": "Name",
+      "url": "URL",
+      "desc": "Description",
+      "copy": "Copy Link Info",
+      "copied": "Copied"
+    },
+    "form": {
+      "name": "Site Name",
+      "url": "Site URL",
+      "description": "Description",
+      "avatar": "Icon URL (optional)",
+      "captcha": "Captcha",
+      "captchaRefresh": "Click to refresh captcha",
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "invalidUrl": "Please enter a valid http/https URL"
+    },
+    "rules": {
+      "name": "Please enter the site name",
+      "url": "Please enter the site URL",
+      "captcha": "Please enter the captcha"
     }
   }
-}
 }
 
