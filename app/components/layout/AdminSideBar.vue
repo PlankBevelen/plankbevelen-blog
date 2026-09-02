@@ -31,13 +31,7 @@
         <el-menu-item index="2-2" @click="navigateTo('/admin/content/category')">
           文章分类
         </el-menu-item>
-        <el-menu-item index="2-3" @click="navigateTo('/admin/content/notes')">
-          笔记管理
-        </el-menu-item>
-        <el-menu-item index="2-4" @click="navigateTo('/admin/content/note-category')">
-          笔记分类
-        </el-menu-item>
-        <el-menu-item index="2-5" @click="navigateTo('/admin/content/statistics')">
+        <el-menu-item index="2-3" @click="navigateTo('/admin/content/statistics')">
           统计分析
         </el-menu-item>
       </el-sub-menu>
@@ -95,9 +89,7 @@ const activeIndex = computed(() => {
   if (path === '/admin' || path === '/admin/') return '1'
   if (path.startsWith('/admin/content/article')) return '2-1'
   if (path.startsWith('/admin/content/category')) return '2-2'
-  if (path.startsWith('/admin/content/notes')) return '2-3'
-  if (path.startsWith('/admin/content/note-category')) return '2-4'
-  if (path.startsWith('/admin/content/statistics')) return '2-5'
+  if (path.startsWith('/admin/content/statistics')) return '2-3'
   if (path.startsWith('/admin/site/content')) return '3-0'
   if (path.startsWith('/admin/site/info')) return '3-1'
   if (path.startsWith('/admin/site/data')) return '3-2'
