@@ -161,26 +161,6 @@ const DEFAULT_PROJECTS: SiteProjectItem[] = [
     },
     sort: 2
   },
-  {
-    id: 'notes-lab',
-    title: 'Notes Lab',
-    summary: '知识整理与记录工具',
-    description: '把零散笔记、想法和研究过程集中管理起来，方便后续复用。',
-    period: '2024 - Present',
-    status: 'Active',
-    accentColor: '#1d4ed8',
-    tags: ['Content', 'Knowledge Base', 'Workflow'],
-    highlights: [
-      '适合记录知识碎片',
-      '方便按主题整理内容',
-      '可作为后续产品的原型库'
-    ],
-    links: {
-      repoUrl: '',
-      demoUrl: ''
-    },
-    sort: 3
-  }
 ]
 
 const DEFAULT_SITE_CONTENT: SiteContentData = {
