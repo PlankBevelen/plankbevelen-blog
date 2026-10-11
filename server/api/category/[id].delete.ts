@@ -1,5 +1,5 @@
 import { defineEventHandler, setResponseStatus } from 'h3'
-import { execute } from '../../utils/db'
+import { getDb, getCollections } from '../../utils/mongo'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -8,7 +8,9 @@ export default defineEventHandler(async (event) => {
       setResponseStatus(event, 400)
       return { status: 400, msg: '参数错误', data: null }
     }
-    await execute('DELETE FROM categories WHERE id = ?', [id])
+    const db = getDb()
+    const { categories } = getCollections(db)
+    await categories.deleteOne({ id })
     setResponseStatus(event, 200)
     return { status: 200, msg: '删除成功', data: { id } }
   } catch (error) {

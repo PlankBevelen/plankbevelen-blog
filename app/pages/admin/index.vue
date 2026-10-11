@@ -1,16 +1,8 @@
 <template>
-  <Dashboard />
+  <div />
 </template>
 
 <script setup lang="ts">
-import Dashboard from '@/components/admin/dashboard.vue'
-
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
-
+await navigateTo('/admin/content/article', { replace: true })
 </script>
-
-<style lang="less" scoped>
-.admin-index {
-  padding: 24px 0;
-}
-</style>

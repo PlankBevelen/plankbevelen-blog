@@ -49,7 +49,7 @@ const goBack = () => {
   justify-content: center;
   align-items: center;
   background: var(--bg-color);
-  padding: 20px;
+  padding: @space-3xl;
   position: relative;
   overflow: hidden;
 
@@ -82,7 +82,7 @@ const goBack = () => {
 
 .error-container {
   position: relative;
-  z-index: 1;
+  z-index: @z-base;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -94,18 +94,18 @@ const goBack = () => {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
-  padding: 40px;
+  border-radius: @radius-xl;
+  padding: @space-5xl;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
 
-  @media (min-width: 768px) {
+  @media (min-width: @screen-md) {
     padding: 60px;
   }
 }
 
 .illustration {
   position: relative;
-  margin-bottom: 40px;
+  margin-bottom: @space-5xl;
 
   .error-img {
     width: 280px;
@@ -113,7 +113,7 @@ const goBack = () => {
     object-fit: contain;
     animation: float 6s ease-in-out infinite;
     
-    @media (min-width: 768px) {
+    @media (min-width: @screen-md) {
       width: 400px;
     }
   }
@@ -123,11 +123,11 @@ const goBack = () => {
     height: 20px;
     background: rgba(0, 0, 0, 0.1);
     border-radius: 50%;
-    margin: 20px auto 0;
+    margin: @space-3xl auto 0;
     filter: blur(5px);
     animation: shadow 6s ease-in-out infinite;
 
-    @media (min-width: 768px) {
+    @media (min-width: @screen-md) {
       width: 200px;
     }
   }
@@ -144,38 +144,38 @@ const goBack = () => {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     
-    @media (min-width: 768px) {
+    @media (min-width: @screen-md) {
       font-size: 80px;
     }
   }
 
   .subtitle {
-    font-size: 20px;
+    font-size: @font-size-xl;
     font-weight: 600;
     color: var(--color-text);
-    margin: 16px 0 8px;
+    margin: @space-2xl 0 @space-base;
 
-    @media (min-width: 768px) {
-      font-size: 24px;
+    @media (min-width: @screen-md) {
+      font-size: @font-size-2xl;
     }
   }
 
   .description {
-    font-size: 14px;
+    font-size: @font-size-sm;
     color: var(--color-text-secondary, #666);
     margin-bottom: 32px;
     max-width: 400px;
     line-height: 1.6;
 
-    @media (min-width: 768px) {
-      font-size: 16px;
+    @media (min-width: @screen-md) {
+      font-size: @base-font-size;
     }
   }
 }
 
 .actions {
   display: flex;
-  gap: 16px;
+  gap: @space-2xl;
   width: 100%;
   max-width: 300px;
   justify-content: space-between;
@@ -190,19 +190,19 @@ const goBack = () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 12px 24px;
+    gap: @space-base;
+    padding: @space-lg @space-4xl;
     border-radius: 50px;
-    font-size: 16px;
+    font-size: @base-font-size;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all @transition-base cubic-bezier(0.4, 0, 0.2, 1);
     text-decoration: none;
     border: none;
     outline: none;
 
     .icon {
-      font-size: 18px;
+      font-size: @font-size-lg;
     }
 
     &.primary {

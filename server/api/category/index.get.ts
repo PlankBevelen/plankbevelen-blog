@@ -1,14 +1,16 @@
 import { defineEventHandler, setResponseStatus } from 'h3'
-import { query } from '../../utils/db'
+import { getDb, getCollections } from '../../utils/mongo'
 
 export default defineEventHandler(async (event) => {
   try {
-      const categories = await query('SELECT * FROM categories')
+      const db = getDb()
+      const { categories } = getCollections(db)
+      const data = await categories.find({}, { projection: { _id: 0 } }).sort({ id: 1 }).toArray()
       setResponseStatus(event, 200)
       return {
         status: 200,
         msg: '查询成功',
-        data: categories
+        data
       }
   } catch (error) {
     setResponseStatus(event, 400)

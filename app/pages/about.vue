@@ -1,85 +1,81 @@
 <template>
-    <div class="about">
-        <div class="container">
-            <ThreeColumnLayout :loading="pending">
-                <template #left>
-                    <BloggerCard :articleCount="stats?.articles || 0" :categoryCount="stats?.categories || 0" :tagCount="stats?.tags || 0" />
-                    <RecordLinkCard />
-                </template>
-                <template #middle>                    
-                    <Card class="aboutContent">
-                        <h1 class="title">{{ $t('pages.about.title') }}</h1>
-                        <MdPreview v-if="aboutMd" :modelValue="aboutMd" :theme="currentTheme" />
-                    </Card>
-                </template>
-                <template #right>
-                    <CategoryCard />
-                    <TagCard />
-                </template>
-            </ThreeColumnLayout>
-        </div>
+  <div class="about">
+    <div class="container">
+      <LayoutTwoColumn :loading="pending || contentPending">
+        <template #left>
+          <WidgetBlogger
+            :articleCount="stats?.articles || 0"
+            :categoryCount="stats?.categories || 0"
+            :tagCount="stats?.tags || 0"
+          />
+          <WidgetRecordLink />
+        </template>
+
+        <template #right>
+          <WidgetPageIntro :title="$t('pages.about.title')" :content="aboutIntro" />
+          <WidgetContact />
+          <WidgetTimeline :timeline="growthTimeline" compact clickableCard />
+        </template>
+      </LayoutTwoColumn>
     </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useAsyncData, useHead } from 'nuxt/app'
-import ThreeColumnLayout from '@/components/layouts/ThreeColumnLayout.vue'
-import BloggerCard from '@/components/cards/blogger.vue'
-import RecordLinkCard from '@/components/cards/recordLink.vue'
-import CategoryCard from '@/components/cards/category.vue'
-import TagCard from '@/components/cards/tag.vue'
-import Card from '@/components/cards/card.vue'
-import http from '~/utils/http'
-import { MdPreview } from 'md-editor-v3'
-import 'md-editor-v3/lib/style.css'
-import { useAdminStore } from '@/stores/admin.store'
+import { useSidebarData } from '@/composables/useSidebarData'
+import { useGrowthTimeline } from '@/composables/useGrowthTimeline'
+import { useSiteContent } from '@/composables/useSiteContent'
+import { resolveLocalizedText } from '@/utils/localized-text'
+import { SITE_URL, SITE_AUTHOR, SITE_IMAGE } from '@/composables/useSeo'
 
-const { t, locale, setLocale } = useI18n() 
+const { t, locale } = useI18n()
 
-const { data, pending } = await useAsyncData('about-home-data', async () => {
-    const res = await http.get('/api/home.data') as any
-    if (res.status === 200) {
-        return res.data
-    }
-    return null
-})
-
+const { data, pending } = await useSidebarData()
 const stats = computed(() => data.value?.stats || null)
-const admin = useAdminStore()
-const currentTheme = computed(() => admin.getTheme)
+const { growthTimeline } = useGrowthTimeline()
+const { data: contentData, pending: contentPending } = await useSiteContent()
 
-const mdPath = computed(() => locale.value === 'en' ? '/md/about-en.md' : '/md/about.md')
-const { data: aboutData } = await useAsyncData('about-md', async () => {
-    return await $fetch(mdPath.value, { responseType: 'text' })
-}, { watch: [mdPath] })
-const aboutMd = computed(() => aboutData.value || '')
 
-useHead({
-  title: t('pages.about.title'),
-  meta: [
-    { name: 'description', content: t('pages.about.meta.description') },
-    { name: 'keywords', content: t('pages.about.meta.keywords') }
-  ]
+const aboutIntro = computed(() => {
+  return resolveLocalizedText(contentData.value?.pages?.about, locale.value)
 })
+
+usePageSeo({
+  title: t('pages.about.title'),
+  description: t('pages.about.meta.description')
+})
+
+// 结构化数据：ProfilePage + Person
+useHead(() => ({
+  script: [
+    {
+      key: 'about-ld',
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'ProfilePage',
+        mainEntity: {
+          '@type': 'Person',
+          name: SITE_AUTHOR,
+          url: SITE_URL,
+          image: SITE_IMAGE,
+          description: t('pages.about.meta.description'),
+        },
+      }),
+    },
+  ],
+}))
 </script>
 
 <style lang="less" scoped>
 .about {
-    min-height: 100vh;
-    padding-top: @header-height;
-    .title {
-        font-size: @font-size-xxl;
-        font-weight: 500;
-        color: var(--primary-color);
-        cursor: pointer;
-        text-decoration: none;
-        line-height: normal;
-        display: block;
-        &:hover { color: var(--primary-hover-color); }
-    }
-    .container { padding: 40px 0; }
+  min-height: 100vh;
+  padding-top: @header-height;
+
+  .container {
+    padding-top: @space-5xl;
+    padding-bottom: @space-5xl;
+  }
 }
-
-
 </style>

@@ -1,8 +1,7 @@
 import { defineEventHandler, readBody, setResponseStatus } from 'h3'
-import { execute, query, withTransaction } from '../../utils/db'
+import { withTransaction, getCollections } from '../../utils/mongo'
 import { updateTagsCount, updateCategoryCount } from '../../utils/article-helpers'
-import { promises as fs } from 'node:fs'
-import path from 'node:path'
+import { normalizeUploadsInContent } from '../../utils/content'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -11,64 +10,57 @@ export default defineEventHandler(async (event) => {
     const title = body?.title || ''
     const category = body?.category || ''
     let content = body?.content || ''
-    const tagsStr = Array.isArray(body?.tags) ? body!.tags.join(',') : ''
+    const tagsArr = Array.isArray(body?.tags) ? body!.tags : []
 
     if (!id || !title || !category || !content) {
       setResponseStatus(event, 400)
       return { status: 400, msg: '参数错误', data: null }
     }
 
-    const data = await withTransaction(async (conn) => {
-      // 1. Get old data
-      const rows0: any = await query('SELECT * FROM articles WHERE id = ?', [id], conn)
-      const oldArticle = rows0?.[0]
-      if (!oldArticle) throw new Error('Article not found')
-      
-      let filePath: string = oldArticle.file_path || ''
-      if (!filePath) {
-        filePath = `/md/article-${id}.md`
-        await execute('UPDATE articles SET file_path = ? WHERE id = ?', [filePath, id], conn)
-      }
-      
-      content = content.replace(/\]\(uploads\\/g, '](/uploads/')
-      content = content.replace(/\]\(uploads\//g, '](/uploads/')
-      content = content.replace(/src="uploads\\/g, 'src="/uploads/')
-      content = content.replace(/src="uploads\//g, 'src="/uploads/')
-      const absPath = path.join(process.cwd(), 'public', filePath.replace(/^\//, ''))
-      try {
-        await fs.mkdir(path.dirname(absPath), { recursive: true })
-        await fs.writeFile(absPath, content, 'utf-8')
-      } catch (e) {
-        console.error('更新文章文件失败:', e)
-        throw new Error('文件写入失败')
-      }
-      
-      // 3. Update Article
-      await execute(
-        'UPDATE articles SET title = ?, tags = ?, category_id = ? WHERE id = ?',
-        [title, tagsStr, category, id],
-        conn
-      )
-      
-      // 4. Update Counts
-      await updateTagsCount(oldArticle.tags, tagsStr, conn)
-      await updateCategoryCount(oldArticle.category_id, category, conn)
+    const categoryId = Number(category)
+    if (!categoryId) {
+      setResponseStatus(event, 400)
+      return { status: 400, msg: '参数错误', data: null }
+    }
 
-      const rows: any = await query('SELECT * FROM articles WHERE id = ?', [id], conn)
-      const r = rows?.[0]
-      
+    const data = await withTransaction(async (ctx) => {
+      const { articles } = getCollections(ctx.db)
+      const oldArticle: any = await articles.findOne(
+        { id },
+        ctx.session ? { session: ctx.session } : undefined
+      )
+      if (!oldArticle) throw new Error('Article not found')
+
+      content = normalizeUploadsInContent(content)
+      const nextTags = tagsArr.map(t => String(t).trim()).filter(Boolean)
+      const now = new Date()
+
+      await articles.updateOne(
+        { id },
+        {
+          $set: {
+            title,
+            tags: nextTags,
+            categoryId,
+            content,
+            updatedAt: now
+          }
+        },
+        ctx.session ? { session: ctx.session } : undefined
+      )
+
+      await updateTagsCount(oldArticle.tags, nextTags, ctx)
+      await updateCategoryCount(oldArticle.categoryId, categoryId, ctx)
+
       return {
-          id: String(r.id),
-          title: r.title,
-          tags: String(r.tags || '')
-            .split(',')
-            .map((t: string) => t.trim())
-            .filter((t: string) => !!t),
-          category: String(r.category_id),
-          content: content,
-          createTime: r.created_at,
-          updateTime: r.updated_at,
-        }
+        id: String(id),
+        title,
+        tags: nextTags,
+        category: String(categoryId),
+        content,
+        createTime: oldArticle.createdAt,
+        updateTime: now
+      }
     })
 
     setResponseStatus(event, 200)
@@ -76,7 +68,6 @@ export default defineEventHandler(async (event) => {
   } catch (error: any) {
     console.error('更新文章失败:', error)
     setResponseStatus(event, 500)
-    const msg = error.message === '文件写入失败' ? '文件写入失败' : '服务器错误'
-    return { status: 500, msg, data: null }
+    return { status: 500, msg: '服务器错误', data: null }
   }
 })

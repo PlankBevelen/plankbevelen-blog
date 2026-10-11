@@ -1,53 +1,66 @@
 <template>
-  <Header v-if="!hidden" :collapsed="isCollapsed" :navTitle="navTitle" @toggle="toggleCollapsed" />
-  <main id="main">
-    <SideBar :isCollapsed="isCollapsed" v-if="!hidden" />
-    <template v-if="!hidden">
-      <div class="content">
+  <div class="admin-layout">
+    <LayoutAdminSideBar :isCollapsed="isCollapsed" />
+    <div class="admin-main">
+      <LayoutAdminHeader
+        :collapsed="isCollapsed"
+        :navTitle="navTitle"
+        @toggle="toggleCollapsed"
+      />
+      <div class="admin-content">
         <NuxtPage />
       </div>
-    </template>
-    <template v-else>
-      <NuxtPage />
-    </template>
-  </main>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import Header from './adminLayout/Header.vue'
-import SideBar from './adminLayout/SideBar.vue'
-import { useRouter } from 'vue-router'
-import { ref, computed } from 'vue'
-const router = useRouter()
+import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
-const hidden = computed(() => {
-  return router.currentRoute.value.path === '/admin/login'
-})
-
+const route = useRoute()
 const isCollapsed = ref(false)
-const toggleCollapsed = () => { isCollapsed.value = !isCollapsed.value }
 
-const navTitle = computed(() => {
-  const path = router.currentRoute.value.path
-  if (path === '/admin' || path === '/admin/') return '控制台'
-  if (path === '/admin/login') return '登录'
-  return '管理'
-})
+const navTitleMap: Record<string, string> = {
+  '/admin/content/article': '文章',
+  '/admin/content/article/edit': '编辑文章',
+  '/admin/content/category': '分类',
+  '/admin/site/content': '站点内容',
+  '/admin/site/logs': '访问',
+  '/admin/site/friend-links': '友链',
+  '/admin/site/settings': '设置'
+}
+
+const toggleCollapsed = () => {
+  isCollapsed.value = !isCollapsed.value
+}
+
+const navTitle = computed(() => navTitleMap[route.path] || '管理后台')
 </script>
 
 <style scoped lang="less">
-#main {
+.admin-layout {
   display: flex;
-  height: calc(100vh - @header-height);
-  min-height: calc(100vh - @header-height);
-  .content {
-    flex: 1;
-    height: 100%;
-    padding: 20px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--tertiary-color) transparent;
-    background-color: #fff;
-  }
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: var(--bg-color);
+}
+
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: @space-2xl @space-3xl;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+  background-color: var(--bg-color);
 }
 </style>

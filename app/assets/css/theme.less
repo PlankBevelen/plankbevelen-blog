@@ -1,37 +1,71 @@
 :root {
-    --primary-color: #0069d9; /* 加深主色调，提高与白色背景的对比度 */
+    --primary-color: #0069d9;
     --primary-color-06: rgba(0, 105, 217, 0.6);
     --primary-color-03: rgba(0, 105, 217, 0.3);
     --primary-hover-color: #0056b3;
-    --text-color: #212529; /* 加深文字颜色，纯黑太硬，深灰更舒适且对比度高 */
-    --secondary-color: #495057; /* 加深二级文字颜色 */
-    --mute-color: #6c757d; /* 调整静音色，确保在浅色背景下依然可读 */
+    --text-color: #212529;
+    --secondary-color: #495057;
+    --mute-color: #6c757d;
     --mute-bg-color: rgba(108, 117, 125, 0.1);
     --card-color: #fff;
     --header-color: #fff;
-    --bg-color: #f8f9fa; /* 稍微调亮背景色，增加与卡片的区分度 */
+    --bg-color: #f8f9fa;
     --active-color: #0069d9;
-    --border-color: #dee2e6; /* 加深边框颜色 */
+    --border-color: #dee2e6;
     --tertiary-color: #868e96;
     --shallow-hover-bg-color: rgba(108, 117, 125, 0.1);
     --deep-hover-bg-color: rgba(108, 117, 125, 0.2);
     --shallow-active-bg-color: rgba(0, 105, 217, 0.1);
     --deep-active-bg-color: rgba(0, 105, 217, 0.2);
+    --layout-sticky-top: calc(@header-height + 20px);
+
+    /* Element Plus 基础变量 (浅色) */
+    --el-color-primary: #0069d9;
+    --el-color-primary-light-3: rgba(0, 105, 217, 0.3);
+    --el-color-primary-light-5: rgba(0, 105, 217, 0.5);
+    --el-color-primary-light-7: rgba(0, 105, 217, 0.7);
+    --el-color-primary-light-8: rgba(0, 105, 217, 0.8);
+    --el-color-primary-light-9: rgba(0, 105, 217, 0.9);
+    --el-color-primary-dark-2: #0056b3;
+    --el-bg-color: #fff;
+    --el-bg-color-overlay: #fff;
+    --el-bg-color-page: #f8f9fa;
+    --el-text-color-primary: #212529;
+    --el-text-color-regular: #495057;
+    --el-text-color-secondary: #6c757d;
+    --el-text-color-placeholder: #adb5bd;
+    --el-text-color-disabled: #c0c4cc;
+    --el-border-color: #dee2e6;
+    --el-border-color-light: #e9ecef;
+    --el-border-color-lighter: #f1f3f5;
+    --el-border-color-extra-light: #f8f9fa;
+    --el-border-color-dark: #ced4da;
+    --el-fill-color: #f0f2f5;
+    --el-fill-color-light: #f8f9fa;
+    --el-fill-color-lighter: #fafbfc;
+    --el-fill-color-extra-light: #fcfcfd;
+    --el-fill-color-blank: #fff;
+    --el-disabled-bg-color: #f5f7fa;
+    --el-disabled-text-color: #c0c4cc;
+    --el-disabled-border-color: #e4e7ed;
+    --el-mask-color: rgba(0, 0, 0, 0.5);
+    --el-box-shadow-light: 0 1px 4px rgba(0, 0, 0, 0.06);
+    --el-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --el-box-shadow-dark: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 :root[theme="dark"] {
-    /* 浅蓝色 - 暗黑模式下保持明亮以确保与深色背景的对比 */
     --primary-color: #61a8ff;
     --primary-color-06: rgba(97, 168, 255, 0.6);
     --primary-color-03: rgba(97, 168, 255, 0.3);
     --primary-hover-color: #85bfff;
-    --text-color: #f8f9fa; /* 提亮文字颜色 */
-    --secondary-color: #e9ecef; /* 提亮二级文字 */
-    --mute-color: #adb5bd; /* 提亮静音色 */
+    --text-color: #f8f9fa;
+    --secondary-color: #e9ecef;
+    --mute-color: #adb5bd;
     --mute-bg-color: rgba(173, 181, 189, 0.1);
-    --card-color: #1b1d1e; /* 更中性的深灰，减少蓝色色偏 */
-    --header-color: #131517; /* 更中性的深灰，减少蓝色色偏 */
-    --bg-color: #0e0f11; /* 更中性的深灰背景，降低蓝色倾向 */
+    --card-color: #1b1d1e;
+    --header-color: #131517;
+    --bg-color: #0e0f11;
     --active-color: #61a8ff;
     --border-color: #343a40;
     --tertiary-color: #ced4da;
@@ -39,5 +73,41 @@
     --deep-hover-bg-color: rgba(255, 255, 255, 0.2);
     --shallow-active-bg-color: rgba(97, 168, 255, 0.15);
     --deep-active-bg-color: rgba(97, 168, 255, 0.3);
+    --layout-sticky-top: calc(@header-height + 20px);
+
+    /* Element Plus 基础变量 (深色) */
+    --el-color-primary: #61a8ff;
+    --el-color-primary-light-3: rgba(97, 168, 255, 0.15);
+    --el-color-primary-light-5: rgba(97, 168, 255, 0.22);
+    --el-color-primary-light-7: rgba(97, 168, 255, 0.28);
+    --el-color-primary-light-8: rgba(97, 168, 255, 0.35);
+    --el-color-primary-light-9: rgba(97, 168, 255, 0.45);
+    --el-color-primary-dark-2: #85bfff;
+    --el-bg-color: #1b1d1e;
+    --el-bg-color-overlay: #232628;
+    --el-bg-color-page: #0e0f11;
+    --el-text-color-primary: #f8f9fa;
+    --el-text-color-regular: #e9ecef;
+    --el-text-color-secondary: #adb5bd;
+    --el-text-color-placeholder: #6c757d;
+    --el-text-color-disabled: #495057;
+    --el-border-color: #343a40;
+    --el-border-color-light: #2c3033;
+    --el-border-color-lighter: #25282b;
+    --el-border-color-extra-light: #202224;
+    --el-border-color-dark: #495057;
+    --el-fill-color: #2c3033;
+    --el-fill-color-light: #25282b;
+    --el-fill-color-lighter: #202224;
+    --el-fill-color-extra-light: #1d1f21;
+    --el-fill-color-blank: #1b1d1e;
+    --el-disabled-bg-color: #25282b;
+    --el-disabled-text-color: #495057;
+    --el-disabled-border-color: #343a40;
+    --el-mask-color: rgba(0, 0, 0, 0.7);
+    --el-box-shadow-light: 0 1px 4px rgba(0, 0, 0, 0.24);
+    --el-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.32);
+    --el-box-shadow-dark: 0 4px 16px rgba(0, 0, 0, 0.48);
 }
 
+/* Element Plus 组件级深色变量 & 全局裸样式已迁移到 element-plus.less */

@@ -1,278 +1,364 @@
 <template>
-    <div class="article-edit">
-        <div class="header">
-            <h2 class="title">{{ pageTitle }}</h2>
-            <div class="ops">
-                <el-button @click="navigateTo('/admin/content/article')">取消</el-button>
-                <el-button type="primary" @click="onSubmit" :icon="Check">保存文章</el-button>
-            </div>
-        </div>
+  <div class="article-edit">
+    <header class="edit-toolbar">
+      <div class="edit-toolbar__left">
+        <el-button @click="navigateTo('/admin/content/article')">返回</el-button>
+        <h1 class="edit-title">{{ pageTitle }}</h1>
+      </div>
+      <el-button type="primary" :loading="saving" @click="onSubmit">保存文章</el-button>
+    </header>
 
-        <div class="editor-layout">
-          <el-card shadow="hover" class="panel form-panel">
-            <template #header>
-                <span>文章设置</span>
-            </template>
-            <el-form :model="form" ref="formRef" :rules="rules" label-position="top">
-              <el-form-item label="文章标题" prop="title">
-                <el-input v-model="form.title" placeholder="请输入文章标题" clearable />
-              </el-form-item>
-              <el-form-item label="文章分类" prop="category">
-                <el-select v-model="form.category" placeholder="请选择文章分类" style="width: 100%">
-                  <el-option v-for="item in categoryOptions" :key="item.value" :label="item.label" :value="item.value" />
-                </el-select>
-              </el-form-item>
-              <el-form-item label="文章标签" prop="tags">
-                <el-select
-                    v-model="form.tags"
-                    multiple
-                    filterable
-                    allow-create
-                    default-first-option
-                    :reserve-keyword="false"
-                    placeholder="输入或选择标签"
-                    style="width: 100%"
-                >
-                     <el-option v-for="item in tagOptions" :key="item.value" :label="item.label" :value="item.value" />
-                </el-select>
-              </el-form-item>
-            </el-form>
-          </el-card>
-          
-          <el-card shadow="hover" class="panel editor-panel">
-            <MdEditor 
-                v-model="form.content" 
-                class="md-editor" 
-                placeholder="开始创作你的文章..." 
-                :toolbars-exclude="['github']" 
-                @onUploadImg="onUploadImg"
-            />
-          </el-card>
+    <div v-loading="initializing" class="editor-layout">
+      <AdminPanel title="文章设置" class="meta-panel">
+        <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
+          <el-form-item label="文章标题" prop="title">
+            <el-input v-model="form.title" placeholder="请输入文章标题" clearable />
+          </el-form-item>
+
+          <el-form-item label="文章分类" prop="category">
+            <el-select
+              v-model="form.category"
+              placeholder="请选择文章分类"
+              style="width: 100%"
+              clearable
+            >
+              <el-option
+                v-for="item in categoryOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+
+          <el-form-item label="文章标签" prop="tags">
+            <el-select
+              v-model="form.tags"
+              multiple
+              filterable
+              allow-create
+              default-first-option
+              :reserve-keyword="false"
+              placeholder="输入或选择标签"
+              style="width: 100%"
+            >
+              <el-option
+                v-for="item in tagOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+        </el-form>
+
+        <div class="meta-strip">
+          <div class="meta-item">
+            <span>字数</span>
+            <strong>{{ wordCount }}</strong>
+          </div>
+          <div class="meta-item">
+            <span>阅读</span>
+            <strong>{{ readingTime }} 分</strong>
+          </div>
+          <div class="meta-item">
+            <span>标签</span>
+            <strong>{{ form.tags.length }}</strong>
+          </div>
         </div>
+      </AdminPanel>
+
+      <AdminPanel class="editor-panel">
+        <template #header>
+          <span>正文</span>
+        </template>
+        <template #extra>
+          <span class="editor-tip">支持图片上传</span>
+        </template>
+        <MdEditor
+          v-model="form.content"
+          class="md-editor"
+          placeholder="开始创作你的文章内容..."
+          :toolbars-exclude="['github']"
+          @onUploadImg="onUploadImg"
+        />
+      </AdminPanel>
     </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-definePageMeta({ middleware: 'auth-middleware', layout: false })
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
-import { ref, computed, onMounted } from 'vue'
-import type { Ref } from 'vue'
-import { useRoute } from 'vue-router'
-import Card from '@/components/cards/card.vue'
+import { computed, onMounted, ref } from 'vue'
+import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
-import articleService from '@/services/article.service'
-import type { NewArticle, Article } from '@/types/article'
-import categoryService from '@/services/category.service'
-import appCache from '@/utils/cache'
-import tagService from '@/services/tag.service'
-import uploadService from '@/services/upload.service'
+import { useRoute } from 'vue-router'
+import articleService from '@/services/article'
+import categoryService from '@/services/category'
+import tagService from '@/services/tag'
+import uploadService from '@/services/upload'
+import type { NewArticle } from '@/types/request/article'
+import { toApiError } from '@/utils/api-error'
 
-const onUploadImg = async (files: Array<File>, callback: (urls: Array<string>) => void) => {
-  try {
-    const id = mode.value === 'update' ? (route.query.id as string) : tempId.value
-    const res = await uploadService.uploadFiles(files, id) as any
-    if (res.status === 200 && res.data) {
-      const urls = res.data.map((file: any) => file.url)
-      callback(urls)
-    } else {
-      ElMessage.error('图片上传失败')
-    }
-  } catch (e) {
-    ElMessage.error('图片上传出错')
-  }
-}
+definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
 const route = useRoute()
-const mode = computed(() => (route.query.mode === 'update' ? 'update' : 'add'))
-const pageTitle = computed(() => (mode.value === 'add' ? '新增文章' : '编辑文章'))
+const formRef = ref<FormInstance>()
+const categoryOptions = ref<Array<{ label: string; value: string }>>([])
+const tagOptions = ref<Array<{ label: string; value: string }>>([])
+const saving = ref(false)
+const initializing = ref(false)
+const tempId = ref('')
+const originalTags = ref<string[]>([])
 
-const categoryOptions = ref([]) as Ref<{ label: string, value: number }[]>
-const tagOptions = ref<{ label: string, value: string }[]>([])
+const mode = computed(() => (route.query.mode === 'update' ? 'update' : 'add'))
+const pageTitle = computed(() => (mode.value === 'add' ? '新建文章' : '编辑文章'))
 
 const form = ref<NewArticle>({
   title: '',
   category: '',
-  tags: [] as string[],
+  tags: [],
   content: '',
   tempId: ''
 })
-const tempId = ref('')
-const originalTags = ref<string[]>([])
-const rules = ref({
-  title: [{ required: true, message: '请输入标题', trigger: ['blur'] }],
-  category: [{ required: true, message: '请选择分类', trigger: ['change'] }],
-  tags: [{ required: true, message: '请输入标签', trigger: ['blur'] }],
-  content: [{ required: true, message: '请输入内容', trigger: ['blur'] }]
-})
-onMounted(() => {
-  // 加载标签
-  tagService.getTags().then((res: any) => {
-    if (res.status === 200 && res.data.status === 200) {
-      tagOptions.value = (res.data.data || []).map((item: any) => ({
-        label: item.name,
-        value: item.name
-      }))
-    }
-  })
 
-  // 加载分类标签
-  const categoryList = appCache.getCategories()
-  if (categoryList) {
-    categoryOptions.value = categoryList.map((item: any) => ({
-      label: item.name,
-      value: item.id
-    }))
-  }else {
-    // 缓存中没有分类标签，从服务器加载
-    categoryService.getCategories().then((res: any) => {
-      categoryOptions.value = res.data.map((item: any) => ({
-        label: item.name,
-        value: item.id
-      }))
-      appCache.setCategories(res.data.data)
-    })
+const rules: FormRules = {
+  title: [{ required: true, message: '请输入文章标题', trigger: 'blur' }],
+  category: [{ required: true, message: '请选择文章分类', trigger: 'change' }],
+  tags: [{ required: true, message: '请至少填写一个标签', trigger: 'change' }],
+  content: [{ required: true, message: '请输入文章内容', trigger: 'blur' }]
+}
+
+const wordCount = computed(() =>
+  String(form.value.content || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .filter(Boolean).length
+)
+
+const readingTime = computed(() => Math.max(1, Math.ceil(wordCount.value / 260)))
+
+const normalizeContentPath = (content: string) =>
+  content
+    .replace(/\]\(uploads\\/g, '](/uploads/')
+    .replace(/\]\(uploads\//g, '](/uploads/')
+    .replace(/src="uploads\\/g, 'src="/uploads/')
+    .replace(/src="uploads\//g, 'src="/uploads/')
+
+const fetchBaseOptions = async () => {
+  const [tags, categories] = await Promise.all([
+    tagService.getTags(),
+    categoryService.getCategories()
+  ])
+
+  tagOptions.value = (tags || []).map((item) => ({
+    label: item.name,
+    value: item.name
+  }))
+
+  categoryOptions.value = (categories || []).map((item) => ({
+    label: item.name,
+    value: item.id
+  }))
+}
+
+const fetchArticleDetail = async () => {
+  if (mode.value !== 'update') {
+    tempId.value = Date.now().toString(36) + Math.random().toString(36).slice(2)
+    return
   }
-  if (mode.value === 'update') {
-    const id = route.query.id as string | undefined
-    if (id) {
-      articleService.getArticle(id).then((res: any) => {
-        if (res.status === 200) {
-          const d = res.data
-          // Fix image paths with backslashes
-          let content = d.content || ''
-          content = content.replace(/\]\(uploads\\/g, '](/uploads/')
-          content = content.replace(/\]\(uploads\//g, '](/uploads/')
-          content = content.replace(/src="uploads\\/g, 'src="/uploads/')
-          content = content.replace(/src="uploads\//g, 'src="/uploads/')
-          
-          form.value = {
-            title: d.title,
-            category: d.category,
-            tags: d.tags || [],
-            content: content,
-          }
-          originalTags.value = (d.tags || []).slice()
-        }
-      })
+
+  const id = route.query.id as string | undefined
+  if (!id) return
+
+  try {
+    const data = await articleService.getArticle(id)
+    form.value = {
+      title: data.title || '',
+      category: data.category || '',
+      tags: data.tags || [],
+      content: normalizeContentPath(data.content || '')
     }
-  } else {
-    tempId.value = Date.now().toString(36) + Math.random().toString(36).substr(2)
+    originalTags.value = [...(data.tags || [])]
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '获取文章详情失败')
   }
-})
+}
+
+const initPage = async () => {
+  initializing.value = true
+  try {
+    await Promise.all([fetchBaseOptions(), fetchArticleDetail()])
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '初始化编辑页失败')
+  } finally {
+    initializing.value = false
+  }
+}
+
+const onUploadImg = async (files: File[], callback: (urls: string[]) => void) => {
+  try {
+    const id = mode.value === 'update' ? String(route.query.id || '') : tempId.value
+    const uploaded = await uploadService.uploadFiles(files, id)
+    if (Array.isArray(uploaded)) {
+      callback(uploaded.map((file) => file.url))
+      return
+    }
+    ElMessage.error('图片上传失败')
+  } catch {
+    ElMessage.error('图片上传失败')
+  }
+}
+
+const syncTags = async () => {
+  const currentTags = Array.isArray(form.value.tags) ? form.value.tags : []
+  const previousTags = originalTags.value
+  const add = currentTags.filter((tag) => !previousTags.includes(tag))
+  const remove = previousTags.filter((tag) => !currentTags.includes(tag))
+
+  if (add.length || remove.length) {
+    await tagService.syncTags(add, remove)
+  }
+}
 
 const onSubmit = async () => {
- if(mode.value === 'add') {
+  const valid = await formRef.value?.validate().catch(() => false)
+  if (!valid) return
+
+  saving.value = true
   try {
-    form.value.tempId = tempId.value
-    const res = await articleService.createArticle(form.value)
-    if (res.status === 200 && res.data.status === 200) {
-      if (Array.isArray(form.value.tags) && form.value.tags.length > 0) {
+    if (mode.value === 'add') {
+      form.value.tempId = tempId.value
+      await articleService.createArticle(form.value)
+      if (form.value.tags.length) {
         await tagService.syncTags(form.value.tags, [])
       }
-      appCache.removeCategories()
-      ElMessage.success('保存成功')
-      navigateTo('/admin/content/article', { replace: true })
+    } else {
+      const id = String(route.query.id || '')
+      await articleService.updateArticle(id, form.value)
+      await syncTags()
     }
-  } catch (error: any) {
-    ElMessage.error(error?.msg || '保存失败')
+
+    ElMessage.success('保存成功')
+    navigateTo('/admin/content/article', { replace: true })
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '保存失败')
+  } finally {
+    saving.value = false
   }
- } else {
-  try {
-    const id = route.query.id as string
-    const res = await articleService.updateArticle(id, form.value)
-    if (res.status === 200 && res.data.status === 200) {
-      const currentTags = Array.isArray(form.value.tags) ? form.value.tags : []
-      const prevTags = originalTags.value
-      const add = currentTags.filter(t => !prevTags.includes(t))
-      const remove = prevTags.filter(t => !currentTags.includes(t))
-      if (add.length || remove.length) {
-        await tagService.syncTags(add, remove)
-      }
-      appCache.removeCategories()
-      ElMessage.success('保存成功')
-      navigateTo('/admin/content/article', { replace: true })
-    }
-  } catch (error: any) {
-    ElMessage.error(error?.msg || '保存失败')
-  }
- }
 }
+
+onMounted(() => {
+  initPage()
+})
 </script>
 
 <style scoped lang="less">
-.article-edit {
-    height: 100vh;
+.edit-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: @z-dropdown;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: @space-2xl;
+  margin: -@space-2xl -@space-3xl @space-2xl;
+  padding: @space-lg @space-3xl;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--header-color, var(--card-color));
+}
+
+.edit-toolbar__left {
+  display: flex;
+  align-items: center;
+  gap: @space-lg;
+  min-width: 0;
+}
+
+.edit-title {
+  margin: 0;
+  font-size: @font-size-lg;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.editor-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: @space-2xl;
+  min-height: calc(100vh - 180px);
+}
+
+.meta-panel {
+  height: fit-content;
+}
+
+.meta-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: @space-lg;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: @small-border-radius;
+  background: var(--border-color);
+}
+
+.meta-item {
+  padding: @space-lg;
+  background: var(--bg-color);
+
+  span {
+    display: block;
+    font-size: @font-size-xs;
+    color: var(--mute-color);
+  }
+
+  strong {
+    display: block;
+    margin-top: @space-2xs;
+    font-size: @font-size-md;
+    color: var(--text-color);
+  }
+}
+
+.editor-panel {
+  min-width: 0;
+
+  :deep(.admin-panel__body) {
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    padding: 0;
+  }
+}
 
-    .header {
-        flex: 0 0 auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 24px;
-        height: 60px;
-        margin-bottom: 0;
+.editor-tip {
+  font-size: @font-size-xs;
+  color: var(--tertiary-color);
+  font-weight: 400;
+}
 
-        .title {
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--text-color);
-            margin: 0;
-        }
+.md-editor {
+  height: calc(100vh - 200px) !important;
+  min-height: 520px;
+  border: none !important;
+}
 
-        .ops { 
-            display: flex; 
-            gap: 16px; 
-            align-items: center; 
-        }
-    }
+@media (max-width: @screen-admin-narrow) {
+  .edit-toolbar {
+    flex-wrap: wrap;
+  }
 
-    .editor-layout {
-        display: grid;
-        grid-template-columns: 320px 1fr;
-        grid-gap: 24px;
-        padding: 0 24px 24px 24px;
-        flex: 1;
-        min-height: 0;
-        overflow: hidden;
+  .editor-layout {
+    grid-template-columns: 1fr;
+  }
 
-        .panel {
-            height: 100%;
-            min-height: 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            
-            :deep(.el-card__body) {
-                flex: 1;
-                overflow: auto;
-                padding: 20px;
-            }
-        }
-
-        .form-panel {
-            :deep(.el-form-item) {
-                margin-bottom: 24px;
-                
-                .el-form-item__label {
-                    font-weight: 500;
-                    padding-bottom: 8px;
-                }
-            }
-        }
-        
-        .editor-panel {
-            :deep(.el-card__body) {
-                padding: 0;
-            }
-            
-            .md-editor {
-                height: 100% !important;
-                border: none;
-            }
-        }
-    }
+  .md-editor {
+    min-height: 420px;
+    height: 60vh !important;
+  }
 }
 </style>

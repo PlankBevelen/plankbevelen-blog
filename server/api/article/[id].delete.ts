@@ -1,8 +1,6 @@
 import { defineEventHandler, setResponseStatus } from 'h3'
-import { execute, query, withTransaction } from '../../utils/db'
+import { withTransaction, getCollections } from '../../utils/mongo'
 import { updateTagsCount, updateCategoryCount } from '../../utils/article-helpers'
-import { promises as fs } from 'node:fs'
-import path from 'node:path'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,29 +10,22 @@ export default defineEventHandler(async (event) => {
       return { status: 400, msg: '参数错误', data: null }
     }
 
-    await withTransaction(async (conn) => {
-      // 1. Get old data (ensure not already soft deleted)
-      const rows0: any = await query('SELECT * FROM articles WHERE id = ? AND deleted_at IS NULL', [id], conn)
-      const oldArticle = rows0?.[0]
-      if (!oldArticle) return // Already deleted or not found
-      
-      // 2. Soft Delete Article
-      await execute('UPDATE articles SET deleted_at = NOW() WHERE id = ?', [id], conn)
-      
-      // 3. Update Counts
-      await updateTagsCount(oldArticle.tags, null, conn)
-      await updateCategoryCount(oldArticle.category_id, null, conn)
-      
-      // 4. Delete File (Soft delete: Keep file for potential restore)
-      // if (oldArticle.file_path) {
-      //     const absPath = path.join(process.cwd(), 'public', oldArticle.file_path.replace(/^\//, ''))
-      //     try {
-      //         await fs.unlink(absPath)
-      //     } catch (e) {
-      //         console.error('Delete file failed:', e)
-      //         // File missing is not critical enough to rollback DB delete
-      //     }
-      // }
+    await withTransaction(async (ctx) => {
+      const { articles } = getCollections(ctx.db)
+      const oldArticle: any = await articles.findOne(
+        { id, $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }] },
+        ctx.session ? { session: ctx.session } : undefined
+      )
+      if (!oldArticle) return
+
+      await articles.updateOne(
+        { id },
+        { $set: { deletedAt: new Date(), updatedAt: new Date() } },
+        ctx.session ? { session: ctx.session } : undefined
+      )
+
+      await updateTagsCount(oldArticle.tags, null, ctx)
+      await updateCategoryCount(oldArticle.categoryId, null, ctx)
     })
 
     setResponseStatus(event, 200)

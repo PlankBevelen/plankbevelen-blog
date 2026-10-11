@@ -1,50 +1,66 @@
-import { defineEventHandler, readBody, setResponseStatus, setCookie } from 'h3'
-import { sha256 } from 'js-sha256'
+import { defineEventHandler, readBody, setResponseStatus } from 'h3'
 import jwt from 'jsonwebtoken'
-import dotenv from 'dotenv'
-
-// 加载环境变量
-dotenv.config()
+import { safeEqualString, randomTokenHex } from '../../core/crypto-safe'
+import { verifyAdminPassword } from '../../core/password'
+import { verifyTurnstileToken } from '../../modules/captcha/turnstile'
+import { assertRateLimit } from '../../core/rate-limit'
+import { setAuthCookies, sessionMaxAgeSeconds } from '../../core/auth-cookies'
+import { getRuntimeSettings } from '../../core/runtime-settings'
+import { getClientIp } from '../../core/proxy-trust'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody<{ account: string; password: string; remember?: boolean }>(event)
-  const { account, password, remember } = body || { account: '', password: '', remember: false }
+  const body = await readBody<{
+    account: string
+    password: string
+    remember?: boolean
+    captchaCode?: string
+    turnstileToken?: string
+  }>(event)
+  const {
+    account = '',
+    password = '',
+    remember = false,
+    captchaCode = '',
+    turnstileToken = '',
+  } = body || {}
 
-  const config = useRuntimeConfig()
-  const adminAccount = process.env.NUXT_ADMIN_ACCOUNT 
-  const secret = config.authSecret as string
-  const adminPassword = process.env.NUXT_ADMIN_PASSWORD 
-  if (!adminAccount || !secret || !adminPassword) {
-    setResponseStatus(event, 500)
-    return { code: 'MISSING_CONFIG', message: 'Admin credentials not configured' }
+  const settings = await getRuntimeSettings()
+
+  if (!(await assertRateLimit(event, 'login', settings.loginRateLimitMax, settings.loginRateLimitWindowSeconds))) {
+    return { status: 429, msg: '登录尝试过于频繁，请稍后再试' }
   }
-  const hash = sha256(String(adminPassword))
+
+  const captchaToken = String(turnstileToken || captchaCode || '').trim()
+  if (!(await verifyTurnstileToken(captchaToken, getClientIp(event)))) {
+    setResponseStatus(event, 400)
+    return { status: 400, msg: '人机验证失败，请重试' }
+  }
+
+  const adminAccount = settings.adminAccount
+  const adminPasswordHash = settings.adminPasswordHash
+  const secret = settings.authSecret
+  if (!adminAccount || !adminPasswordHash || !secret) {
+    setResponseStatus(event, 500)
+    return { status: 500, msg: '服务器未正确配置管理员凭据' }
+  }
 
   if (!account || !password) {
     setResponseStatus(event, 400)
-    return { code: 'BAD_REQUEST', message: 'Missing account or password' }
+    return { status: 400, msg: '请输入账号和密码' }
   }
-  
-  // 对前端传来的明文密码进行哈希，然后与配置的密码哈希进行比对
-  const inputHash = sha256(String(password))
-  
-  if (account !== adminAccount || inputHash !== hash) {
-    setResponseStatus(event, 401)
-    return { code: 'INVALID_CREDENTIALS', message: 'Invalid account or password' }
-  }
-  const expiresIn = remember ? Number(process.env.NUXT_EXPIRATION_TIME) : Number(process.env.NUXT_KEEP_ALIVE_TIME)
-  const token = jwt.sign({ sub: adminAccount }, secret, { expiresIn })
 
-  const opts: any = {
-    httpOnly: true,
-    path: '/',
-    sameSite: 'lax',
+  const accountOk = safeEqualString(account, adminAccount)
+  const passwordOk = await verifyAdminPassword(password, adminPasswordHash)
+  if (!accountOk || !passwordOk) {
+    setResponseStatus(event, 401)
+    return { status: 401, msg: '账号或密码错误' }
   }
-  if (remember) {
-    opts.maxAge = expiresIn
-  }
-  const cookieName = (process.env.NUXT_PUBLIC_COOKIE_PREFIX || '') + 'user_token'
-  setCookie(event, cookieName, token, opts)
+
+  const expiresIn = sessionMaxAgeSeconds(remember)
+  const accessToken = jwt.sign({ sub: adminAccount }, secret, { expiresIn })
+  const csrf = randomTokenHex(16)
+  setAuthCookies(event, accessToken, csrf, remember)
+
   setResponseStatus(event, 200)
-  return { message: 'Login successful', status: 200, token }
+  return { status: 200, msg: '登录成功' }
 })

@@ -1,6 +1,7 @@
 import { defineEventHandler, sendStream, createError, setHeader } from 'h3'
 import { promises as fs, createReadStream } from 'node:fs'
 import path from 'node:path'
+import { getUploadsBaseDir } from '../../utils/uploads'
 
 const MIME_TYPES: Record<string, string> = {
   '.png': 'image/png',
@@ -8,8 +9,6 @@ const MIME_TYPES: Record<string, string> = {
   '.jpeg': 'image/jpeg',
   '.gif': 'image/gif',
   '.webp': 'image/webp',
-  '.svg': 'image/svg+xml',
-  '.mp4': 'video/mp4',
 }
 
 export default defineEventHandler(async (event) => {  
@@ -20,7 +19,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const cleanPath = path.normalize(String(filePathParam)).replace(/^(\.\.[\/\\])+/, '')
-  const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+  const uploadDir = getUploadsBaseDir()
   const fullPath = path.resolve(uploadDir, cleanPath)
 
   const rel = path.relative(uploadDir, fullPath)
@@ -37,7 +36,11 @@ export default defineEventHandler(async (event) => {
     }
 
     const ext = path.extname(fullPath).toLowerCase()
-    const mimeType = MIME_TYPES[ext] || 'application/octet-stream'
+    const mimeType = MIME_TYPES[ext]
+    if (!mimeType) {
+      // 白名单外的类型（含存量 svg/mp4）直接拒绝，防止脚本/非预期内容回放
+      throw createError({ statusCode: 403, statusMessage: 'Forbidden file type' })
+    }
 
     setHeader(event, 'Content-Type', mimeType)
     setHeader(event, 'Content-Length', stats.size)

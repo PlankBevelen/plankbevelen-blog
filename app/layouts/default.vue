@@ -1,21 +1,19 @@
 <template>
-    <Header />
-    <main id="main">
-        <NuxtPage />
-    </main>
-    <Footer />
+  <ClientOnly>
+    <BaseParticles v-if="admin.getTheme === 'dark'"/>
+  </ClientOnly>
+  <LayoutDefaultHeader />
+  <main id="main">
+    <NuxtPage />
+  </main>
+  <LayoutDefaultFooter />
+  <ClientOnly>
+    <el-backtop :right="24" :bottom="24" :visibility-height="480" />
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">
-import Header from './defaultLayout/Header.vue'
-import Footer from './defaultLayout/Footer.vue'
-
+import { useAdminStore } from '~/stores/admin.store'
+const admin = useAdminStore()
 </script>
 
-<style lang="less">
-@media (max-width: @max-content-width) {
-    #main {
-        padding: 0 20px;
-    }
-}
-</style>

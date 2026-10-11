@@ -1,287 +1,322 @@
 <template>
-    <div class="login">
-        <canvas class="bg-canvas" ref="canvasRef"></canvas>
-        <div class="login-wrapper">
-          <div class="left">
-            <div class="left-wrapper">
-              <NuxtImg
-                src="/img/logo.webp"
-                alt="logo"
-                quality="70"
-                loading="eager"
-                fetchpriority="high"
-                class="logo"
-                :width="40"
-                :height="40"
+  <div class="login-page">
+    <header class="login-top">
+      <NuxtLink to="/" class="login-top__home">返回博客</NuxtLink>
+      <el-switch v-model="themeSwitch" inline-prompt>
+        <template #active-action>
+          <BaseIcon name="moon" class="switch-icon" />
+        </template>
+        <template #inactive-action>
+          <BaseIcon name="sun" class="switch-icon" />
+        </template>
+      </el-switch>
+    </header>
+
+    <BaseCard class="login-card" flat>
+      <div class="login-card__body">
+        <header class="login-brand">
+          <h1 class="login-brand__name">plankbevelen</h1>
+          <p class="login-brand__subtitle">后台</p>
+        </header>
+
+        <el-form
+          ref="formRef"
+          :model="form"
+          :rules="rules"
+          label-position="top"
+          class="login-form"
+          @keyup.enter="onSubmit"
+        >
+          <el-form-item prop="account" label="账号">
+            <el-input
+              v-model="form.account"
+              placeholder="请输入管理员账号"
+              size="large"
+              clearable
+              autofocus
+            />
+          </el-form-item>
+
+          <el-form-item prop="password" label="密码">
+            <el-input
+              v-model="form.password"
+              type="password"
+              placeholder="请输入登录密码"
+              size="large"
+              show-password
+            />
+          </el-form-item>
+
+          <el-form-item prop="captchaCode" class="login-form__captcha-item">
+            <ClientOnly>
+              <BaseTurnstile
+                ref="turnstileRef"
+                v-model="form.captchaCode"
+                :site-key="turnstileSiteKey"
               />
-              <h1 class="title">PlankBevelen Blog Admin</h1>
-              <p class="subtitle">后台管理系统</p>
-              <ul class="feature-list">
-                <li class="feature-item"><div class="feature-icon"><nuxt-icon name="global/check" /></div>现代化UI设计</li>
-                <li class="feature-item"><div class="feature-icon"><nuxt-icon name="global/check" /></div>响应式布局</li>
-                <li class="feature-item"><div class="feature-icon"><nuxt-icon name="global/check" /></div>开箱即用</li>
-              </ul>
-            </div>
+            </ClientOnly>
+          </el-form-item>
+
+          <div class="login-form__remember">
+            <el-checkbox v-model="form.remember">记住登录状态</el-checkbox>
           </div>
-          <div class="right">
-            <Card class="login-card">
-              <h2 class="title">欢迎回来</h2>
-              <p class="subtitle">登录您的账户</p>
-              <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="form">
-                <el-form-item prop="account" class="form-item">
-                    <el-input v-model="form.account" placeholder="请输入账号" clearable />
-                </el-form-item>
-                <el-form-item prop="password" class="form-item">
-                    <el-input v-model="form.password" type="password" placeholder="请输入密码" show-password />
-                </el-form-item>
-                <div class="form-item extras">
-                    <el-checkbox v-model="form.remember">记住我</el-checkbox>
-                </div>
-                <el-button type="primary" class="submit" :loading="loading" @click="onSubmit">登录</el-button>
-              </el-form>
-            </Card>
-          </div>
-        </div>        
-    </div>
-    
+
+          <button
+            type="button"
+            class="login-form__submit"
+            :disabled="loading"
+            @click="onSubmit"
+          >
+            {{ loading ? '登录中…' : '登录' }}
+          </button>
+        </el-form>
+      </div>
+    </BaseCard>
+  </div>
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: 'admin' })
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
-import Card from '@/components/cards/card.vue'
 import { useAdminStore } from '@/stores/admin.store'
-import { navigateTo } from 'nuxt/app'
+import { usePublicSettings } from '@/composables/usePublicSettings'
+import { toApiError } from '@/utils/api-error'
 
-const formRef = ref()
+definePageMeta({ layout: false })
+
+useHead({
+  link: [
+    {
+      rel: 'preload',
+      as: 'script',
+      href: 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit',
+    },
+  ],
+})
+
+const adminStore = useAdminStore()
+const formRef = ref<FormInstance>()
+const turnstileRef = ref<{ reset: () => void } | null>(null)
 const loading = ref(false)
-const form = ref({ account: '', password: '', remember: true })
-const rules = {
+const { data: publicSettings } = await usePublicSettings()
+const turnstileSiteKey = computed(() => String(publicSettings.value?.turnstileSiteKey || ''))
+
+const form = ref({
+  account: '',
+  password: '',
+  captchaCode: '',
+  remember: true,
+})
+
+const themeSwitch = computed({
+  get: () => adminStore.getTheme === 'dark',
+  set: (v: boolean) => adminStore.setTheme(v ? 'dark' : 'light'),
+})
+
+const rules: FormRules = {
   account: [{ required: true, message: '请输入账号', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  captchaCode: [{ required: true, message: '请完成人机验证', trigger: 'change' }],
+}
+
+const resetTurnstile = () => {
+  form.value.captchaCode = ''
+  turnstileRef.value?.reset()
 }
 
 const onSubmit = async () => {
-  (formRef.value as any)?.validate(async (valid: boolean) => {
-    if (!valid) return
-    loading.value = true
-    try {      
-      const success = await useAdminStore().login(form.value.account, form.value.password, form.value.remember)
-      if(success) {
-        navigateTo('/admin', { replace: true })
-      } else {
-        ElMessage.error('登录失败，请检查账号或密码')
-      }      
-    } catch (e: any) {
-      const msg = e?.data?.message || '登录失败，请检查账号或密码'
-      ElMessage.error(msg)
-    } finally {
-      loading.value = false
+  const valid = await formRef.value?.validate().catch(() => false)
+  if (!valid) return
+
+  loading.value = true
+  try {
+    const success = await adminStore.login(
+      form.value.account,
+      form.value.password,
+      form.value.remember,
+      '',
+      form.value.captchaCode
+    )
+
+    if (success) {
+      ElMessage.success('登录成功')
+      await navigateTo('/admin/content/article', { replace: true })
+      return
     }
-  })
+
+    ElMessage.error('账号、密码或验证失败')
+    resetTurnstile()
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '登录失败，请稍后重试')
+    resetTurnstile()
+  } finally {
+    loading.value = false
+  }
 }
 
-// canvas背景
-const canvasRef = ref<HTMLCanvasElement>()
-function hexToRGBA(hex: string, alpha = 1) {
-  const h = hex.replace('#', '').trim()
-  const r = parseInt(h.length === 3 ? h[0] + h[0] : h.slice(0, 2), 16)
-  const g = parseInt(h.length === 3 ? h[1] + h[1] : h.slice(2, 4), 16)
-  const b = parseInt(h.length === 3 ? h[2] + h[2] : h.slice(4, 6), 16)
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`
-}
-function drawGrid() {
-  const canvas = canvasRef.value
-  if (!canvas) return
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return
-  const dpr = window.devicePixelRatio || 1
-  const w = window.innerWidth
-  const h = window.innerHeight
-  canvas.width = Math.floor(w * dpr)
-  canvas.height = Math.floor(h * dpr)
-  canvas.style.width = w + 'px'
-  canvas.style.height = h + 'px'
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-  ctx.clearRect(0, 0, w, h)
-  const style = getComputedStyle(document.documentElement)
-  const minor = hexToRGBA(style.getPropertyValue('--border-color') || '#e5e5e5', 0.25)
-  const major = hexToRGBA(style.getPropertyValue('--active-color') || '#007bff', 0.15)
-  const size = 32
-  const majorStep = 5
-  ctx.lineWidth = 1
-  for (let x = 0; x <= w; x += size) {
-    ctx.beginPath()
-    ctx.strokeStyle = ((x / size) % majorStep === 0) ? major : minor
-    ctx.moveTo(x, 0)
-    ctx.lineTo(x, h)
-    ctx.stroke()
-  }
-  for (let y = 0; y <= h; y += size) {
-    ctx.beginPath()
-    ctx.strokeStyle = ((y / size) % majorStep === 0) ? major : minor
-    ctx.moveTo(0, y)
-    ctx.lineTo(w, y)
-    ctx.stroke()
-  }
-}
 onMounted(() => {
-  drawGrid()
-  window.addEventListener('resize', drawGrid)
-})
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', drawGrid)
+  adminStore.initPreferences()
 })
 </script>
 
 <style scoped lang="less">
-.login {
-  height: 100vh;
-  width: 100vw;
-  .login-wrapper {
-    height: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    .left {
-      height: 100%;
-      width: 100%;
-      background: #282828;
-      display: flex;
-      justify-content: center;
-      flex-direction: column;
-      text-align: center;
-      .left-wrapper { width: fit-content; margin: 0 auto; }
-      .logo {
-        height: 120px;
-        width: auto;
-        margin: 0 auto;
-        display: block;
-        object-fit: cover;
-        border-radius: @small-border-radius;
-        animation: float 4s ease-in-out infinite;
-        margin-bottom: 60px;
-      }
-      .title {
-        color: #fff;
-        font-size: @font-size-xxl;
-        font-weight: bold;
-        background: linear-gradient(90deg, #007bff, #00c6ff);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        line-height: normal;
-        margin-bottom: 24px;
-      }
-      .subtitle {
-        color: #fff;
-        font-size: @font-size-xl;
-        font-weight: normal;
-        line-height: normal;
-        margin-bottom: 48px;
-      }
-      .feature-list {        
-        font-size: @font-size-md;
-        font-weight: normal;
-        margin-top: 30px;
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        line-height: normal;
-        text-align: left;
-      }
-      .feature-item {
-        margin-bottom: 10px;
-        color: #fff;
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        &:not(:last-child) { margin-bottom: 20px; }
-        .feature-icon {
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          background: var(--primary-color);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-      }
-    }
-    .right {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      .login-card {
-        width: 50%;
-        height: auto;
-        padding: 40px 60px;
-        .title {
-          font-size: @font-size-xxl;
-          font-weight: bold;
-          line-height: normal;
-          text-align: center;
-          margin-bottom: 8px;
-        }
-        .subtitle {
-          font-size: @font-size-md;
-          font-weight: normal;
-          line-height: normal;
-          text-align: center;
-          color: var(--mute-color);
-          margin-bottom: 24px;
-        }
-        .form-item {
-          &:not(:last-child) { margin-bottom: 32px; }
-          &.extras {
-            border: 1px solid var(--border-color);
-            border-radius: @base-border-radius;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            padding: 8px 12px;
-          }
-        }
-        :deep(.el-button.submit) {
-          width: 100%;
-          border-radius: @base-border-radius;
-          background: var(--primary-color);
-          padding: 12px 12px;          
-          border: none;
-          line-height: normal;
-          height: auto;
-          span { color: #fff; }
-        }
-        :deep(.el-button.submit:hover) {
-          filter: brightness(1.05);
-          box-shadow: 0 6px 12px rgba(0,0,0,0.12);
-          background: var(--primary-color-03);
-        }
-        :deep(.el-button.submit:active) {
-          filter: brightness(0.95);
-          background: var(--primary-color-06);
-        }
-        :deep(.el-input__wrapper) {
-          background-color: transparent;
-          box-shadow: none;
-          border: 1px solid var(--border-color);
-          border-radius: @base-border-radius;
-          padding: 8px 12px;
-        }
-        :deep(.el-input__inner) {
-          background: transparent;
-        }
-      }
-    }
+.login-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: @space-5xl @space-3xl;
+  overflow: hidden;
+  background-color: var(--bg-color);
+}
+
+.login-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: @z-raised;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: @header-height;
+  padding: 0 @space-4xl;
+}
+
+.login-top__home {
+  font-size: @font-size-sm;
+  color: var(--secondary-color);
+  text-decoration: none;
+  transition: color @transition-fast ease;
+
+  &:hover {
+    color: var(--primary-color);
   }
 }
-.bg-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
+
+.switch-icon {
+  width: 12px;
+  height: 12px;
+}
+
+.login-card {
+  position: relative;
+  z-index: @z-base;
+  width: min(400px, 100%);
+  overflow: hidden;
+
+  &:hover {
+    transform: none;
+  }
+
+  :deep(.card-content) {
+    padding: 0;
+  }
+}
+
+.login-card__body {
+  position: relative;
+  z-index: @z-raised;
+  padding: @space-5xl @space-4xl @space-4xl;
+}
+
+.login-brand {
+  text-align: center;
+  margin-bottom: @space-4xl;
+}
+
+.login-brand__name {
+  margin: 0;
+  font-size: clamp(26px, 4.5vw, 32px);
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  color: var(--text-color);
+  font-weight: 700;
+}
+
+.login-brand__subtitle {
+  margin: @space-md 0 0;
+  font-size: @font-size-sm;
+  color: var(--primary-color);
+  letter-spacing: 0.18em;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+
+  :deep(.el-form-item) {
+    margin-bottom: 18px;
+  }
+
+  :deep(.el-form-item__label) {
+    color: var(--secondary-color);
+  }
+
+  :deep(.el-input__wrapper) {
+    border-radius: @small-border-radius;
+    box-shadow: 0 0 0 1px var(--border-color);
+    background-color: color-mix(in srgb, var(--card-color) 88%, transparent);
+    padding: @space-2xs @space-lg;
+
+    &:hover,
+    &.is-focus {
+      box-shadow: 0 0 0 1px var(--primary-color);
+    }
+  }
+
+  :deep(.el-input__inner) {
+    background: transparent;
+    height: 38px;
+  }
+}
+
+.login-form__captcha-item {
+  :deep(.el-form-item__content) {
+    display: block;
+    line-height: normal;
+  }
+}
+
+.login-form__remember {
+  margin: 0 0 @space-3xl;
+  color: var(--secondary-color);
+}
+
+.login-form__submit {
+  width: 100%;
+  height: 42px;
+  border: none;
+  border-radius: @large-border-radius;
+  font-size: 15px;
+  color: #fff;
+  background: var(--primary-color);
+  cursor: pointer;
+  transition: background @transition-fast ease;
+
+  &:hover:not(:disabled) {
+    background: var(--primary-hover-color);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-page {
+    padding: @space-4xl @space-2xl;
+  }
+
+  .login-top {
+    padding: 0 @space-2xl;
+  }
+
+  .login-card__body {
+    padding: @space-4xl @space-2xl @space-3xl;
+  }
 }
 </style>

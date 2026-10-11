@@ -1,0 +1,51 @@
+:root {
+  --danger-color: #f56c6c;
+}
+
+:root[theme='dark'] {
+  --danger-color: #f89898;
+}
+
+/* Admin content density — scoped under shell */
+.admin-layout {
+  --el-border-radius-base: 6px;
+
+  .admin-content {
+    .el-table {
+      --el-table-header-bg-color: var(--el-fill-color-light);
+      font-size: @font-size-sm;
+    }
+
+    .el-table th.el-table__cell {
+      font-weight: 600;
+      color: var(--secondary-color);
+    }
+
+    .el-form--default.el-form--label-top .el-form-item {
+      margin-bottom: @space-2xl;
+    }
+
+    .el-form-item__label {
+      margin-bottom: @space-2xs !important;
+      font-size: @font-size-sm;
+      color: var(--secondary-color);
+    }
+
+    .el-dialog__header {
+      padding-bottom: @space-lg;
+      margin-right: 0;
+    }
+
+    .el-dialog__body {
+      padding-top: @space-base;
+    }
+
+    .el-pagination {
+      --el-pagination-font-size: @font-size-sm;
+    }
+
+    .el-empty {
+      padding: @space-4xl 0;
+    }
+  }
+}
