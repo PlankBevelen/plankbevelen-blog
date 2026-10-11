@@ -75,12 +75,12 @@
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
 import { ref, computed, onMounted, watch } from 'vue'
-import type { Article } from '@/types/article'
-import articleService from '@/services/article.service'
-import { useRoute } from 'vue-router'
+import type { Article } from '@/types/data/article'
+import articleService from '@/services/article'
 import { formatDateTime } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import tagService from '@/services/tag.service'
+import tagService from '@/services/tag'
+import { toApiError } from '@/utils/http'
 
 const searchText = ref('')
 const articleList = ref<Article[]>([])
@@ -94,16 +94,14 @@ const handleEdit = (mode: string, id?: string) => {
 
 const getArticleList = async () => {
   try {
-    const res: any = await articleService.getArticles(page.value, limit.value, (searchText.value || '').trim())
-    if( res.status === 200 ) {
-        const list: Article[] = (res.data || []).map((i: any) => ({
-          ...i,
-          createTime: formatDateTime(i.createTime),
-          updateTime: formatDateTime(i.updateTime),
-        }))
-        articleList.value = list
-        total.value = Number(res.total || 0)
-    }
+    const res = await articleService.getArticles(page.value, limit.value, (searchText.value || '').trim())
+    const list: Article[] = (res.data || []).map((i) => ({
+      ...i,
+      createTime: formatDateTime(i.createTime),
+      updateTime: formatDateTime(i.updateTime),
+    }))
+    articleList.value = list
+    total.value = Number(res.total || 0)
   } catch (error) {
     console.error('获取文章列表失败:', error)
   }
@@ -121,18 +119,17 @@ const handleDelete = async (id: string) => {
   try {
     await ElMessageBox.confirm('确认删除该文章吗？', '提示', { type: 'warning' })
     // 获取文章标签以便同步更新标签表
-    const detail: any = await articleService.getArticle(id)
-    const removeTags: string[] = (detail.status === 200) ? (detail.data?.tags || []) : []
-    const res: any = await articleService.deleteArticle(id)
-    if (res.status === 200) {
-      if (removeTags.length) {
-        await tagService.syncTags([], removeTags)
-      }
-      ElMessage.success('删除成功')
-      await getArticleList()
+    const detail = await articleService.getArticle(id)
+    const removeTags: string[] = detail?.tags || []
+    await articleService.deleteArticle(id)
+    if (removeTags.length) {
+      await tagService.syncTags([], removeTags)
     }
-  } catch (error: any) {
-    ElMessage.error(error?.msg || '删除失败')
+    ElMessage.success('删除成功')
+    await getArticleList()
+  } catch (error: unknown) {
+    if (error === 'cancel' || error === 'close') return
+    ElMessage.error(toApiError(error).message || '删除失败')
   }
 }
 

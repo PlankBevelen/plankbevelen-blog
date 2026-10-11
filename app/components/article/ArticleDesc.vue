@@ -8,13 +8,13 @@
     <div class="meta">
       <span class="meta-item category">{{ article.category }}</span>
       <span class="meta-item">
-        <nuxt-icon name="article/create-time" />{{ formatDateTime(article.createTime) }}
+        <BaseIcon name="calendar" />{{ formatDateTime(article.createTime) }}
       </span>
       <span class="meta-item">
-        <nuxt-icon name="article/update-time" />{{ formatDateTime(article.updateTime) }}
+        <BaseIcon name="clock" />{{ formatDateTime(article.updateTime) }}
       </span>
       <template v-if="(article.tags || []).length">
-        <span class="meta-item meta-tag-icon"><nuxt-icon name="article/tag" /></span>
+        <span class="meta-item meta-tag-icon"><BaseIcon name="tag" /></span>
         <span v-for="tag in article.tags" :key="tag" class="meta-item">{{ tag }}</span>
       </template>
     </div>
@@ -48,7 +48,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, defineAsyncComponent } from 'vue'
-import type { Article } from '@/types/article'
+import type { Article } from '@/types/data/article'
 import { formatDateTime } from '@/utils/format'
 import { useAdminStore } from '@/stores/admin.store'
 
@@ -79,16 +79,19 @@ const displayHtml = computed(() =>
 )
 
 // 异步加载 MdPreview 与样式，使用全局缓存避免重复加载
+import type { Component } from 'vue'
+const mdPreviewLoaders = globalThis as typeof globalThis & {
+  __md_preview_loader?: Promise<Component>
+}
 const AsyncMdPreview = defineAsyncComponent(() => {
-  const key = '__md_preview_loader'
-  if (!(globalThis as any)[key]) {
-    ;(globalThis as any)[key] = (async () => {
+  if (!mdPreviewLoaders.__md_preview_loader) {
+    mdPreviewLoaders.__md_preview_loader = (async () => {
       const mod = await import('md-editor-v3')
       await import('md-editor-v3/lib/style.css')
-      return mod.MdPreview || mod.default?.MdPreview || mod
+      return (mod.MdPreview || mod) as Component
     })()
   }
-  return (globalThis as any)[key]
+  return mdPreviewLoaders.__md_preview_loader
 })
 </script>
 
@@ -123,16 +126,6 @@ const AsyncMdPreview = defineAsyncComponent(() => {
     line-height: 1.9;
     margin-bottom: @space-lg;
 
-    // 每项自己是 inline-flex：对外是行内盒（能跟着行内流折行），
-    // 对内仍是 flex（align-items 把图标和文字垂直居中）
-    //
-    // vertical-align: middle 是必须的，不能用默认的 baseline。inline-flex 盒子
-    // 暴露给外层行内流的基线取自它第一个 flex item：纯文字项给出真实文字基线，
-    // 而图标开头的项，第一个 item 是 .nuxt-icon（内部 svg 被 reset.less 设成
-    // display: block，没有基线，只能按盒子下边缘合成），两者差几 px，
-    // 于是 category 和带图标的项就不在一条线上了。
-    // 各项高度都由 line-height 决定、内容又都各自居中，改成按盒子中线对齐后
-    // 内容自然落在同一条水平线上。
     .meta-item {
       display: inline-flex;
       align-items: center;

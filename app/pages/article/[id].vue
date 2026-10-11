@@ -17,7 +17,7 @@
               <span class="meta-item category">{{ articleCategory }}</span>
               <span class="meta-item">{{ timeText }}</span>
               <template v-if="(article?.tags || []).length">
-                <span class="meta-item meta-tag-icon"><nuxt-icon name="article/tag" /></span>
+                <span class="meta-item meta-tag-icon"><BaseIcon name="tag" /></span>
                 <span
                   v-for="tag in article?.tags || []"
                   :key="tag"
@@ -35,7 +35,7 @@
                 />
               </template>
               <template #fallback>
-                <el-skeleton rows="10" animated />
+                <el-skeleton :rows="10" animated />
               </template>
             </Suspense>
             <div class="prev-next">
@@ -69,22 +69,24 @@
 import { computed, defineAsyncComponent } from "vue";
 import { useRoute } from "vue-router";
 import { useAsyncData, navigateTo, createError } from "nuxt/app";
-import http from "~/utils/http";
 // 按需加载 MdPreview 与样式，避免在首页主包中引入 md-editor
+import type { Component } from 'vue'
+const mdPreviewLoaders = globalThis as typeof globalThis & {
+  __md_preview_loader?: Promise<Component>
+}
 const AsyncMdPreview = defineAsyncComponent(() => {
-  const key = '__md_preview_loader'
-  if (!(globalThis as any)[key]) {
-    ;(globalThis as any)[key] = (async () => {
+  if (!mdPreviewLoaders.__md_preview_loader) {
+    mdPreviewLoaders.__md_preview_loader = (async () => {
       const mod = await import('md-editor-v3')
       await import('md-editor-v3/lib/style.css')
-      return mod.MdPreview || mod.default?.MdPreview || mod
+      return (mod.MdPreview || mod) as Component
     })()
   }
-  return (globalThis as any)[key]
+  return mdPreviewLoaders.__md_preview_loader
 })
 import { formatDateTime } from "@/utils/format";
 import { useAdminStore } from "@/stores/admin.store";
-import articleService from "@/services/article.service";
+import articleService from "@/services/article";
 import { useArticleSeo } from "@/composables/useSeo";
 import { useSidebarData } from "@/composables/useSidebarData";
 
@@ -105,9 +107,11 @@ const { data: detailData, pending } = await useAsyncData(
     if (!rid) {
       throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "参数错误" });
     }
-    const res: any = await articleService.getArticle(rid);
-    if (res?.status === 200) return res.data;
-    return null;
+    try {
+      return await articleService.getArticle(rid);
+    } catch {
+      return null;
+    }
   },
   { watch: [id] },
 );
@@ -171,13 +175,6 @@ useArticleSeo({
   padding-bottom: @space-3xl;
   border-bottom: 1px solid var(--border-color);
 
-  // 每项自己是 inline-flex：对外是行内盒（跟着行内流折行），
-  // 对内仍是 flex（align-items 把图标和文字垂直居中）
-  //
-  // vertical-align: middle 不能省。inline-flex 盒子暴露给外层行内流的基线取自
-  // 它第一个 flex item：纯文字项给出真实文字基线，而图标项的第一个 item 是
-  // .nuxt-icon（内部 svg 被 reset.less 设成 display: block，没有基线，只能按
-  // 盒子下边缘合成），两者差几 px，category 就和图标项不在一条线上了。
   .meta-item {
     display: inline-flex;
     align-items: center;
@@ -194,10 +191,6 @@ useArticleSeo({
   // 标签图标是后面这串标签的引导符，贴近第一个标签
   .meta-tag-icon {
     margin-right: 0;
-
-    :deep(.nuxt-icon) {
-      font-size: @font-size-md;
-    }
   }
 }
 .prev-next {

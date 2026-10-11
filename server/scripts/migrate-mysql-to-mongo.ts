@@ -109,12 +109,12 @@ async function main() {
   const maxCategoryId = (categories || []).reduce((m: number, c: any) => Math.max(m, Number(c.id)), 0)
 
   await db.collection('counters').updateOne(
-    { _id: 'articles' },
+    { _id: 'articles' as unknown as import('mongodb').ObjectId },
     { $set: { seq: maxArticleId } },
     { upsert: true }
   )
   await db.collection('counters').updateOne(
-    { _id: 'categories' },
+    { _id: 'categories' as unknown as import('mongodb').ObjectId },
     { $set: { seq: maxCategoryId } },
     { upsert: true }
   )

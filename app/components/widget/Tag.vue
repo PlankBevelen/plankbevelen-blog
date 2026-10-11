@@ -14,7 +14,7 @@
             >
                 <template #default="{ href, navigate }">
                     <a
-                        :href="href"
+                        :href="href || undefined"
                         class="cloud-tag"
                         :class="{ 'is-active': t.active }"
                         :title="`${t.name} · ${t.count}`"
@@ -33,8 +33,8 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
-import type { Tag } from '@/types/tag'
-import tagService from '~/services/tag.service'
+import type { Tag } from '@/types/data/tag'
+import tagService from '~/services/tag'
 
 const props = defineProps({
     tags: {
@@ -236,8 +236,7 @@ function onMotionChange() {
 onMounted(async () => {
     if (props.tags.length === 0) {
         try {
-            const res: any = await tagService.getTags()
-            if (res.status === 200) tagList.value = res.data || []
+            tagList.value = (await tagService.getTags()) || []
         } catch (e) {
             console.error('Fetch tags failed:', e)
         }

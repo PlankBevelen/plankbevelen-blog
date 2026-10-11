@@ -50,16 +50,25 @@ function onJump(item: TocItem) {
 </script>
 
 <style scoped lang="less">
-.toc-card { 
-  position: sticky; 
-  top: var(--layout-sticky-top); 
-  max-height: calc((100vh - @header-height) / 2);  
+.toc-card {
+  position: sticky;
+  top: var(--layout-sticky-top);
+  max-height: calc(100vh - var(--layout-sticky-top) - 16px);
   display: flex;
   flex-direction: column;
   padding: 0 !important;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--tertiary-color) transparent;
+  overflow: hidden;
+
+  :deep(.card-header) {
+    flex-shrink: 0;
+  }
+
+  :deep(.card-content) {
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--tertiary-color) transparent;
+  }
 }
 .toc-list { 
   display: flex; 
@@ -73,9 +82,11 @@ function onJump(item: TocItem) {
       background-color: var(--shallow-hover-bg-color);
     }
     .text {
+      display: block;
       font-size: 13px;
       line-height: 20px;
       color: var(--text-color);
+      overflow-wrap: anywhere;
     }
     &.lvl-1 {
       font-weight: 600;

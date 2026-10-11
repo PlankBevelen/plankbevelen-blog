@@ -65,40 +65,45 @@
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import categoryService from '@/services/category.service'
+import categoryService from '@/services/category'
+import type { Category } from '@/types/data/category'
 import { formatDateTime } from '@/utils/format'
+import { toApiError } from '@/utils/http'
+import type { FormInstance } from 'element-plus'
 
 const searchText = ref('')
-const categoryList = ref<any[]>([])
+const categoryList = ref<Category[]>([])
 const dialogVisible = ref(false)
 const mode = ref<'add' | 'update'>('add')
-const currentId = ref<number | null>(null)
-const formRef = ref()
+const currentId = ref<string | null>(null)
+const formRef = ref<FormInstance>()
 const form = ref({ name: '' })
 const rules = { name: [{ required: true, message: '请输入分类名称', trigger: 'blur' }] }
 
 const dialogTitle = computed(() => (mode.value === 'add' ? '新增分类' : '编辑分类'))
 const filteredCategoryList = computed(() => {
     const text = (searchText.value || '').trim()
-    if (!text) return categoryList.value.map((c) => ({ ...c, createdAt: formatDateTime(c.createdAt), updatedAt: formatDateTime(c.updatedAt) }))
-    return categoryList.value.filter((c) => String(c.name).includes(text))
+    const mapped = categoryList.value.map((c) => ({
+      ...c,
+      createdAt: formatDateTime(c.createTime || ''),
+      updatedAt: formatDateTime(c.updateTime || ''),
+    }))
+    if (!text) return mapped
+    return mapped.filter((c) => String(c.name).includes(text))
 })
 
 const getCategoryList = async () => {
     try {
-        const res: any = await categoryService.getCategories()
-        if (res.status === 200) {
-            categoryList.value = res.data
-        }
-    } catch (error: any) {
-        ElMessage.error(error.msg || '分类查询错误')
+        categoryList.value = (await categoryService.getCategories()) || []
+    } catch (error: unknown) {
+        ElMessage.error(toApiError(error).message || '分类查询错误')
     }
 }
 
 const openDialog = () => { dialogVisible.value = true }
 const closeDialog = () => { dialogVisible.value = false }
 
-const handleEdit = (m: 'add' | 'update', id?: number) => {
+const handleEdit = (m: 'add' | 'update', id?: string) => {
     mode.value = m
     if (m === 'add') {
         currentId.value = null
@@ -111,40 +116,34 @@ const handleEdit = (m: 'add' | 'update', id?: number) => {
     openDialog()
 }
 
-const handleDelete = async (id: number) => {
+const handleDelete = async (id: string) => {
     try {
         await ElMessageBox.confirm('确认删除该分类吗？', '提示', { type: 'warning' })
-        const res: any = await categoryService.deleteCategory(id)
-        if (res.status === 200 && res.data.status === 200) {
-            ElMessage.success('删除成功')
-            await getCategoryList()
-        }
-    } catch (error: any) {
-        ElMessage.error(error.msg || '删除失败')
+        await categoryService.deleteCategory(id)
+        ElMessage.success('删除成功')
+        await getCategoryList()
+    } catch (error: unknown) {
+        if (error === 'cancel' || error === 'close') return
+        ElMessage.error(toApiError(error).message || '删除失败')
     }
 }
 
 const onSubmit = async () => {
-    (formRef.value as any)?.validate(async (valid: boolean) => {
-        if (!valid) return
-        try {
-            if (mode.value === 'add') {
-                const res: any = await categoryService.createCategory(form.value.name)
-                if (res.status === 200 && res.data.status === 200) {
-                    ElMessage.success('新增成功')
-                }
-            } else if (currentId.value) {
-                const res: any = await categoryService.updateCategory(currentId.value, form.value.name)
-                if (res.status === 200 && res.data.status === 200) {
-                    ElMessage.success('编辑成功')
-                }
-            }
-            closeDialog()
-            await getCategoryList()
-        } catch (error: any) {
-            ElMessage.error(error.msg || '保存失败')
+    const valid = await formRef.value?.validate().catch(() => false)
+    if (!valid) return
+    try {
+        if (mode.value === 'add') {
+            await categoryService.createCategory(form.value.name)
+            ElMessage.success('新增成功')
+        } else if (currentId.value) {
+            await categoryService.updateCategory(currentId.value, form.value.name)
+            ElMessage.success('编辑成功')
         }
-    })
+        closeDialog()
+        await getCategoryList()
+    } catch (error: unknown) {
+        ElMessage.error(toApiError(error).message || '保存失败')
+    }
 }
 
 onMounted(() => { 

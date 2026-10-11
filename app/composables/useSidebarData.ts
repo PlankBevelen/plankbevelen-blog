@@ -1,12 +1,12 @@
 import { useAsyncData } from 'nuxt/app'
-import http from '~/utils/http'
+import homeService from '@/services/home'
 
 export function useSidebarData() {
   return useAsyncData('sidebar-data', async () => {
-    const res = await http.get('/sidebar.data') as any
-    if (res?.status === 200) {
-      return res.data
+    try {
+      return await homeService.getSidebarData()
+    } catch {
+      return null
     }
-    return null
   })
 }

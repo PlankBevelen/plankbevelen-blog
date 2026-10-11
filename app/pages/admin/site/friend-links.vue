@@ -125,8 +125,9 @@ definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 import { computed, reactive, ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import friendLinkService from '@/services/friend-link.service'
-import type { FriendLink, FriendLinkSelf } from '@/types/friend-link'
+import friendLinkService from '@/services/friend-link'
+import type { FriendLink, FriendLinkSelf, FriendLinkStatus } from '@/types/data/friend-link'
+import { toApiError } from '@/utils/http'
 
 const list = ref<FriendLink[]>([])
 const loading = ref(false)
@@ -153,10 +154,7 @@ const selfRules: FormRules = {
 
 const getSelf = async () => {
   try {
-    const res: any = await friendLinkService.getSelf()
-    if (res.status === 200 && res.data) {
-      selfInfo.value = res.data
-    }
+    selfInfo.value = await friendLinkService.getSelf()
   } catch {
     /* 忽略读取失败 */
   }
@@ -174,14 +172,11 @@ const onSelfSubmit = async () => {
   const valid = await selfFormRef.value?.validate().catch(() => false)
   if (!valid) return
   try {
-    const res: any = await friendLinkService.adminUpdateSelf({ ...selfForm })
-    if (res.status === 200) {
-      ElMessage.success('保存成功')
-      selfInfo.value = res.data
-      selfDialogVisible.value = false
-    }
-  } catch (error: any) {
-    ElMessage.error(error?.data?.msg || '保存失败')
+    selfInfo.value = await friendLinkService.adminUpdateSelf({ ...selfForm })
+    ElMessage.success('保存成功')
+    selfDialogVisible.value = false
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '保存失败')
   }
 }
 
@@ -196,12 +191,10 @@ const statusTagType = (s: string) =>
 const getList = async () => {
   loading.value = true
   try {
-    const res: any = await friendLinkService.adminList({ page: 1, limit: 100, status: statusFilter.value || undefined })
-    if (res.status === 200) {
-      list.value = res.data || []
-    }
-  } catch (error: any) {
-    ElMessage.error(error?.data?.msg || '查询失败')
+    const res = await friendLinkService.adminList({ page: 1, limit: 100, status: statusFilter.value || undefined })
+    list.value = res.data || []
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '查询失败')
   } finally {
     loading.value = false
   }
@@ -231,48 +224,44 @@ const onSubmit = async () => {
   try {
     const payload = { name: form.name, url: form.url, description: form.description, avatar: form.avatar }
     if (mode.value === 'add') {
-      const res: any = await friendLinkService.adminCreate(payload)
-      if (res.status === 200) ElMessage.success('新增成功')
+      await friendLinkService.adminCreate(payload)
+      ElMessage.success('新增成功')
     } else if (currentId.value) {
-      const res: any = await friendLinkService.adminUpdate(currentId.value, payload)
-      if (res.status === 200) ElMessage.success('编辑成功')
+      await friendLinkService.adminUpdate(currentId.value, payload)
+      ElMessage.success('编辑成功')
     }
     dialogVisible.value = false
     await getList()
-  } catch (error: any) {
-    ElMessage.error(error?.data?.msg || '保存失败')
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '保存失败')
   }
 }
 
-const changeStatus = async (row: FriendLink, status: string) => {
+const changeStatus = async (row: FriendLink, status: FriendLinkStatus) => {
   try {
-    const res: any = await friendLinkService.adminUpdate(row.id, {
+    await friendLinkService.adminUpdate(row.id, {
       name: row.name,
       url: row.url,
       description: row.description,
       avatar: row.avatar,
-      status
+      status,
     })
-    if (res.status === 200) {
-      ElMessage.success(status === 'approved' ? '已通过' : '已拒绝')
-      await getList()
-    }
-  } catch (error: any) {
-    ElMessage.error(error?.data?.msg || '操作失败')
+    ElMessage.success(status === 'approved' ? '已通过' : '已拒绝')
+    await getList()
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '操作失败')
   }
 }
 
 const handleDelete = async (row: FriendLink) => {
   try {
     await ElMessageBox.confirm(`确认删除友链「${row.name}」吗？`, '提示', { type: 'warning' })
-    const res: any = await friendLinkService.adminDelete(row.id)
-    if (res.status === 200) {
-      ElMessage.success('删除成功')
-      await getList()
-    }
-  } catch (error: any) {
+    await friendLinkService.adminDelete(row.id)
+    ElMessage.success('删除成功')
+    await getList()
+  } catch (error: unknown) {
     if (error !== 'cancel' && error !== 'close') {
-      ElMessage.error(error?.data?.msg || '删除失败')
+      ElMessage.error(toApiError(error).message || '删除失败')
     }
   }
 }

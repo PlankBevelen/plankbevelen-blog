@@ -1,9 +1,8 @@
 <template>
   <footer class="footer">
     <div class="footer-content container">      
-      <div class="site-info"> 
-        <h3 class="site-title"> {{ $t('header.title') }} </h3>
-        <p class="site-description"> {{ $t('footer.description') }} </p>
+      <div class="site-info">
+        <p class="site-description">{{ $t('footer.description') }}</p>
       </div>
       <div class="footer-bottom">
         <p class="copy">© {{ year }} {{ $t('footer.copyright') }}</p>
@@ -30,14 +29,9 @@ const localePath = useLocalePath()
     text-align: center;
     height: 100%;
     .site-info {
-       margin-bottom: @space-3xl;
-       h3 {
-        font-size: @font-size-2xl;
-        font-weight: bold;
-        color: var(--text-color);
-        margin-bottom: @space-md;
-       }
+       margin-bottom: @space-2xl;
        p {
+        margin: 0;
         font-size: @base-font-size;
         font-weight: normal;
         color: var(--mute-color);

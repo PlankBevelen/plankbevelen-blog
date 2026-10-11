@@ -69,7 +69,8 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue'
-import http from '@/utils/http'
+import agentService from '@/services/agent'
+import type { AgentHealthData } from '@/types/response/agent'
 
 type ChatMessage = {
   id: string
@@ -99,26 +100,19 @@ const sessionId = useState<string>(
   'agent-session-id',
   () => `web-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 )
-const runtimeConfig = useRuntimeConfig()
-const appBase = String(runtimeConfig.app.baseURL || '/')
-const chatApiUrl = `${appBase.replace(/\/$/, '')}/api/agent/chat`
-
-const { data } = await useAsyncData('agent-health', async () => {
+const { data } = await useAsyncData('agent-health', async (): Promise<AgentHealthData> => {
   try {
-    return await http.get<any>('/agent/health')
+    return await agentService.getHealth()
   } catch {
     return {
-      status: 200,
-      data: {
-        online: false,
-        elapsedMs: null,
-        healthUrl: ''
-      }
+      online: false,
+      elapsedMs: null,
+      healthUrl: '',
     }
   }
 })
 
-const healthData = computed(() => data.value?.data || null)
+const healthData = computed(() => data.value || null)
 const isOnline = computed(() => Boolean(healthData.value?.online))
 const canSend = computed(() => inputText.value.trim().length > 0 && !sending.value)
 
@@ -143,107 +137,33 @@ const useExample = async (text: string) => {
   await onSend()
 }
 
-const parseSseBuffer = (
-  buffer: string,
-  onDelta: (chunk: string) => void,
-  onError: (message: string) => void,
-  onDone: () => void
-) => {
-  const normalized = buffer.replace(/\r\n/g, '\n')
-  const parts = normalized.split('\n\n')
-  const rest = parts.pop() || ''
-
-  for (const part of parts) {
-    const lines = part.split('\n')
-    let eventName = ''
-    const dataLines: string[] = []
-
-    for (const line of lines) {
-      if (line.startsWith('event:')) {
-        eventName = line.slice(6).trim()
-      } else if (line.startsWith('data:')) {
-        dataLines.push(line.slice(5).trim())
-      }
-    }
-
-    if (!eventName || dataLines.length === 0) continue
-
-    const rawData = dataLines.join('\n')
-    let payload: any = null
-    try {
-      payload = JSON.parse(rawData)
-    } catch {
-      continue
-    }
-
-    if (eventName === 'delta') {
-      const chunk = String(payload?.text || '')
-      if (chunk) onDelta(chunk)
-    } else if (eventName === 'error') {
-      onError(String(payload?.message || '流式响应出错'))
-    } else if (eventName === 'done') {
-      onDone()
-    }
-  }
-
-  return rest
-}
-
 const streamChat = async (content: string) => {
-  const response = await fetch(chatApiUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'text/event-stream'
-    },
-    body: JSON.stringify({
-      message: content,
-      sessionId: sessionId.value,
-      stream: true
-    })
-  })
-
-  if (!response.ok || !response.body) {
-    let detail = ''
-    try {
-      detail = await response.text()
-    } catch {
-      detail = ''
-    }
-    throw new Error(detail || `HTTP ${response.status}`)
-  }
-
   isTyping.value = true
   typingText.value = ''
   await scrollToBottom()
 
-  const reader = response.body.getReader()
-  const decoder = new TextDecoder('utf-8')
-  let buffer = ''
   let gotDone = false
   let streamError = ''
 
-  const onDelta = (chunk: string) => {
-    typingText.value += chunk
-    void scrollToBottom()
-  }
-  const onError = (message: string) => {
-    streamError = message
-  }
-  const onDone = () => {
-    gotDone = true
-  }
-
-  while (true) {
-    const { value, done } = await reader.read()
-    if (done) break
-    buffer += decoder.decode(value, { stream: true })
-    buffer = parseSseBuffer(buffer, onDelta, onError, onDone)
-  }
-  buffer += decoder.decode()
-  if (buffer.trim()) {
-    parseSseBuffer(buffer, onDelta, onError, onDone)
-  }
+  await agentService.streamChat(
+    {
+      message: content,
+      sessionId: sessionId.value,
+      stream: true,
+    },
+    {
+      onDelta: (chunk) => {
+        typingText.value += chunk
+        void scrollToBottom()
+      },
+      onError: (message) => {
+        streamError = message
+      },
+      onDone: () => {
+        gotDone = true
+      },
+    }
+  )
 
   isTyping.value = false
 
@@ -270,9 +190,10 @@ const onSend = async () => {
 
   try {
     await streamChat(content)
-  } catch (error: any) {
+  } catch (error: unknown) {
     isTyping.value = false
-    await pushMessage('assistant', `请求失败：${error?.message || '接口暂时不可用'}`)
+    const message = error instanceof Error ? error.message : '接口暂时不可用'
+    await pushMessage('assistant', `请求失败：${message}`)
   } finally {
     sending.value = false
   }

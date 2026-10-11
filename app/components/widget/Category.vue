@@ -14,8 +14,8 @@
 </template>
 
 <script setup lang="ts"> 
-import type { Category } from '@/types/category'
-import categoryService from '~/services/category.service'
+import type { Category } from '@/types/data/category'
+import categoryService from '~/services/category'
 import { ref, computed, onMounted } from 'vue'
 
 const emit = defineEmits(['select'])
@@ -36,11 +36,9 @@ const categoryList = computed(() => {
 onMounted(async () => {
     if (!props.categories || props.categories.length === 0) {
         try {
-            const res: any = await categoryService.getCategories()
-            if (res.status === 200) {
-                fallback.value = res.data || []
-            }
-        } catch (e) {
+            fallback.value = (await categoryService.getCategories()) || []
+        } catch {
+            // ignore
         }
     }
 })

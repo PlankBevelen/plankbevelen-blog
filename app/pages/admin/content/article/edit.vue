@@ -103,17 +103,18 @@ import { computed, onMounted, ref } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { useRoute } from 'vue-router'
-import articleService from '@/services/article.service'
-import categoryService from '@/services/category.service'
-import tagService from '@/services/tag.service'
-import uploadService from '@/services/upload.service'
-import type { NewArticle } from '@/types/article'
+import articleService from '@/services/article'
+import categoryService from '@/services/category'
+import tagService from '@/services/tag'
+import uploadService from '@/services/upload'
+import type { NewArticle } from '@/types/request/article'
+import { toApiError } from '@/utils/http'
 
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
 const route = useRoute()
 const formRef = ref<FormInstance>()
-const categoryOptions = ref<Array<{ label: string; value: number }>>([])
+const categoryOptions = ref<Array<{ label: string; value: string }>>([])
 const tagOptions = ref<Array<{ label: string; value: string }>>([])
 const saving = ref(false)
 const initializing = ref(false)
@@ -156,24 +157,20 @@ const normalizeContentPath = (content: string) =>
     .replace(/src="uploads\//g, 'src="/uploads/')
 
 const fetchBaseOptions = async () => {
-  const [tagRes, categoryRes] = await Promise.all([
+  const [tags, categories] = await Promise.all([
     tagService.getTags(),
     categoryService.getCategories()
   ])
 
-  if (tagRes?.status === 200) {
-    tagOptions.value = (tagRes.data || []).map((item: any) => ({
-      label: item.name,
-      value: item.name
-    }))
-  }
+  tagOptions.value = (tags || []).map((item) => ({
+    label: item.name,
+    value: item.name
+  }))
 
-  if (categoryRes?.status === 200) {
-    categoryOptions.value = (categoryRes.data || []).map((item: any) => ({
-      label: item.name,
-      value: item.id
-    }))
-  }
+  categoryOptions.value = (categories || []).map((item) => ({
+    label: item.name,
+    value: item.id
+  }))
 }
 
 const fetchArticleDetail = async () => {
@@ -185,27 +182,26 @@ const fetchArticleDetail = async () => {
   const id = route.query.id as string | undefined
   if (!id) return
 
-  const res: any = await articleService.getArticle(id)
-  if (res?.status !== 200 || !res.data) {
-    ElMessage.error(res?.msg || '获取文章详情失败')
-    return
+  try {
+    const data = await articleService.getArticle(id)
+    form.value = {
+      title: data.title || '',
+      category: data.category || '',
+      tags: data.tags || [],
+      content: normalizeContentPath(data.content || '')
+    }
+    originalTags.value = [...(data.tags || [])]
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '获取文章详情失败')
   }
-
-  form.value = {
-    title: res.data.title || '',
-    category: res.data.category || '',
-    tags: res.data.tags || [],
-    content: normalizeContentPath(res.data.content || '')
-  }
-  originalTags.value = [...(res.data.tags || [])]
 }
 
 const initPage = async () => {
   initializing.value = true
   try {
     await Promise.all([fetchBaseOptions(), fetchArticleDetail()])
-  } catch (error: any) {
-    ElMessage.error(error?.message || '初始化编辑页失败')
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '初始化编辑页失败')
   } finally {
     initializing.value = false
   }
@@ -214,9 +210,9 @@ const initPage = async () => {
 const onUploadImg = async (files: File[], callback: (urls: string[]) => void) => {
   try {
     const id = mode.value === 'update' ? String(route.query.id || '') : tempId.value
-    const res: any = await uploadService.uploadFiles(files, id)
-    if (res?.status === 200 && Array.isArray(res.data)) {
-      callback(res.data.map((file: any) => file.url))
+    const uploaded = await uploadService.uploadFiles(files, id)
+    if (Array.isArray(uploaded)) {
+      callback(uploaded.map((file) => file.url))
       return
     }
     ElMessage.error('图片上传失败')
@@ -244,28 +240,20 @@ const onSubmit = async () => {
   try {
     if (mode.value === 'add') {
       form.value.tempId = tempId.value
-      const res: any = await articleService.createArticle(form.value)
-      if (res?.status !== 200) {
-        ElMessage.error(res?.msg || '保存失败')
-        return
-      }
+      await articleService.createArticle(form.value)
       if (form.value.tags.length) {
         await tagService.syncTags(form.value.tags, [])
       }
     } else {
       const id = String(route.query.id || '')
-      const res: any = await articleService.updateArticle(id, form.value)
-      if (res?.status !== 200) {
-        ElMessage.error(res?.msg || '保存失败')
-        return
-      }
+      await articleService.updateArticle(id, form.value)
       await syncTags()
     }
 
     ElMessage.success('保存成功')
     navigateTo('/admin/content/article', { replace: true })
-  } catch (error: any) {
-    ElMessage.error(error?.message || '保存失败')
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '保存失败')
   } finally {
     saving.value = false
   }

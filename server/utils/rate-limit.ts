@@ -20,7 +20,7 @@ export async function assertRateLimit(
   const count = await store.incr(key, windowSec)
 
   if (count > max) {
-    setHeader(event, 'Retry-After', String(windowSec))
+    setHeader(event, 'Retry-After', windowSec)
     setResponseStatus(event, 429)
     return false
   }

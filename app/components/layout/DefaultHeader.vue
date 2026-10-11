@@ -18,7 +18,7 @@
         </li>
       </ul>
       <button class="mobile-menu-btn" v-if="isMobile" type="button" :aria-expanded="mobileMenuOpen" aria-label="菜单" @click="toggleMobileMenu">
-        <nuxt-icon :name="mobileMenuOpen ? 'header/close' : 'header/menu'" />
+        <BaseIcon :name="mobileMenuOpen ? 'close' : 'menu'" />
       </button>
 
       <div class="controls" v-if="!isMobile">
@@ -27,14 +27,14 @@
           inline-prompt 
         >
           <template #active-action>
-            <nuxt-icon name="header/moon" />
+            <BaseIcon name="moon" class="switch-icon" />
           </template>
           <template #inactive-action>
-            <nuxt-icon name="header/sun" />
+            <BaseIcon name="sun" class="switch-icon" />
           </template>
         </el-switch>
         <span class="lang">
-          <nuxt-icon name="header/language" />
+          <BaseIcon name="languages" />
           <div class="lang-choose">
             <span class="lang-item" @click="changeLocale('en')" :class="{'active': currentLocale === 'en'}">{{ $t('lang.en') }}</span>
             <span class="lang-item" @click="changeLocale('zh')" :class="{'active': currentLocale === 'zh'}">{{ $t('lang.zh') }}</span>
@@ -58,10 +58,10 @@
               inline-prompt 
             >
               <template #active-action>
-                <nuxt-icon name="header/moon" />
+                <BaseIcon name="moon" class="switch-icon" />
               </template>
               <template #inactive-action>
-                <nuxt-icon name="header/sun" />
+                <BaseIcon name="sun" class="switch-icon" />
               </template>
             </el-switch>
           </div>
@@ -210,10 +210,15 @@ onMounted(()=>{
       display: flex;
       gap: @space-lg;
       align-items: center;
-      .lang {
+        .switch-icon {
+          font-size: 12px;
+        }
+        .lang {
         position: relative;
         cursor: pointer;
-        font-size: @font-size-xl;
+        display: inline-flex;
+        align-items: center;
+        font-size: 18px;
         &:hover {
           .lang-choose { opacity: 1; transform: translateX(-50%) scaleY(1); pointer-events: auto; }
         }
@@ -255,6 +260,9 @@ onMounted(()=>{
 
   // 移动端样式
   .mobile-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-size: @font-size-2xl;
     cursor: pointer;
     padding: @space-base;

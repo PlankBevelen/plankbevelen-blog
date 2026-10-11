@@ -17,7 +17,7 @@
   "footer": {
     "title": "plankbevelen",
     "description": "个人技术博客，分享编码经验与实践总结",
-    "copyright": "plankbevelen. 保留所有权利",
+    "copyright": "保留所有权利",
     "beian": "蜀ICP备2024114585号"
   },
   "theme": {
@@ -173,8 +173,7 @@
       "url": "站点地址",
       "description": "站点简介",
       "avatar": "图标地址（可选）",
-      "captcha": "验证码",
-      "captchaRefresh": "点击刷新验证码",
+      "captcha": "人机验证",
       "submit": "提交申请",
       "cancel": "取消",
       "invalidUrl": "请输入有效的 http/https 地址"
@@ -182,7 +181,7 @@
     "rules": {
       "name": "请输入站点名称",
       "url": "请输入站点地址",
-      "captcha": "请输入验证码"
+      "captcha": "请完成人机验证"
     }
   }
 }

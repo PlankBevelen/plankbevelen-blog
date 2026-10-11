@@ -1,7 +1,7 @@
 import { defineEventHandler, readBody, setResponseStatus, getRequestIP } from 'h3'
 import { withTransaction, getCollections, getNextSequence } from '../../utils/mongo'
 import { validateFriendLinkInput, normalizeUrl } from '../../utils/friend-links'
-import { consumeCaptcha } from '../../utils/captcha'
+import { verifyTurnstileToken } from '../../modules/captcha/turnstile'
 import { assertRateLimit } from '../../utils/rate-limit'
 
 export default defineEventHandler(async (event) => {
@@ -18,15 +18,14 @@ export default defineEventHandler(async (event) => {
       url?: string
       description?: string
       avatar?: string
-      captchaId?: string
-      captchaCode?: string
+      turnstileToken?: string
     }>(event)
 
-    // 单次验证码校验
-    const captchaOk = await consumeCaptcha(body?.captchaId || '', body?.captchaCode || '')
-    if (!captchaOk) {
+    const remoteIp = getRequestIP(event, { xForwardedFor: false }) || ''
+    const turnstileOk = await verifyTurnstileToken(body?.turnstileToken || '', remoteIp)
+    if (!turnstileOk) {
       setResponseStatus(event, 400)
-      return { status: 400, msg: '验证码错误或已过期', data: null }
+      return { status: 400, msg: '请完成人机验证', data: null }
     }
 
     // 字段校验 + 清洗

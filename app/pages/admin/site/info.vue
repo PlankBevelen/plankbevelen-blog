@@ -81,8 +81,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import siteService from '@/services/site.service'
+import siteService from '@/services/site'
 import { formatDateTime } from '@/utils/format'
+import { toApiError } from '@/utils/http'
 
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
@@ -150,14 +151,9 @@ const summaryCards = computed(() => [
 const fetchInfo = async () => {
   loading.value = true
   try {
-    const res: any = await siteService.getInfo()
-    if (res?.status === 200 && res.data) {
-      info.value = res.data
-      return
-    }
-    ElMessage.error(res?.msg || '获取网站信息失败')
-  } catch (error: any) {
-    ElMessage.error(error?.message || '获取网站信息失败')
+    info.value = await siteService.getInfo()
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '获取网站信息失败')
   } finally {
     loading.value = false
   }

@@ -1,68 +1,65 @@
 import { defineEventHandler, readBody, setResponseStatus } from 'h3'
 import jwt from 'jsonwebtoken'
-import { sha256Hex, safeEqualString, randomTokenHex } from '../../utils/crypto-safe'
-import { consumeCaptcha } from '../../utils/captcha'
-import { assertRateLimit } from '../../utils/rate-limit'
-import { setAuthCookies, sessionMaxAgeSeconds } from '../../utils/auth-cookies'
+import { safeEqualString, randomTokenHex } from '../../core/crypto-safe'
+import { verifyAdminPassword } from '../../core/password'
+import { verifyTurnstileToken } from '../../modules/captcha/turnstile'
+import { assertRateLimit } from '../../core/rate-limit'
+import { setAuthCookies, sessionMaxAgeSeconds } from '../../core/auth-cookies'
+import { getRuntimeSettings } from '../../core/runtime-settings'
+import { getClientIp } from '../../core/proxy-trust'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody<{
     account: string
     password: string
     remember?: boolean
-    captchaId?: string
     captchaCode?: string
+    turnstileToken?: string
   }>(event)
   const {
     account = '',
     password = '',
     remember = false,
-    captchaId = '',
     captchaCode = '',
+    turnstileToken = '',
   } = body || {}
 
-  // 1. 登录限流
-  const rateMax = Number(process.env.LOGIN_RATE_LIMIT_MAX) || 10
-  const rateWindow = Number(process.env.LOGIN_RATE_LIMIT_WINDOW_SECONDS) || 60
-  if (!(await assertRateLimit(event, 'login', rateMax, rateWindow))) {
+  const settings = await getRuntimeSettings()
+
+  if (!(await assertRateLimit(event, 'login', settings.loginRateLimitMax, settings.loginRateLimitWindowSeconds))) {
     return { status: 429, msg: '登录尝试过于频繁，请稍后再试' }
   }
 
-  // 2. 验证码（一次性）
-  if (!(await consumeCaptcha(captchaId, captchaCode))) {
+  const captchaToken = String(turnstileToken || captchaCode || '').trim()
+  if (!(await verifyTurnstileToken(captchaToken, getClientIp(event)))) {
     setResponseStatus(event, 400)
-    return { status: 400, msg: '验证码错误或已过期' }
+    return { status: 400, msg: '人机验证失败，请重试' }
   }
 
-  // 3. 缺配置 → 500
-  const config = useRuntimeConfig()
-  const adminAccount = process.env.NUXT_ADMIN_ACCOUNT
-  const adminPasswordHash = process.env.NUXT_ADMIN_PASSWORD
-  const secret = config.authSecret as string
+  const adminAccount = settings.adminAccount
+  const adminPasswordHash = settings.adminPasswordHash
+  const secret = settings.authSecret
   if (!adminAccount || !adminPasswordHash || !secret) {
     setResponseStatus(event, 500)
     return { status: 500, msg: '服务器未正确配置管理员凭据' }
   }
 
-  // 4. 参数
   if (!account || !password) {
     setResponseStatus(event, 400)
     return { status: 400, msg: '请输入账号和密码' }
   }
 
-  // 5. 常量时间比对（账号 + 密码哈希）
   const accountOk = safeEqualString(account, adminAccount)
-  const passwordOk = safeEqualString(sha256Hex(password), adminPasswordHash)
+  const passwordOk = await verifyAdminPassword(password, adminPasswordHash)
   if (!accountOk || !passwordOk) {
     setResponseStatus(event, 401)
     return { status: 401, msg: '账号或密码错误' }
   }
 
-  // 6. 签发 JWT + 设置 httpOnly Cookie（响应不返回 token）
   const expiresIn = sessionMaxAgeSeconds(remember)
-  const token = jwt.sign({ sub: adminAccount }, secret, { expiresIn })
+  const accessToken = jwt.sign({ sub: adminAccount }, secret, { expiresIn })
   const csrf = randomTokenHex(16)
-  setAuthCookies(event, token, csrf, remember)
+  setAuthCookies(event, accessToken, csrf, remember)
 
   setResponseStatus(event, 200)
   return { status: 200, msg: '登录成功' }

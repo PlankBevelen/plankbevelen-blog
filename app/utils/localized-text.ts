@@ -1,4 +1,4 @@
-import type { SiteLocalizedText } from '@/types/site'
+import type { SiteLocalizedText } from '@/types/data/site'
 
 export function resolveLocalizedText(value: SiteLocalizedText | null | undefined, locale: 'zh' | 'en') {
   if (!value) return ''

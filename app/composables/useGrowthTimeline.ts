@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import type { SiteTimelineItem } from '@/types/site'
+import type { SiteTimelineItem } from '@/types/data/site'
 import { resolveLocalizedText } from '@/utils/localized-text'
 import { useSiteContent } from '@/composables/useSiteContent'
 

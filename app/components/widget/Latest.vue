@@ -22,7 +22,7 @@
 import { computed } from 'vue'
 const localePath = useLocalePath()
 import { formatDateTime } from '@/utils/format'
-import type { Article } from '@/types/article'
+import type { Article } from '@/types/data/article'
 
 const props = defineProps({
   articles: {
@@ -51,7 +51,7 @@ const latestList = computed<LatestItem[]>(() => {
     line-height: 20px;
     cursor: pointer;
     border-radius: @small-border-radius;
-    padding: @space-xs @space-base;
+    padding: @space-base @space-md;
     &:hover { background-color: var(--shallow-hover-bg-color); }
     &:not(:last-child) {
       margin-bottom: @space-base;

@@ -111,7 +111,8 @@ import { ElMessage } from 'element-plus'
 import { navigateTo } from '#app'
 import { useAdminStore } from '@/stores/admin.store'
 import { formatDate } from '@/utils/format'
-import { http } from '@/utils/http'
+import adminService from '@/services/admin'
+import { toApiError } from '@/utils/http'
 
 type DashboardTrendItem = { date: string; count: number }
 type DashboardStatItem = { name: string; value: number }
@@ -315,14 +316,11 @@ async function renderCharts() {
 async function fetchData() {
   loading.value = true
   try {
-    const res: any = await http.get('/admin/dashboard')
-    if (res?.data) {
-      stats.value = res.data as DashboardData
-      lastUpdatedAt.value = Date.now()
-      await renderCharts()
-    }
-  } catch (error: any) {
-    ElMessage.error(error?.message || '获取仪表盘数据失败')
+    stats.value = (await adminService.getDashboard()) as DashboardData
+    lastUpdatedAt.value = Date.now()
+    await renderCharts()
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '获取仪表盘数据失败')
   } finally {
     loading.value = false
   }

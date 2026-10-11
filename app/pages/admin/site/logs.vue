@@ -142,9 +142,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import siteService from '@/services/site.service'
-import type { VisitLogItem, VisitLogSummary } from '@/types/site'
+import siteService from '@/services/site'
+import type { VisitLogItem, VisitLogSummary } from '@/types/data/site'
 import { formatDateTime } from '@/utils/format'
+import { toApiError } from '@/utils/http'
 
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
@@ -225,26 +226,20 @@ const statusTagType = (statusCode: number) => {
 const fetchLogs = async () => {
   loading.value = true
   try {
-    const res: any = await siteService.getVisitLogs({
+    const data = await siteService.getVisitLogs({
       ...filters.value,
       page: pagination.value.page,
       pageSize: pagination.value.pageSize
     })
-
-    if (res?.status === 200 && res.data) {
-      rows.value = res.data.list || []
-      summary.value = res.data.summary || summary.value
-      pagination.value = {
-        page: res.data.pagination?.page || pagination.value.page,
-        pageSize: res.data.pagination?.pageSize || pagination.value.pageSize,
-        total: res.data.pagination?.total || 0
-      }
-      return
+    rows.value = data.list || []
+    summary.value = data.summary || summary.value
+    pagination.value = {
+      page: data.pagination?.page || pagination.value.page,
+      pageSize: data.pagination?.pageSize || pagination.value.pageSize,
+      total: data.pagination?.total || 0
     }
-
-    ElMessage.error(res?.msg || '获取访问日志失败')
-  } catch (error: any) {
-    ElMessage.error(error?.message || '获取访问日志失败')
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '获取访问日志失败')
   } finally {
     loading.value = false
   }

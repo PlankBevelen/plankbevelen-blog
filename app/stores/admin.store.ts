@@ -1,40 +1,41 @@
 import { defineStore } from 'pinia'
 import { useAuthentication } from '~/composables/useAuthentication'
-import adminService from '@/services/admin.service'
+import adminService from '@/services/admin'
 import { useTheme } from '@/composables/useTheme'
 
 export const useAdminStore = defineStore('admin', {
   state: () => ({
     authenticated: false,
-    userInfo: null as any,
+    userInfo: null as Record<string, unknown> | null,
     theme: 'light' as 'light' | 'dark',
     locale: 'zh' as 'en' | 'zh',
   }),
   getters: {
-    // 登录态以服务端 session 校验结果为准（JWT 存 httpOnly cookie，前端不持有明文）
     isAuthenticated: (state) => state.authenticated,
     getTheme: (state) => state.theme,
     getLocale: (state) => state.locale,
   },
   actions: {
-    /** 从服务端 session 恢复登录态（刷新 / SSR） */
     async hydrateAuth() {
       if (this.authenticated) return
       try {
-        const res: any = await adminService.session()
-        this.authenticated = !!res?.authenticated
+        const session = await adminService.session()
+        this.authenticated = !!session.authenticated
       } catch {
         this.authenticated = false
       }
     },
-    async login(account: string, password: string, remember: boolean, captchaId: string, captchaCode: string) {
-      const res: any = await adminService.login(account, password, remember, captchaId, captchaCode)
-      if (res?.status === 200) {
-        this.userInfo = res.data ?? null
-        this.authenticated = true
-        return true
-      }
-      return false
+    async login(
+      account: string,
+      password: string,
+      remember: boolean,
+      captchaId: string,
+      captchaCode: string
+    ) {
+      await adminService.login(account, password, remember, captchaId, captchaCode)
+      this.userInfo = null
+      this.authenticated = true
+      return true
     },
     async logout() {
       try {

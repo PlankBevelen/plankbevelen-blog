@@ -66,7 +66,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import siteService from '@/services/site.service'
+import siteService from '@/services/site'
+import { toApiError } from '@/utils/http'
 
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
@@ -259,15 +260,22 @@ const collectBrowserPerformance = () => {
 const fetchMetrics = async () => {
   loading.value = true
   try {
-    const res: any = await siteService.getMetrics()
-    if (res?.status === 200 && res.data) {
-      metrics.value = res.data
-      await initCharts()
-      return
+    const data = await siteService.getMetrics()
+    metrics.value = {
+      traffic: {
+        analyticsEnabled: data.traffic.status === 'ok',
+        statusText: data.traffic.status || '未接入实时访问埋点',
+        source: data.traffic.hint || '',
+        pv: data.traffic.pv ?? null,
+        uv: data.traffic.uv ?? null,
+      },
+      content: data.content,
+      assets: data.assets,
+      publishTrend: data.publishTrend || [],
     }
-    ElMessage.error(res?.msg || '获取网站数据失败')
-  } catch (error: any) {
-    ElMessage.error(error?.message || '获取网站数据失败')
+    await initCharts()
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '获取网站数据失败')
   } finally {
     loading.value = false
   }

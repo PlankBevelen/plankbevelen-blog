@@ -36,7 +36,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { http } from '@/utils/http'
+import adminService from '@/services/admin'
+import { toApiError } from '@/utils/http'
 
 type StatItem = { name: string; value: number }
 type TrendItem = { date: string; count: number }
@@ -218,13 +219,10 @@ const initCharts = async () => {
 const fetchData = async () => {
   loading.value = true
   try {
-    const res: any = await http.get('/admin/dashboard')
-    if (res?.data) {
-      data.value = res.data
-      await initCharts()
-    }
-  } catch (error: any) {
-    ElMessage.error(error?.message || '获取统计数据失败')
+    data.value = await adminService.getDashboard()
+    await initCharts()
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '获取统计数据失败')
   } finally {
     loading.value = false
   }

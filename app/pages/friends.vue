@@ -88,7 +88,14 @@
       </LayoutTwoColumn>
     </div>
 
-    <el-dialog v-model="applyVisible" :title="$t('friends.applyTitle')" width="520px" destroy-on-close>
+    <el-dialog
+      v-model="applyVisible"
+      :title="$t('friends.applyTitle')"
+      width="520px"
+      destroy-on-close
+      @opened="onApplyOpened"
+      @closed="onApplyClosed"
+    >
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
         <el-form-item :label="$t('friends.form.name')" prop="name">
           <el-input v-model="form.name" maxlength="50" show-word-limit />
@@ -100,22 +107,31 @@
           <el-input v-model="form.description" type="textarea" :rows="3" maxlength="200" show-word-limit />
         </el-form-item>
         <el-form-item :label="$t('friends.form.avatar')" prop="avatar">
-          <el-input v-model="form.avatar" placeholder="https://（可选）" />
-        </el-form-item>
-        <el-form-item :label="$t('friends.form.captcha')" prop="captchaCode">
-          <div class="captcha-row">
-            <el-input v-model="form.captchaCode" maxlength="6" />
-            <button
-              type="button"
-              class="captcha-img"
-              :title="$t('friends.form.captchaRefresh')"
-              :aria-label="$t('friends.form.captchaRefresh')"
-              @click="refreshCaptcha"
-            >
-              <img v-if="captchaSrc" :src="captchaSrc" :alt="$t('friends.form.captcha')" />
-              <span v-else class="captcha-placeholder">···</span>
-            </button>
+          <div class="avatar-field">
+            <img
+              class="avatar-preview"
+              :src="avatarPreviewSrc"
+              alt=""
+              width="56"
+              height="56"
+              @error="onAvatarPreviewError"
+            />
+            <el-input
+              v-model="form.avatar"
+              placeholder="https://（可选）"
+              @input="avatarPreviewError = false"
+            />
           </div>
+        </el-form-item>
+        <el-form-item prop="turnstileToken" class="apply-captcha">
+          <ClientOnly>
+            <BaseTurnstile
+              v-if="turnstileReady"
+              ref="turnstileRef"
+              v-model="form.turnstileToken"
+              :site-key="turnstileSiteKey"
+            />
+          </ClientOnly>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -131,15 +147,22 @@ import { computed, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { useSidebarData } from '@/composables/useSidebarData'
+import { usePublicSettings } from '@/composables/usePublicSettings'
 import { SITE_URL, SITE_IMAGE } from '@/composables/useSeo'
-import friendLinkService from '@/services/friend-link.service'
-import type { FriendLink } from '@/types/friend-link'
+import friendLinkService from '@/services/friend-link'
+import type { FriendLink } from '@/types/data/friend-link'
+import { toApiError } from '@/utils/http'
+
+const EMPTY_AVATAR = '/ico/empty.ico'
 
 const { t } = useI18n()
 
 const { data, pending } = await useAsyncData('friend-links', async () => {
-  const res = await friendLinkService.getPublic()
-  return res.data || []
+  try {
+    return (await friendLinkService.getPublic()) || []
+  } catch {
+    return []
+  }
 })
 const friends = computed<FriendLink[]>(() => data.value || [])
 
@@ -147,8 +170,11 @@ const { data: sidebarData, pending: sidebarPending } = await useSidebarData()
 const stats = computed(() => sidebarData.value?.stats || null)
 
 const { data: selfData } = await useAsyncData('friend-link-self', async () => {
-  const res = await friendLinkService.getSelf()
-  return res.data || null
+  try {
+    return await friendLinkService.getSelf()
+  } catch {
+    return null
+  }
 })
 const selfInfo = computed(() => selfData.value || {
   name: t('site.name'),
@@ -175,19 +201,29 @@ const copyMyself = async () => {
   }
 }
 
+const { data: publicSettings } = await usePublicSettings()
+const turnstileSiteKey = computed(() => publicSettings.value?.turnstileSiteKey || '')
+
 const applyVisible = ref(false)
+const turnstileReady = ref(false)
 const submitting = ref(false)
 const formRef = ref<FormInstance>()
-const captchaId = ref('')
-const captchaImage = ref('')
+const turnstileRef = ref<{ reset: () => void } | null>(null)
 const avatarError = reactive<Record<string, boolean>>({})
 const selfAvatarError = ref(false)
+const avatarPreviewError = ref(false)
 
-const form = reactive({ name: '', url: '', description: '', avatar: '', captchaCode: '' })
+const form = reactive({ name: '', url: '', description: '', avatar: '', turnstileToken: '' })
 
-const captchaSrc = computed(() =>
-  captchaImage.value ? `data:image/svg+xml;utf8,${encodeURIComponent(captchaImage.value)}` : ''
-)
+const avatarPreviewSrc = computed(() => {
+  const url = form.avatar.trim()
+  if (!url || avatarPreviewError.value) return EMPTY_AVATAR
+  return url
+})
+
+const onAvatarPreviewError = () => {
+  avatarPreviewError.value = true
+}
 
 const httpUrlValidator = (_rule: any, value: string, cb: any) => {
   if (!value) return cb()
@@ -207,23 +243,7 @@ const rules: FormRules = {
     { validator: httpUrlValidator, trigger: 'blur' }
   ],
   avatar: [{ validator: httpUrlValidator, trigger: 'blur' }],
-  captchaCode: [{ required: true, message: t('friends.rules.captcha'), trigger: 'blur' }]
-}
-
-const refreshCaptcha = async () => {
-  try {
-    const res: any = await friendLinkService.captcha()
-    if (res?.status === 200 && res?.captchaId) {
-      captchaId.value = res.captchaId
-      captchaImage.value = res.image || ''
-    } else {
-      captchaImage.value = ''
-    }
-  } catch {
-    captchaImage.value = ''
-  } finally {
-    form.captchaCode = ''
-  }
+  turnstileToken: [{ required: true, message: t('friends.rules.captcha'), trigger: 'change' }]
 }
 
 const setAvatarError = (id: string) => {
@@ -235,11 +255,20 @@ const openApply = () => {
   form.url = ''
   form.description = ''
   form.avatar = ''
-  form.captchaCode = ''
+  form.turnstileToken = ''
+  avatarPreviewError.value = false
+  turnstileReady.value = false
   applyVisible.value = true
-  // 打开就把验证码取好，不让用户先看到一个「点击加载」的空位。
-  // 不 await：弹窗先出来，验证码图片自己填进去
-  refreshCaptcha()
+}
+
+const onApplyOpened = () => {
+  // 对话框动画完成后再挂载，避免 Turnstile 在 width=0 时渲染失败
+  turnstileReady.value = true
+}
+
+const onApplyClosed = () => {
+  turnstileReady.value = false
+  form.turnstileToken = ''
 }
 
 const onSubmit = async () => {
@@ -248,24 +277,19 @@ const onSubmit = async () => {
 
   submitting.value = true
   try {
-    const res = await friendLinkService.submit({
+    await friendLinkService.submit({
       name: form.name,
       url: form.url,
       description: form.description,
       avatar: form.avatar,
-      captchaId: captchaId.value,
-      captchaCode: form.captchaCode
+      turnstileToken: form.turnstileToken
     })
-    if (res.status === 200) {
-      ElMessage.success(t('friends.submitSuccess'))
-      applyVisible.value = false
-    } else {
-      ElMessage.error(res.msg || t('friends.submitFailed'))
-      await refreshCaptcha()
-    }
-  } catch (error: any) {
-    ElMessage.error(error?.data?.msg || error?.message || t('friends.submitFailed'))
-    await refreshCaptcha()
+    ElMessage.success(t('friends.submitSuccess'))
+    applyVisible.value = false
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || t('friends.submitFailed'))
+    form.turnstileToken = ''
+    turnstileRef.value?.reset()
   } finally {
     submitting.value = false
   }
@@ -455,6 +479,30 @@ const onSubmit = async () => {
   }
 }
 
+.avatar-field {
+  display: flex;
+  align-items: center;
+  gap: @space-lg;
+  width: 100%;
+}
+
+.avatar-preview {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: @large-border-radius;
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+  background-color: var(--mute-bg-color);
+}
+
+.apply-captcha {
+  :deep(.el-form-item__content) {
+    display: block;
+    line-height: normal;
+  }
+}
+
 .friend-info {
   display: flex;
   flex-direction: column;
@@ -489,55 +537,4 @@ const onSubmit = async () => {
   }
 }
 
-// align-items: stretch 而不是 center：验证码盒子高度跟着 el-input 长，
-// 不再写死 40px。原来写死的值和 Element Plus default 尺寸的 32px 差 8px，
-// 两个控件就错开了；改成 stretch 后不管全局尺寸怎么变都对齐。
-.captcha-row {
-  display: flex;
-  align-items: stretch;
-  gap: @space-lg;
-  width: 100%;
-
-  :deep(.el-input) {
-    flex: 1;
-    min-width: 0;
-  }
-}
-
-.captcha-img {
-  flex-shrink: 0;
-  width: 110px;
-  padding: 0;
-  border: 1px solid var(--el-input-border-color, var(--border-color));
-  border-radius: var(--el-input-border-radius, @base-border-radius);
-  overflow: hidden;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: transparent;
-  transition: border-color @transition-fast ease-in-out;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-
-  .captcha-placeholder {
-    font-size: @font-size-sm;
-    letter-spacing: 0.2em;
-    color: var(--tertiary-color);
-  }
-
-  &:hover {
-    border-color: var(--primary-color);
-  }
-
-  // reset.less 全局清了 outline，键盘焦点必须自己补回来
-  &:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-}
 </style>

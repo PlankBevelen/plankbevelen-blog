@@ -99,7 +99,7 @@
         </div>
 
         <div v-if="activeSection === 'timeline'">
-          <template v-if="editingTimelineItem">
+          <template v-if="selectedTimelineIndex !== null && editingTimelineItem">
             <div class="section-head">
               <div>
                 <h2 class="section-title">编辑时间线</h2>
@@ -107,14 +107,14 @@
               </div>
               <div class="section-head-actions">
                 <el-button
-                  :disabled="selectedTimelineIndex === 0"
-                  @click="moveTimeline(selectedTimelineIndex, -1)"
+                  :disabled="selectedTimelineIndex === null || selectedTimelineIndex === 0"
+                  @click="selectedTimelineIndex !== null && moveTimeline(selectedTimelineIndex, -1)"
                 >上移</el-button>
                 <el-button
-                  :disabled="selectedTimelineIndex === form.timeline.length - 1"
-                  @click="moveTimeline(selectedTimelineIndex, 1)"
+                  :disabled="selectedTimelineIndex === null || selectedTimelineIndex === form.timeline.length - 1"
+                  @click="selectedTimelineIndex !== null && moveTimeline(selectedTimelineIndex, 1)"
                 >下移</el-button>
-                <el-button type="danger" plain @click="removeTimeline(selectedTimelineIndex)">删除</el-button>
+                <el-button type="danger" plain @click="selectedTimelineIndex !== null && removeTimeline(selectedTimelineIndex)">删除</el-button>
               </div>
             </div>
             <BaseCard>
@@ -150,7 +150,7 @@
         </div>
 
         <div v-if="activeSection === 'projects'">
-          <template v-if="editingProject">
+          <template v-if="selectedProjectIndex !== null && editingProject">
             <div class="section-head">
               <div>
                 <h2 class="section-title">编辑项目</h2>
@@ -158,14 +158,14 @@
               </div>
               <div class="section-head-actions">
                 <el-button
-                  :disabled="selectedProjectIndex === 0"
-                  @click="moveProject(selectedProjectIndex, -1)"
+                  :disabled="selectedProjectIndex === null || selectedProjectIndex === 0"
+                  @click="selectedProjectIndex !== null && moveProject(selectedProjectIndex, -1)"
                 >上移</el-button>
                 <el-button
-                  :disabled="selectedProjectIndex === form.projects.length - 1"
-                  @click="moveProject(selectedProjectIndex, 1)"
+                  :disabled="selectedProjectIndex === null || selectedProjectIndex === form.projects.length - 1"
+                  @click="selectedProjectIndex !== null && moveProject(selectedProjectIndex, 1)"
                 >下移</el-button>
-                <el-button type="danger" plain @click="removeProject(selectedProjectIndex)">删除</el-button>
+                <el-button type="danger" plain @click="selectedProjectIndex !== null && removeProject(selectedProjectIndex)">删除</el-button>
               </div>
             </div>
             <BaseCard>
@@ -228,7 +228,7 @@
                     type="textarea"
                     :rows="5"
                     placeholder="每行一条亮点"
-                    @update:model-value="updateHighlights(editingProject, $event)"
+                    @update:model-value="editingProject && updateHighlights(editingProject, $event)"
                   />
                 </el-form-item>
               </el-form>
@@ -248,9 +248,10 @@ import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
-import siteService from '@/services/site.service'
-import type { SiteContent, SiteLocalizedText, SiteProject, SiteTimelineItem } from '@/types/site'
+import siteService from '@/services/site'
+import type { SiteContent, SiteLocalizedText, SiteProject, SiteTimelineItem } from '@/types/data/site'
 import { formatDateTime } from '@/utils/format'
+import { toApiError } from '@/utils/http'
 
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
@@ -369,14 +370,16 @@ const summaryCards = computed(() => [
   { key: 'projects', label: '项目数量', value: form.value.projects.length, desc: '项目列表条目' }
 ])
 
-const editingTimelineItem = computed(() => {
-  if (selectedTimelineIndex.value === null) return null
-  return form.value.timeline[selectedTimelineIndex.value] ?? null
+const editingTimelineItem = computed((): SiteTimelineItem => {
+  const idx = selectedTimelineIndex.value
+  if (idx === null) return createTimelineItem(0)
+  return form.value.timeline[idx] ?? createTimelineItem(0)
 })
 
-const editingProject = computed(() => {
-  if (selectedProjectIndex.value === null) return null
-  return form.value.projects[selectedProjectIndex.value] ?? null
+const editingProject = computed((): SiteProject => {
+  const idx = selectedProjectIndex.value
+  if (idx === null) return createProject(0)
+  return form.value.projects[idx] ?? createProject(0)
 })
 
 const syncTimelineSort = () => {
@@ -396,14 +399,9 @@ const switchSection = (key: SectionKey) => {
 const fetchContent = async () => {
   loading.value = true
   try {
-    const res: any = await siteService.getAdminContent()
-    if (res?.status === 200 && res.data) {
-      hydrateContent(res.data)
-      return
-    }
-    ElMessage.error(res?.msg || '加载站点内容失败')
-  } catch (error: any) {
-    ElMessage.error(error?.message || '加载站点内容失败')
+    hydrateContent(await siteService.getAdminContent())
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '加载站点内容失败')
   } finally {
     loading.value = false
   }
@@ -431,7 +429,8 @@ const moveTimeline = (index: number, step: number) => {
   const targetIndex = index + step
   if (targetIndex < 0 || targetIndex >= form.value.timeline.length) return
   const next = [...form.value.timeline]
-  const [current] = next.splice(index, 1)
+  const current = next.splice(index, 1)[0]
+  if (!current) return
   next.splice(targetIndex, 0, current)
   form.value.timeline = next
   syncTimelineSort()
@@ -460,7 +459,8 @@ const moveProject = (index: number, step: number) => {
   const targetIndex = index + step
   if (targetIndex < 0 || targetIndex >= form.value.projects.length) return
   const next = [...form.value.projects]
-  const [current] = next.splice(index, 1)
+  const current = next.splice(index, 1)[0]
+  if (!current) return
   next.splice(targetIndex, 0, current)
   form.value.projects = next
   syncProjectSort()
@@ -502,15 +502,10 @@ const onSave = async () => {
       projects: form.value.projects.map((project, index) => normalizeProject(project, index))
     }
 
-    const res: any = await siteService.updateAdminContent(payload)
-    if (res?.status === 200 && res.data) {
-      hydrateContent(res.data)
-      ElMessage.success('内容已保存')
-      return
-    }
-    ElMessage.error(res?.msg || '保存失败')
-  } catch (error: any) {
-    ElMessage.error(error?.message || '保存失败')
+    hydrateContent(await siteService.updateAdminContent(payload))
+    ElMessage.success('内容已保存')
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '保存失败')
   } finally {
     saving.value = false
   }

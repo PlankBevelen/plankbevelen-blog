@@ -32,8 +32,8 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import type { Article } from '@/types/article'
-import articleService from '@/services/article.service'
+import type { Article } from '@/types/data/article'
+import articleService from '@/services/article'
 import ArticleDesc from './ArticleDesc.vue'
 
 const props = defineProps({
@@ -71,10 +71,8 @@ const loadData = async () => {
   loading.value = true
   try {
     const res = await articleService.getArticles(page.value, limit.value, props.q || undefined)
-    if (res.status === 200) {
-      articleList.value = res.data || []
-      total.value = Number(res.total || 0)
-    }
+    articleList.value = res.data || []
+    total.value = Number(res.total || 0)
   } finally {
     loading.value = false
   }

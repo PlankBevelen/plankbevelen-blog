@@ -258,10 +258,10 @@ function normalizeTimelineItem(item: any, index: number): SiteTimelineItem {
 }
 
 export function normalizeSiteContentInput(input: any): SiteContentData {
-  const projects = Array.isArray(input?.projects)
+  const projects: SiteProjectItem[] = Array.isArray(input?.projects)
     ? input.projects.map((item: any, index: number) => normalizeProject(item, index))
     : []
-  const timeline = Array.isArray(input?.timeline)
+  const timeline: SiteTimelineItem[] = Array.isArray(input?.timeline)
     ? input.timeline.map((item: any, index: number) => normalizeTimelineItem(item, index))
     : []
 

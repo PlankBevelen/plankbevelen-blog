@@ -16,13 +16,13 @@
       :default-openeds="['2', '3']"
     >
       <el-menu-item index="1" @click="navigateTo('/admin')">
-        <nuxt-icon name="admin/sidebar/odometer" class="sidebar-icon" />
+        <BaseIcon name="gauge" class="sidebar-icon" />
         <template #title>控制台</template>
       </el-menu-item>
 
       <el-sub-menu index="2">
         <template #title>
-          <nuxt-icon name="admin/sidebar/files" class="sidebar-icon" />
+          <BaseIcon name="files" class="sidebar-icon" />
           <span>内容管理</span>
         </template>
         <el-menu-item index="2-1" @click="navigateTo('/admin/content/article')">
@@ -38,7 +38,7 @@
 
       <el-sub-menu index="3">
         <template #title>
-          <nuxt-icon name="admin/sidebar/monitor" class="sidebar-icon" />
+          <BaseIcon name="monitor" class="sidebar-icon" />
           <span>站点管理</span>
         </template>
         <el-menu-item index="3-0" @click="navigateTo('/admin/site/content')">
@@ -62,11 +62,11 @@
     <div class="sidebar-footer">
       <el-tooltip v-if="isCollapsed" content="退出登录" placement="right">
         <el-button link class="logout-icon-btn" @click="onLogout">
-          <nuxt-icon name="admin/switch" class="sidebar-icon" />
+          <BaseIcon name="logout" class="sidebar-icon" />
         </el-button>
       </el-tooltip>
       <el-button v-else link class="logout-btn" @click="onLogout">
-        <nuxt-icon name="admin/switch" class="sidebar-icon" />
+        <BaseIcon name="logout" class="sidebar-icon" />
         退出登录
       </el-button>
     </div>
@@ -138,7 +138,8 @@ const onLogout = async () => {
 
 .sidebar-icon {
   margin: 0 @space-base 0 0;
-  font-size: @base-font-size;
+  font-size: 16px;
+  flex-shrink: 0;
 }
 
 .sidebar-logo {

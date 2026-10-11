@@ -92,6 +92,75 @@
 .el-button+.el-button {
     margin-left: 0;
 }
+
+.el-dialog,
+.el-message-box {
+    background: var(--card-color);
+    border: 1px solid var(--border-color);
+    border-radius: @small-border-radius;
+    box-shadow: @shadow-card;
+    padding: 0;
+    overflow: hidden;
+}
+
+.el-dialog {
+    --el-dialog-margin-top: 16px;
+    max-height: calc(100vh - 32px);
+    margin: 16px auto !important;
+    display: flex;
+    flex-direction: column;
+}
+
+.el-dialog__body {
+    min-height: 0;
+    overflow: auto;
+}
+
+.el-dialog__header,
+.el-message-box__header {
+    padding: @space-2xl @space-4xl @space-lg;
+    margin-right: 0;
+}
+
+.el-dialog__title,
+.el-message-box__title {
+    font-size: @font-size-sm;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--text-color);
+}
+
+.el-dialog__headerbtn {
+    top: @space-lg;
+    right: @space-lg;
+    width: 28px;
+    height: 28px;
+}
+
+.el-dialog__body,
+.el-message-box__content {
+    padding: @space-lg @space-4xl @space-2xl;
+    color: var(--text-color);
+}
+
+.el-dialog__footer,
+.el-message-box__btns {
+    padding: @space-lg @space-4xl @space-2xl;
+    border-top: 1px solid var(--border-color);
+}
+
+.el-button--primary:not(.is-link):not(.is-text) {
+    --el-button-bg-color: var(--primary-color);
+    --el-button-border-color: var(--primary-color);
+    --el-button-text-color: #fff;
+    --el-button-hover-bg-color: var(--primary-hover-color);
+    --el-button-hover-border-color: var(--primary-hover-color);
+    --el-button-hover-text-color: #fff;
+    --el-button-active-bg-color: var(--primary-hover-color);
+    --el-button-active-border-color: var(--primary-hover-color);
+    --el-button-active-text-color: #fff;
+}
+
 .el-select, .el-input, .el-select-dropdown__item {
     font-weight: 500;
 }

@@ -6,7 +6,7 @@
         <AsyncMdPreview :modelValue="aboutMd" :theme="currentTheme" />
       </template>
       <template #fallback>
-        <el-skeleton rows="6" animated />
+        <el-skeleton :rows="6" animated />
       </template>
     </Suspense>
     <el-empty v-else description="暂无关于内容" />
@@ -14,26 +14,28 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent } from 'vue'
+import { computed, defineAsyncComponent, type Component } from 'vue'
 import { useAdminStore } from '@/stores/admin.store'
 
-const props = defineProps<{
+defineProps<{
   aboutMd: string
 }>()
 
 const admin = useAdminStore()
 const currentTheme = computed(() => admin.getTheme)
 
+const mdPreviewLoaders = globalThis as typeof globalThis & {
+  __md_preview_loader?: Promise<Component>
+}
 const AsyncMdPreview = defineAsyncComponent(() => {
-  const key = '__md_preview_loader'
-  if (!(globalThis as any)[key]) {
-    ;(globalThis as any)[key] = (async () => {
+  if (!mdPreviewLoaders.__md_preview_loader) {
+    mdPreviewLoaders.__md_preview_loader = (async () => {
       const mod = await import('md-editor-v3')
       await import('md-editor-v3/lib/style.css')
-      return mod.MdPreview || mod.default?.MdPreview || mod
+      return (mod.MdPreview || mod) as Component
     })()
   }
-  return (globalThis as any)[key]
+  return mdPreviewLoaders.__md_preview_loader
 })
 </script>
 

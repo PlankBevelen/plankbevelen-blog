@@ -30,6 +30,7 @@
                 >
                   <NuxtLink :to="localePath('/project')">
                     <span class="title">{{ project.title }}</span>
+                    <span v-if="project.summary" class="summary">{{ project.summary }}</span>
                     <span class="meta">{{ project.period || project.status }}</span>
                   </NuxtLink>
                 </li>
@@ -48,45 +49,29 @@
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue'
 import { useAsyncData } from 'nuxt/app'
-import http from '~/utils/http'
-import type { SiteProject } from '@/types/site'
-import type { Article } from '@/types/article'
+import homeService from '@/services/home'
+import type { SiteProject } from '@/types/data/site'
+import type { HomeDataResponse } from '@/types/response/home'
 import { SITE_URL, SITE_AUTHOR, usePageSeo } from '@/composables/useSeo'
 
 const localePath = useLocalePath()
 const { t } = useI18n()
 
-type HomeStats = {
-  articles: number
-  categories: number
-  tags: number
-}
-
-type HomeDataPayload = {
-  latestArticles: Article[]
-  featuredProjects: SiteProject[]
-  categories: any[]
-  tags: any[]
-  stats: HomeStats | null
-}
-
-const homeData = reactive<HomeDataPayload>({
+const emptyHome: HomeDataResponse = {
   latestArticles: [],
   featuredProjects: [],
   categories: [],
   tags: [],
-  stats: null
-})
+  stats: null,
+}
 
-const { data: homeResp, pending } = await useAsyncData<HomeDataPayload>('home-data', async () => {
-  const res: any = await http.get('/home.data')
-  if (res?.status === 200 && res?.data) return res.data
-  return {
-    latestArticles: [],
-    featuredProjects: [],
-    categories: [],
-    tags: [],
-    stats: null
+const homeData = reactive<HomeDataResponse>({ ...emptyHome })
+
+const { data: homeResp, pending } = await useAsyncData<HomeDataResponse>('home-data', async () => {
+  try {
+    return await homeService.getHomeData()
+  } catch {
+    return { ...emptyHome }
   }
 })
 
@@ -141,7 +126,7 @@ useHead({
     {
       key: 'home-ld',
       type: 'application/ld+json',
-      children: siteLdJson.value
+      innerHTML: siteLdJson.value
     }
   ]
 })
@@ -200,8 +185,24 @@ useHead({
   }
 }
 
+.project-item a {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: @space-2xs;
+}
+
 .project-item .title {
   font-weight: 600;
+}
+
+.project-item .summary {
+  color: var(--secondary-color);
+  font-size: @font-size-xs;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .simple-list-empty {

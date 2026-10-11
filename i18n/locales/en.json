@@ -17,7 +17,7 @@
   "footer": {
     "title": "plankbevelen",
     "description": "Personal tech blog sharing coding experience and articles",
-    "copyright": "plankbevelen. All Rights Reserved.",
+    "copyright": "All Rights Reserved.",
     "beian": "蜀ICP备2024114585号"  
   },
   "theme": {
@@ -173,8 +173,7 @@
       "url": "Site URL",
       "description": "Description",
       "avatar": "Icon URL (optional)",
-      "captcha": "Captcha",
-      "captchaRefresh": "Click to refresh captcha",
+      "captcha": "Verification",
       "submit": "Submit",
       "cancel": "Cancel",
       "invalidUrl": "Please enter a valid http/https URL"
@@ -182,7 +181,7 @@
     "rules": {
       "name": "Please enter the site name",
       "url": "Please enter the site URL",
-      "captcha": "Please enter the captcha"
+      "captcha": "Please complete the verification"
     }
   }
 }

@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-09-15',
   devtools: { enabled: true },
   css: ['@/assets/css/tailwind.css', '@/assets/css/variables.less', '@/assets/css/theme.less', '@/assets/css/reset.less', '@/assets/css/element-plus.less', '@/assets/css/components.less'],
-  modules: ['nuxt-icons', '@pinia/nuxt', '@nuxt/image', '@nuxtjs/seo', '@element-plus/nuxt', '@nuxtjs/i18n', '@nuxtjs/tailwindcss'],
+  modules: ['@pinia/nuxt', '@nuxt/image', '@nuxtjs/seo', '@element-plus/nuxt', '@nuxtjs/i18n', '@nuxtjs/tailwindcss'],
   ssr: true,
   // i18n 
   i18n: {

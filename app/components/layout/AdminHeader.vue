@@ -2,8 +2,8 @@
   <header class="admin-header">
     <div class="header-left">
       <el-button class="toggle-btn" text :aria-expanded="!collapsed" aria-label="切换侧栏" @click="$emit('toggle')">
-        <nuxt-icon name="admin/header/expand" class="header-icon" v-if="collapsed" />
-        <nuxt-icon name="admin/header/fold" class="header-icon" v-else />
+        <BaseIcon name="panel-left-open" class="header-icon" v-if="collapsed" />
+        <BaseIcon name="panel-left-close" class="header-icon" v-else />
       </el-button>
 
       <div class="title-group">
@@ -20,16 +20,13 @@
     <div class="header-right">
       <el-tooltip content="访问前台" placement="bottom">
         <el-button text @click="openFrontend">
-          <nuxt-icon name="admin/header/link" class="header-icon" />
+          <BaseIcon name="external-link" class="header-icon" />
         </el-button>
       </el-tooltip>
 
       <el-tooltip :content="isDark ? '切换浅色主题' : '切换深色主题'" placement="bottom">
         <el-button text :aria-label="isDark ? '切换浅色主题' : '切换深色主题'" @click="toggleTheme">
-          <el-icon :size="18">
-            <nuxt-icon name="header/sun" class="header-icon" v-if="isDark" />
-            <nuxt-icon name="header/moon" class="header-icon" v-else />
-          </el-icon>
+          <BaseIcon :name="isDark ? 'sun' : 'moon'" class="header-icon" />
         </el-button>
       </el-tooltip>
 
@@ -208,7 +205,7 @@ const onCommand = async (cmd: string) => {
 }
 
 .header-icon {
-  font-size: @base-font-size;
+  font-size: 18px;
 }
 
 :deep(.danger-item) {
