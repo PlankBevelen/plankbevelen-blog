@@ -150,6 +150,7 @@
     "title": "Friends",
     "apply": "Apply",
     "applyTitle": "Apply for Friend Link",
+    "applyClosed": "Friend link applications are currently closed",
     "empty": "No friends yet. Be the first!",
     "submitSuccess": "Submitted, awaiting review",
     "submitFailed": "Submission failed, please try again",

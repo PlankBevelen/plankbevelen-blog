@@ -40,7 +40,14 @@
                   </div>
                 </div>
                 <div class="myself-actions">
-                  <el-button type="primary" size="small" @click="openApply">{{ $t('friends.apply') }}</el-button>
+                  <el-button
+                    v-if="applyEnabled"
+                    type="primary"
+                    size="small"
+                    @click="openApply"
+                  >
+                    {{ $t('friends.apply') }}
+                  </el-button>
                   <el-button type="primary" plain size="small" @click="copyMyself">{{ $t('friends.myself.copy') }}</el-button>
                 </div>
               </div>
@@ -203,6 +210,7 @@ const copyMyself = async () => {
 
 const { data: publicSettings } = await usePublicSettings()
 const turnstileSiteKey = computed(() => publicSettings.value?.turnstileSiteKey || '')
+const applyEnabled = computed(() => publicSettings.value?.friendLinkApplyEnabled !== false)
 
 const applyVisible = ref(false)
 const turnstileReady = ref(false)
@@ -251,6 +259,10 @@ const setAvatarError = (id: string) => {
 }
 
 const openApply = () => {
+  if (!applyEnabled.value) {
+    ElMessage.warning(t('friends.applyClosed'))
+    return
+  }
   form.name = ''
   form.url = ''
   form.description = ''
@@ -272,6 +284,11 @@ const onApplyClosed = () => {
 }
 
 const onSubmit = async () => {
+  if (!applyEnabled.value) {
+    ElMessage.warning(t('friends.applyClosed'))
+    applyVisible.value = false
+    return
+  }
   const valid = await formRef.value?.validate().catch(() => false)
   if (!valid) return
 

@@ -3,13 +3,23 @@ import { withTransaction, getCollections, getNextSequence } from '../../utils/mo
 import { validateFriendLinkInput, normalizeUrl } from '../../utils/friend-links'
 import { verifyTurnstileToken } from '../../modules/captcha/turnstile'
 import { assertRateLimit } from '../../utils/rate-limit'
+import { getRuntimeSettings } from '../../core/runtime-settings'
 
 export default defineEventHandler(async (event) => {
-  // 限流（每 IP）
-  const max = Number(process.env.FRIEND_LINK_SUBMIT_RATE_LIMIT_MAX) || 3
-  const windowSec = Number(process.env.FRIEND_LINK_SUBMIT_RATE_LIMIT_WINDOW_SECONDS) || 3600
+  const settings = await getRuntimeSettings()
+  if (!settings.friendLinkApplyEnabled) {
+    setResponseStatus(event, 403)
+    return { status: 403, msg: '当前未开放友链申请', data: null }
+  }
+
+  const max = settings.friendLinkSubmitRateLimitMax || Number(process.env.FRIEND_LINK_SUBMIT_RATE_LIMIT_MAX) || 3
+  const windowSec =
+    settings.friendLinkSubmitRateLimitWindowSeconds ||
+    Number(process.env.FRIEND_LINK_SUBMIT_RATE_LIMIT_WINDOW_SECONDS) ||
+    3600
   if (!(await assertRateLimit(event, 'friend-link-submit', max, windowSec))) {
-    return { status: 429, msg: '提交过于频繁，请稍后再试' }
+    setResponseStatus(event, 429)
+    return { status: 429, msg: '提交过于频繁，请稍后再试', data: null }
   }
 
   try {

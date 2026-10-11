@@ -381,6 +381,12 @@ onMounted(() => {
     }
   }
 
+  .settings-form {
+    width: 100%;
+    max-width: 560px;
+    margin-inline: auto;
+  }
+
   .group-label {
     margin: @space-lg 0 @space-base;
     font-size: @font-size-xs;
@@ -399,6 +405,7 @@ onMounted(() => {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0 @space-2xl;
+    max-width: 560px;
     @media (max-width: 768px) {
       grid-template-columns: 1fr;
     }

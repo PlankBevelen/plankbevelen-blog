@@ -150,6 +150,7 @@
     "title": "友链",
     "apply": "申请友链",
     "applyTitle": "申请友链",
+    "applyClosed": "当前未开放友链申请",
     "empty": "暂无友链，欢迎成为第一个！",
     "submitSuccess": "提交成功，等待审核",
     "submitFailed": "提交失败，请稍后重试",
