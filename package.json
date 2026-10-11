@@ -34,6 +34,7 @@
     "ipx": "3.0.0",
     "js-cookie": "^3.0.5",
     "js-sha256": "^0.11.1",
+    "vite-plugin-compression": "^0.5.1",
     "jsonwebtoken": "^9.0.2",
     "less": "^4.4.2",
     "less-loader": "^12.3.0",
