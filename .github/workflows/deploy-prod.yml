@@ -16,6 +16,8 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script_stop: true
           script: |
-            whoami
-            hostname
+            cd /var/www/plankbevelen-blog
             pwd
+            git rev-parse --abbrev-ref HEAD
+            git log -1 --oneline
+            git status -sb
