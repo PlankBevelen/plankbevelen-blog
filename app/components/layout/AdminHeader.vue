@@ -8,8 +8,8 @@
 
       <div class="title-group">
         <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ path: '/admin' }">控制台</el-breadcrumb-item>
-          <el-breadcrumb-item v-if="navTitle !== '控制台'">
+          <el-breadcrumb-item :to="{ path: '/admin' }">概览</el-breadcrumb-item>
+          <el-breadcrumb-item v-if="navTitle !== '概览'">
             {{ navTitle }}
           </el-breadcrumb-item>
         </el-breadcrumb>
@@ -107,7 +107,7 @@ const onCommand = async (cmd: string) => {
   align-items: center;
   justify-content: space-between;
   padding: 0 @space-3xl;
-  background-color: var(--card-color);
+  background-color: var(--header-color, var(--card-color));
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
   position: sticky;

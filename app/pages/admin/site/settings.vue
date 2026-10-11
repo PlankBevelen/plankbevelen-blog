@@ -1,15 +1,29 @@
 <template>
   <div class="settings-page">
     <div class="header">
-      <h2 class="title">系统配置</h2>
-      <p class="desc">业务参数统一在此维护，保存后热更新（无需改服务器 .env / 重新部署）。密钥类留空表示不修改。</p>
+      <h2 class="title">设置</h2>
+      <p class="desc">站点常用参数在此维护；保存后热更新。密钥类留空表示不修改。</p>
     </div>
+
+    <BaseCard class="site-summary">
+      <template #header>
+        <span>站点摘要</span>
+      </template>
+      <el-skeleton v-if="infoLoading" animated :rows="3" />
+      <el-descriptions v-else :column="2" border>
+        <el-descriptions-item label="站点名称">{{ siteInfo.siteName }}</el-descriptions-item>
+        <el-descriptions-item label="站点地址">{{ siteInfo.siteUrl }}</el-descriptions-item>
+        <el-descriptions-item label="作者">{{ siteInfo.siteAuthor }}</el-descriptions-item>
+        <el-descriptions-item label="语言">{{ siteInfo.defaultLocale }}</el-descriptions-item>
+        <el-descriptions-item label="描述" :span="2">{{ siteInfo.siteDescription }}</el-descriptions-item>
+      </el-descriptions>
+    </BaseCard>
 
     <el-skeleton v-if="loading" animated :rows="8" />
 
     <el-form v-else ref="formRef" :model="form" label-position="top" class="settings-form" @submit.prevent>
       <el-tabs v-model="activeTab">
-        <el-tab-pane label="安全与会话" name="security">
+        <el-tab-pane label="常用" name="common">
           <el-form-item label="管理员账号">
             <el-input v-model="form.adminAccount" maxlength="64" />
           </el-form-item>
@@ -17,37 +31,12 @@
             <el-input v-model="form.newAdminPassword" type="password" show-password placeholder="至少 8 位" />
             <p class="hint">当前：{{ form.hasAdminPassword ? '已配置' : '未配置' }}</p>
           </el-form-item>
-          <el-form-item label="新认证密钥 authSecret（留空不改）">
-            <el-input v-model="form.newAuthSecret" type="password" show-password placeholder="至少 16 位，轮换会使现有会话失效" />
-            <p class="hint">当前：{{ form.authSecretConfigured ? form.authSecretMasked : '未配置' }}</p>
+          <el-form-item label="站点 Base URL">
+            <el-input v-model="form.baseUrl" />
           </el-form-item>
-          <div class="grid-2">
-            <el-form-item label="记住登录有效期（秒）">
-              <el-input-number v-model="form.sessionExpirationSeconds" :min="300" :max="2592000" class="w-full" />
-            </el-form-item>
-            <el-form-item label="普通会话有效期（秒）">
-              <el-input-number v-model="form.sessionKeepAliveSeconds" :min="300" :max="2592000" class="w-full" />
-            </el-form-item>
-          </div>
-          <el-form-item label="Cookie 前缀">
-            <el-input v-model="form.cookiePrefix" maxlength="64" />
+          <el-form-item label="开放友链申请">
+            <el-switch v-model="form.friendLinkApplyEnabled" />
           </el-form-item>
-          <el-form-item label="Cookie Secure">
-            <el-select v-model="form.cookieSecure" class="w-full">
-              <el-option label="自动（生产开启）" value="auto" />
-              <el-option label="强制开启" value="force_on" />
-              <el-option label="强制关闭" value="force_off" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="信任反向代理">
-            <el-switch v-model="form.trustProxy" />
-          </el-form-item>
-          <el-form-item label="可信代理 IP（逗号分隔）">
-            <el-input v-model="form.trustedProxyIps" placeholder="127.0.0.1,10.0.0.1" />
-          </el-form-item>
-        </el-tab-pane>
-
-        <el-tab-pane label="限流与验证码" name="rate">
           <el-form-item label="Turnstile Site Key">
             <el-input v-model="form.turnstileSiteKey" placeholder="0x4AAAA..." />
           </el-form-item>
@@ -56,74 +45,107 @@
             <p class="hint">当前：{{ form.turnstileSecretConfigured ? '已配置' : '未配置' }}</p>
           </el-form-item>
           <div class="grid-2">
-            <el-form-item label="登录限流次数">
-              <el-input-number v-model="form.loginRateLimitMax" :min="1" :max="1000" class="w-full" />
+            <el-form-item label="单文件最大字节">
+              <el-input-number v-model="form.uploadMaxBytes" :min="1024" :max="52428800" :step="1024" class="w-full" />
             </el-form-item>
-            <el-form-item label="登录限流窗口（秒）">
-              <el-input-number v-model="form.loginRateLimitWindowSeconds" :min="1" :max="86400" class="w-full" />
-            </el-form-item>
-            <el-form-item label="验证码限流次数">
-              <el-input-number v-model="form.captchaRateLimitMax" :min="1" :max="1000" class="w-full" />
-            </el-form-item>
-            <el-form-item label="验证码限流窗口（秒）">
-              <el-input-number v-model="form.captchaRateLimitWindowSeconds" :min="1" :max="86400" class="w-full" />
-            </el-form-item>
-            <el-form-item label="验证码有效期（秒）">
-              <el-input-number v-model="form.captchaTtlSeconds" :min="30" :max="3600" class="w-full" />
-            </el-form-item>
-            <el-form-item label="滑动容差（像素）">
-              <el-input-number v-model="form.captchaSlideTolerance" :min="1" :max="30" class="w-full" />
-            </el-form-item>
-            <el-form-item label="友链提交限流次数">
-              <el-input-number v-model="form.friendLinkSubmitRateLimitMax" :min="1" :max="100" class="w-full" />
-            </el-form-item>
-            <el-form-item label="友链提交窗口（秒）">
-              <el-input-number v-model="form.friendLinkSubmitRateLimitWindowSeconds" :min="60" :max="604800" class="w-full" />
+            <el-form-item label="生产上传目录">
+              <el-input v-model="form.uploadDir" placeholder="/var/www/uploads" />
             </el-form-item>
           </div>
         </el-tab-pane>
 
-        <el-tab-pane label="上传" name="upload">
-          <el-form-item label="单文件最大字节">
-            <el-input-number v-model="form.uploadMaxBytes" :min="1024" :max="52428800" :step="1024" class="w-full" />
-          </el-form-item>
-          <el-form-item label="生产上传目录（空则默认 /var/www/uploads）">
-            <el-input v-model="form.uploadDir" placeholder="/var/www/uploads" />
-          </el-form-item>
-          <div class="grid-2">
-            <el-form-item label="临时上传保留（小时）">
-              <el-input-number v-model="form.tempUploadTtlHours" :min="1" :max="720" class="w-full" />
-            </el-form-item>
-            <el-form-item label="清理间隔（分钟）">
-              <el-input-number v-model="form.tempCleanIntervalMinutes" :min="5" :max="1440" class="w-full" />
-            </el-form-item>
-          </div>
-        </el-tab-pane>
+        <el-tab-pane label="高级" name="advanced">
+          <el-collapse v-model="advancedPanels">
+            <el-collapse-item title="会话与 Cookie" name="session">
+              <el-form-item label="新认证密钥 authSecret（留空不改）">
+                <el-input v-model="form.newAuthSecret" type="password" show-password placeholder="至少 16 位，轮换会使现有会话失效" />
+                <p class="hint">当前：{{ form.authSecretConfigured ? form.authSecretMasked : '未配置' }}</p>
+              </el-form-item>
+              <div class="grid-2">
+                <el-form-item label="记住登录有效期（秒）">
+                  <el-input-number v-model="form.sessionExpirationSeconds" :min="300" :max="2592000" class="w-full" />
+                </el-form-item>
+                <el-form-item label="普通会话有效期（秒）">
+                  <el-input-number v-model="form.sessionKeepAliveSeconds" :min="300" :max="2592000" class="w-full" />
+                </el-form-item>
+              </div>
+              <el-form-item label="Cookie 前缀">
+                <el-input v-model="form.cookiePrefix" maxlength="64" />
+              </el-form-item>
+              <el-form-item label="Cookie Secure">
+                <el-select v-model="form.cookieSecure" class="w-full">
+                  <el-option label="自动（生产开启）" value="auto" />
+                  <el-option label="强制开启" value="force_on" />
+                  <el-option label="强制关闭" value="force_off" />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="信任反向代理">
+                <el-switch v-model="form.trustProxy" />
+              </el-form-item>
+              <el-form-item label="可信代理 IP（逗号分隔）">
+                <el-input v-model="form.trustedProxyIps" placeholder="127.0.0.1,10.0.0.1" />
+              </el-form-item>
+            </el-collapse-item>
 
-        <el-tab-pane label="站点与功能" name="site">
-          <el-form-item label="站点 Base URL">
-            <el-input v-model="form.baseUrl" />
-          </el-form-item>
-          <el-form-item label="开放友链申请">
-            <el-switch v-model="form.friendLinkApplyEnabled" />
-          </el-form-item>
-          <el-form-item label="Agent Chat URL">
-            <el-input v-model="form.agentChatUrl" />
-          </el-form-item>
-          <el-form-item label="Agent Health URL">
-            <el-input v-model="form.agentHealthUrl" />
-          </el-form-item>
-          <el-form-item label="访问日志 TTL（天）">
-            <el-input-number v-model="form.visitLogTtlDays" :min="1" :max="3650" class="w-full" />
-            <p class="hint">索引会在下次服务重启时按新值重建。</p>
-          </el-form-item>
-        </el-tab-pane>
+            <el-collapse-item title="限流与验证码" name="rate">
+              <div class="grid-2">
+                <el-form-item label="登录限流次数">
+                  <el-input-number v-model="form.loginRateLimitMax" :min="1" :max="1000" class="w-full" />
+                </el-form-item>
+                <el-form-item label="登录限流窗口（秒）">
+                  <el-input-number v-model="form.loginRateLimitWindowSeconds" :min="1" :max="86400" class="w-full" />
+                </el-form-item>
+                <el-form-item label="验证码限流次数">
+                  <el-input-number v-model="form.captchaRateLimitMax" :min="1" :max="1000" class="w-full" />
+                </el-form-item>
+                <el-form-item label="验证码限流窗口（秒）">
+                  <el-input-number v-model="form.captchaRateLimitWindowSeconds" :min="1" :max="86400" class="w-full" />
+                </el-form-item>
+                <el-form-item label="验证码有效期（秒）">
+                  <el-input-number v-model="form.captchaTtlSeconds" :min="30" :max="3600" class="w-full" />
+                </el-form-item>
+                <el-form-item label="滑动容差（像素）">
+                  <el-input-number v-model="form.captchaSlideTolerance" :min="1" :max="30" class="w-full" />
+                </el-form-item>
+                <el-form-item label="友链提交限流次数">
+                  <el-input-number v-model="form.friendLinkSubmitRateLimitMax" :min="1" :max="100" class="w-full" />
+                </el-form-item>
+                <el-form-item label="友链提交窗口（秒）">
+                  <el-input-number v-model="form.friendLinkSubmitRateLimitWindowSeconds" :min="60" :max="604800" class="w-full" />
+                </el-form-item>
+              </div>
+            </el-collapse-item>
 
-        <el-tab-pane label="运维只读" name="ops">
-          <el-descriptions :column="1" border>
-            <el-descriptions-item label="NODE_ENV">{{ form.nodeEnv }}</el-descriptions-item>
-            <el-descriptions-item label="REDIS_URL">{{ form.redisConfigured ? '已配置' : '未配置（进程内内存）' }}</el-descriptions-item>
-          </el-descriptions>
+            <el-collapse-item title="上传与日志" name="upload">
+              <div class="grid-2">
+                <el-form-item label="临时上传保留（小时）">
+                  <el-input-number v-model="form.tempUploadTtlHours" :min="1" :max="720" class="w-full" />
+                </el-form-item>
+                <el-form-item label="清理间隔（分钟）">
+                  <el-input-number v-model="form.tempCleanIntervalMinutes" :min="5" :max="1440" class="w-full" />
+                </el-form-item>
+                <el-form-item label="访问日志 TTL（天）">
+                  <el-input-number v-model="form.visitLogTtlDays" :min="1" :max="3650" class="w-full" />
+                </el-form-item>
+              </div>
+              <p class="hint">日志 TTL 索引会在下次服务重启时按新值重建。</p>
+            </el-collapse-item>
+
+            <el-collapse-item title="Agent 与运维" name="ops">
+              <el-form-item label="Agent Chat URL">
+                <el-input v-model="form.agentChatUrl" />
+              </el-form-item>
+              <el-form-item label="Agent Health URL">
+                <el-input v-model="form.agentHealthUrl" />
+              </el-form-item>
+              <el-descriptions :column="1" border class="ops-readonly">
+                <el-descriptions-item label="NODE_ENV">{{ form.nodeEnv }}</el-descriptions-item>
+                <el-descriptions-item label="REDIS_URL">
+                  {{ form.redisConfigured ? '已配置' : '未配置（进程内内存）' }}
+                </el-descriptions-item>
+              </el-descriptions>
+            </el-collapse-item>
+          </el-collapse>
         </el-tab-pane>
       </el-tabs>
 
@@ -141,13 +163,23 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import siteService from '@/services/site'
 import type { RuntimeSettingsAdminView } from '@/types/data/site'
 import type { RuntimeSettingsUpdatePayload } from '@/types/request/site'
-import { toApiError } from '@/utils/http'
+import { toApiError } from '@/utils/api-error'
 
-definePageMeta({ layout: 'admin' })
+definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
 const loading = ref(true)
+const infoLoading = ref(true)
 const saving = ref(false)
-const activeTab = ref('security')
+const activeTab = ref('common')
+const advancedPanels = ref(['session'])
+
+const siteInfo = reactive({
+  siteName: '—',
+  siteUrl: '—',
+  siteAuthor: '—',
+  defaultLocale: '—',
+  siteDescription: '—'
+})
 
 const form = reactive({
   adminAccount: '',
@@ -194,6 +226,24 @@ const applyData = (data: RuntimeSettingsAdminView | null | undefined) => {
     newAuthSecret: '',
     newTurnstileSecretKey: '',
   })
+}
+
+const loadSiteInfo = async () => {
+  infoLoading.value = true
+  try {
+    const data = await siteService.getInfo()
+    Object.assign(siteInfo, {
+      siteName: data?.siteName || '—',
+      siteUrl: data?.siteUrl || '—',
+      siteAuthor: data?.siteAuthor || '—',
+      defaultLocale: data?.defaultLocale || '—',
+      siteDescription: data?.siteDescription || '—'
+    })
+  } catch {
+    // 摘要失败不阻断设置页
+  } finally {
+    infoLoading.value = false
+  }
 }
 
 const load = async () => {
@@ -262,13 +312,16 @@ const onSave = async () => {
   }
 }
 
-onMounted(load)
+onMounted(() => {
+  load()
+  loadSiteInfo()
+})
 </script>
 
 <style scoped lang="less">
 .settings-page {
   .header {
-    margin-bottom: @space-3xl;
+    margin-bottom: @space-2xl;
   }
   .title {
     margin: 0;
@@ -276,9 +329,12 @@ onMounted(load)
     color: var(--text-color);
   }
   .desc {
-    margin: @space-sm 0 0;
+    margin: @space-xs 0 0;
     font-size: @font-size-sm;
     color: var(--secondary-color);
+  }
+  .site-summary {
+    margin-bottom: @space-3xl;
   }
   .hint {
     margin: @space-2xs 0 0;
@@ -295,6 +351,9 @@ onMounted(load)
   }
   .w-full {
     width: 100%;
+  }
+  .ops-readonly {
+    margin-top: @space-xl;
   }
   .actions {
     margin-top: @space-3xl;

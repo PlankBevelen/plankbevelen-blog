@@ -1,6 +1,13 @@
 <template>
-  <div class="space-y-3">
-    <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
+  <div class="space-y-4">
+    <div class="page-intro">
+      <h2 class="page-title">访问</h2>
+      <p class="page-desc">
+        独立访客按同浏览器第一方 Cookie 去重；清缓存、无痕模式或换浏览器会算作新访客。IP 仅作辅助参考。
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
       <BaseCard v-for="card in summaryCards" :key="card.key">
         <p class="text-xs text-mute">{{ card.label }}</p>
         <div class="mt-2 text-h1 font-semibold text-text">{{ card.value }}</div>
@@ -8,37 +15,18 @@
       </BaseCard>
     </div>
 
-    <div class="grid grid-cols-1 gap-3 xl:grid-cols-2">
-      <BaseCard>
-        <template #header>
-          <span>热门页面</span>
-        </template>
-        <div v-if="summary.topPaths.length" class="grid grid-cols-1 gap-3">
-          <div v-for="item in summary.topPaths" :key="item.path" class="flex items-center justify-between">
-            <span>{{ item.path }}</span>
-            <strong>{{ item.count }}</strong>
-          </div>
+    <BaseCard>
+      <template #header>
+        <span>热门页面</span>
+      </template>
+      <div v-if="summary.topPaths.length" class="top-paths">
+        <div v-for="item in summary.topPaths" :key="item.path" class="top-path-row">
+          <span>{{ item.path }}</span>
+          <strong>{{ item.count }}</strong>
         </div>
-        <el-empty v-else description="暂无访问路径数据" />
-      </BaseCard>
-
-      <BaseCard>
-        <template #header>
-          <span>设备分布</span>
-        </template>
-        <div v-if="summary.deviceDistribution.length" class="grid grid-cols-1 gap-3">
-          <el-tag
-            v-for="item in summary.deviceDistribution"
-            :key="`${item.deviceType}-${item.count}`"
-            effect="plain"
-            round
-          >
-            {{ deviceLabelMap[item.deviceType] || item.deviceType }} / {{ item.count }}
-          </el-tag>
-        </div>
-        <el-empty v-else description="暂无设备分布数据" />
-      </BaseCard>
-    </div>
+      </div>
+      <el-empty v-else description="暂无访问路径数据" :image-size="72" />
+    </BaseCard>
 
     <BaseDataTable
       :data="rows"
@@ -55,17 +43,10 @@
           <div class="flex flex-wrap items-center gap-2">
             <el-input
               v-model="filters.keyword"
-              placeholder="搜索路径、IP、浏览器或来源"
+              placeholder="搜索路径或 IP"
               clearable
-              class="!w-[280px]"
+              class="!w-[240px]"
             />
-            <el-select v-model="filters.deviceType" class="!w-[160px]">
-              <el-option label="全部设备" value="all" />
-              <el-option label="桌面端" value="desktop" />
-              <el-option label="移动端" value="mobile" />
-              <el-option label="平板" value="tablet" />
-              <el-option label="爬虫" value="bot" />
-            </el-select>
             <el-select v-model="filters.days" class="!w-[140px]">
               <el-option :value="1" label="近 1 天" />
               <el-option :value="7" label="近 7 天" />
@@ -76,61 +57,42 @@
             <el-button @click="onReset">重置</el-button>
           </div>
           <template #actions>
-            <el-button type="primary" @click="fetchLogs">刷新日志</el-button>
+            <el-button type="primary" @click="fetchLogs">刷新</el-button>
           </template>
         </BaseQueryBar>
       </template>
 
-      <el-table-column label="访问路径" min-width="280">
-        <template #default="{ row }">
-          <div class="flex gap-1 flex-col">
-            <strong class="font-semibold text-text">{{ row.path }}</strong>
-            <span class="text-mute line-clamp-2">{{ row.fullPath }}</span>
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="访客" width="170">
+      <el-table-column label="路径" min-width="260">
         <template #default="{ row }">
           <div class="log-meta">
-            <strong>{{ row.ip }}</strong>
-            <span>{{ row.method }} / {{ row.statusCode }}</span>
+            <strong>{{ row.path }}</strong>
+            <span v-if="row.fullPath !== row.path">{{ row.fullPath }}</span>
           </div>
         </template>
       </el-table-column>
 
-      <el-table-column label="设备环境" min-width="220">
+      <el-table-column label="访客" width="200">
         <template #default="{ row }">
           <div class="log-meta">
-            <div class="log-tags">
-              <el-tag :type="deviceTagType(row.deviceType)" effect="plain" round>
-                {{ deviceLabelMap[row.deviceType] || row.deviceType }}
-              </el-tag>
-              <el-tag :type="statusTagType(row.statusCode)" effect="plain" round>
-                {{ row.browser }}
-              </el-tag>
-            </div>
-            <span>{{ row.os }}</span>
+            <strong>{{ shortVisitorId(row.visitorId) }}</strong>
+            <span>{{ row.ip }}</span>
           </div>
         </template>
       </el-table-column>
 
-      <el-table-column label="来源" min-width="240">
+      <el-table-column label="环境" width="160">
         <template #default="{ row }">
-          <div class="log-meta">
-            <strong>{{ row.referer || '直接访问' }}</strong>
-            <span class="line-clamp-2">{{ row.userAgent }}</span>
-          </div>
+          <span>{{ row.browser }} · {{ deviceLabelMap[row.deviceType] || row.deviceType }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="耗时" width="110" align="center">
+      <el-table-column label="状态" width="90" align="center">
         <template #default="{ row }">
-          {{ row.durationMs }} ms
+          {{ row.statusCode }}
         </template>
       </el-table-column>
 
-      <el-table-column label="访问时间" width="180">
+      <el-table-column label="时间" width="180">
         <template #default="{ row }">
           {{ formatDateTime(row.visitedAt) }}
         </template>
@@ -145,7 +107,7 @@ import { ElMessage } from 'element-plus'
 import siteService from '@/services/site'
 import type { VisitLogItem, VisitLogSummary } from '@/types/data/site'
 import { formatDateTime } from '@/utils/format'
-import { toApiError } from '@/utils/http'
+import { toApiError } from '@/utils/api-error'
 
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
@@ -156,8 +118,8 @@ const defaultFilters = {
 }
 
 const deviceLabelMap: Record<string, string> = {
-  desktop: '桌面端',
-  mobile: '移动端',
+  desktop: '桌面',
+  mobile: '移动',
   tablet: '平板',
   bot: '爬虫',
   unknown: '未知'
@@ -186,41 +148,27 @@ const summaryCards = computed(() => [
     key: 'pv',
     label: '访问次数',
     value: summary.value.totalVisits,
-    desc: `近 ${filters.value.days} 天记录到的页面访问`
+    desc: `近 ${filters.value.days} 天`
   },
   {
     key: 'uv',
     label: '独立访客',
     value: summary.value.uniqueVisitors,
-    desc: '按 IP 粗略去重后的访客数'
+    desc: '同浏览器 Cookie 去重'
   },
   {
     key: 'today',
     label: '今日访问',
     value: summary.value.todayVisits,
-    desc: '从今天 00:00 到现在的访问次数'
-  },
-  {
-    key: 'duration',
-    label: '平均耗时',
-    value: `${summary.value.averageDurationMs} ms`,
     desc: summary.value.latestVisitedAt
-      ? `最近一条：${formatDateTime(summary.value.latestVisitedAt)}`
-      : '还没有产生访问记录'
+      ? `最近：${formatDateTime(summary.value.latestVisitedAt)}`
+      : '暂无记录'
   }
 ])
 
-const deviceTagType = (deviceType: string) => {
-  if (deviceType === 'mobile') return 'success'
-  if (deviceType === 'tablet') return 'warning'
-  if (deviceType === 'bot') return 'danger'
-  return 'info'
-}
-
-const statusTagType = (statusCode: number) => {
-  if (statusCode >= 500) return 'danger'
-  if (statusCode >= 400) return 'warning'
-  return 'primary'
+function shortVisitorId(visitorId?: string) {
+  if (!visitorId) return '旧记录'
+  return visitorId.slice(0, 8)
 }
 
 const fetchLogs = async () => {
@@ -274,8 +222,50 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
+.page-intro {
+  margin-bottom: @space-base;
+}
 
-.log-path,
+.page-title {
+  margin: 0;
+  font-size: @font-size-xl;
+  color: var(--text-color);
+}
+
+.page-desc {
+  margin: @space-2xs 0 0;
+  font-size: @font-size-sm;
+  color: var(--secondary-color);
+  max-width: 48rem;
+  line-height: 1.6;
+}
+
+.top-paths {
+  display: flex;
+  flex-direction: column;
+  gap: @space-md;
+}
+
+.top-path-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: @space-lg;
+  font-size: @font-size-sm;
+
+  span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-color);
+  }
+
+  strong {
+    color: var(--primary-color);
+  }
+}
+
 .log-meta {
   display: flex;
   flex-direction: column;
@@ -289,25 +279,8 @@ onMounted(() => {
   span {
     color: var(--secondary-color);
     font-size: @font-size-xs;
-    line-height: 1.6;
+    line-height: 1.5;
     word-break: break-all;
-  }
-}
-
-.log-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: @space-base;
-}
-
-@media (max-width: @screen-tablet) {
-  .logs-hero,
-  .insight-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .logs-hero {
-    flex-direction: column;
   }
 }
 </style>

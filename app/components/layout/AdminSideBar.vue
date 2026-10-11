@@ -4,7 +4,7 @@
       <img src="/favicon.ico" alt="logo" loading="eager" class="logo-img" width="32" height="32" />
       <div v-show="!isCollapsed" class="logo-copy">
         <span class="logo-text">plankbevelen</span>
-        <span class="logo-subtitle">Admin Console</span>
+        <span class="logo-subtitle">管理后台</span>
       </div>
     </div>
 
@@ -17,44 +17,38 @@
     >
       <el-menu-item index="1" @click="navigateTo('/admin')">
         <BaseIcon name="gauge" class="sidebar-icon" />
-        <template #title>控制台</template>
+        <template #title>概览</template>
       </el-menu-item>
 
       <el-sub-menu index="2">
         <template #title>
           <BaseIcon name="files" class="sidebar-icon" />
-          <span>内容管理</span>
+          <span>内容</span>
         </template>
         <el-menu-item index="2-1" @click="navigateTo('/admin/content/article')">
-          文章管理
+          文章
         </el-menu-item>
         <el-menu-item index="2-2" @click="navigateTo('/admin/content/category')">
-          文章分类
-        </el-menu-item>
-        <el-menu-item index="2-3" @click="navigateTo('/admin/content/statistics')">
-          统计分析
+          分类
         </el-menu-item>
       </el-sub-menu>
 
       <el-sub-menu index="3">
         <template #title>
           <BaseIcon name="monitor" class="sidebar-icon" />
-          <span>站点管理</span>
+          <span>站点</span>
         </template>
         <el-menu-item index="3-0" @click="navigateTo('/admin/site/content')">
           站点内容
         </el-menu-item>
-        <el-menu-item index="3-1" @click="navigateTo('/admin/site/info')">
-          站点信息
+        <el-menu-item index="3-4" @click="navigateTo('/admin/site/friend-links')">
+          友链
         </el-menu-item>
-        <el-menu-item index="3-2" @click="navigateTo('/admin/site/data')">
-          站点数据
+        <el-menu-item index="3-5" @click="navigateTo('/admin/site/settings')">
+          设置
         </el-menu-item>
         <el-menu-item index="3-3" @click="navigateTo('/admin/site/logs')">
-          访问日志
-        </el-menu-item>
-        <el-menu-item index="3-4" @click="navigateTo('/admin/site/friend-links')">
-          友链管理
+          访问
         </el-menu-item>
       </el-sub-menu>
     </el-menu>
@@ -89,12 +83,10 @@ const activeIndex = computed(() => {
   if (path === '/admin' || path === '/admin/') return '1'
   if (path.startsWith('/admin/content/article')) return '2-1'
   if (path.startsWith('/admin/content/category')) return '2-2'
-  if (path.startsWith('/admin/content/statistics')) return '2-3'
   if (path.startsWith('/admin/site/content')) return '3-0'
-  if (path.startsWith('/admin/site/info')) return '3-1'
-  if (path.startsWith('/admin/site/data')) return '3-2'
-  if (path.startsWith('/admin/site/logs')) return '3-3'
   if (path.startsWith('/admin/site/friend-links')) return '3-4'
+  if (path.startsWith('/admin/site/settings')) return '3-5'
+  if (path.startsWith('/admin/site/logs')) return '3-3'
   return '1'
 })
 
@@ -121,7 +113,7 @@ const onLogout = async () => {
   width: @sidebar-width;
   min-width: @sidebar-width;
   height: 100vh;
-  background-color: var(--card-color);
+  background-color: var(--header-color, var(--card-color));
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;

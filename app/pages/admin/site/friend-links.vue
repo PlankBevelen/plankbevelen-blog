@@ -127,7 +127,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import friendLinkService from '@/services/friend-link'
 import type { FriendLink, FriendLinkSelf, FriendLinkStatus } from '@/types/data/friend-link'
-import { toApiError } from '@/utils/http'
+import { toApiError } from '@/utils/api-error'
 
 const list = ref<FriendLink[]>([])
 const loading = ref(false)

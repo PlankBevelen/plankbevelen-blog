@@ -86,7 +86,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { useAdminStore } from '@/stores/admin.store'
 import { usePublicSettings } from '@/composables/usePublicSettings'
-import { toApiError } from '@/utils/http'
+import { toApiError } from '@/utils/api-error'
 
 definePageMeta({ layout: false })
 

@@ -68,7 +68,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import categoryService from '@/services/category'
 import type { Category } from '@/types/data/category'
 import { formatDateTime } from '@/utils/format'
-import { toApiError } from '@/utils/http'
+import { toApiError } from '@/utils/api-error'
 import type { FormInstance } from 'element-plus'
 
 const searchText = ref('')

@@ -1,5 +1,6 @@
 import { defineEventHandler, setResponseStatus } from 'h3'
 import { getDb, getCollections } from '../../utils/mongo'
+import { getVisitLogSummary } from '../../utils/visit-log'
 import dayjs from 'dayjs'
 
 export default defineEventHandler(async (event) => {
@@ -7,14 +8,14 @@ export default defineEventHandler(async (event) => {
     const db = getDb()
     const { articles: articlesCol, categories: categoriesCol, tags: tagsCol } = getCollections(db)
     const notDeleted: any = { $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }] }
-    // 1. 基础计数
-    const [totalArticles, totalCategories, totalTags] = await Promise.all([
+
+    const [totalArticles, totalCategories, totalTags, visitSummary] = await Promise.all([
       articlesCol.countDocuments(notDeleted),
       categoriesCol.countDocuments({}),
-      tagsCol.countDocuments({})
+      tagsCol.countDocuments({}),
+      getVisitLogSummary({ days: 30 }, db)
     ])
 
-    // 2. 最近文章 (Top 5)
     const recentArticles = (await articlesCol
       .find(notDeleted, { projection: { _id: 0, id: 1, title: 1, createdAt: 1, categoryId: 1 } })
       .sort({ createdAt: -1 })
@@ -26,25 +27,22 @@ export default defineEventHandler(async (event) => {
         category_id: a.categoryId
       }))
 
-    // 3. 分类统计 (Top 10)
     const categoryStats = (await categoriesCol
       .find({}, { projection: { _id: 0, name: 1, count: 1 } })
       .sort({ count: -1 })
       .limit(10)
       .toArray()).map((c: any) => ({ name: c.name, value: c.count }))
 
-    // 4. 标签统计 (Top 10)
     const tagStats = (await tagsCol
       .find({}, { projection: { _id: 0, name: 1, count: 1 } })
       .sort({ count: -1, name: 1 })
       .limit(10)
       .toArray()).map((t: any) => ({ name: t.name, value: t.count }))
 
-    // 5. 发布趋势 (最近 6 个月)
-    const startDate = dayjs().subtract(6, 'month').toDate()
-    const trendStats = await articlesCol
+    const monthStart = dayjs().subtract(6, 'month').toDate()
+    const monthTrendStats = await articlesCol
       .aggregate([
-        { $match: { ...notDeleted, createdAt: { $gte: startDate } } },
+        { $match: { ...notDeleted, createdAt: { $gte: monthStart } } },
         {
           $group: {
             _id: { $dateToString: { format: '%Y-%m', date: '$createdAt', timezone: '+08:00' } },
@@ -56,13 +54,12 @@ export default defineEventHandler(async (event) => {
       ])
       .toArray()
 
-    // 补全缺失的月份 (如果某个月没有文章，SQL 可能不返回)
     const months: string[] = []
     for (let i = 5; i >= 0; i--) {
       months.push(dayjs().subtract(i, 'month').format('YYYY-MM'))
     }
-    
-    const trendMap = new Map(trendStats.map((item: any) => [item.date, item.count]))
+
+    const trendMap = new Map(monthTrendStats.map((item: any) => [item.date, item.count]))
     const finalTrend = months.map(date => ({
       date,
       count: trendMap.get(date) || 0
@@ -79,7 +76,16 @@ export default defineEventHandler(async (event) => {
         recentArticles: recentArticles || [],
         categoryStats: categoryStats || [],
         tagStats: tagStats || [],
-        publishTrend: finalTrend
+        publishTrend: finalTrend,
+        visitSummary: {
+          totalVisits: visitSummary.totalVisits,
+          uniqueVisitors: visitSummary.uniqueVisitors,
+          todayVisits: visitSummary.todayVisits,
+          averageDurationMs: visitSummary.averageDurationMs,
+          latestVisitedAt: visitSummary.latestVisitedAt,
+          topPaths: visitSummary.topPaths || [],
+          days: 30
+        }
       }
     }
   } catch (error) {

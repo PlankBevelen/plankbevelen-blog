@@ -251,7 +251,7 @@ import 'md-editor-v3/lib/style.css'
 import siteService from '@/services/site'
 import type { SiteContent, SiteLocalizedText, SiteProject, SiteTimelineItem } from '@/types/data/site'
 import { formatDateTime } from '@/utils/format'
-import { toApiError } from '@/utils/http'
+import { toApiError } from '@/utils/api-error'
 
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 

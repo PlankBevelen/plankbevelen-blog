@@ -71,6 +71,7 @@ export type VisitLogDoc = {
   method: string
   statusCode: number
   ip: string
+  visitorId?: string
   userAgent: string
   referer: string
   acceptLanguage: string
@@ -144,6 +145,7 @@ async function ensureIndexes(dbInstance: Db) {
     visitLogs.createIndex({ visitedAt: 1 }, { expireAfterSeconds: visitLogTtlSeconds, name: 'ttl_visited_at' }),
     visitLogs.createIndex({ path: 1, visitedAt: -1 }, { name: 'by_path_visited_at' }),
     visitLogs.createIndex({ ip: 1, visitedAt: -1 }, { name: 'by_ip_visited_at' }),
+    visitLogs.createIndex({ visitorId: 1, visitedAt: -1 }, { name: 'by_visitor_visited_at' }),
     visitLogs.createIndex({ deviceType: 1, visitedAt: -1 }, { name: 'by_device_visited_at' })
   ])
 }

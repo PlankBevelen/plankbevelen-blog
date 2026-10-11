@@ -1,13 +1,7 @@
 import type { FetchOptions } from 'ofetch'
 import { useAuthentication } from '@/composables/useAuthentication'
-import {
-  ApiError,
-  isApiEnvelope,
-  isRecord,
-  toApiError,
-  type ApiEnvelope,
-  type PageResult,
-} from '@/types/common/api'
+import type { ApiEnvelope, PageResult } from '@/types/common/api'
+import { ApiError, isApiEnvelope, isRecord, toApiError } from '@/utils/api-error'
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'HEAD'
 type QueryParams = Record<string, string | number | boolean | undefined | null>
@@ -139,4 +133,3 @@ class Http {
 
 export const http = new Http()
 export default http
-export { toApiError, ApiError }

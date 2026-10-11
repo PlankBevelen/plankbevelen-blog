@@ -1,17 +1,17 @@
 <template>
-  <div class="space-y-3">
-    <div class="grid grid-cols-1 gap-3 lg:grid-cols-4">
+  <div class="overview-page space-y-4">
+    <div class="page-intro">
+      <h2 class="page-title">概览</h2>
+      <p class="page-desc">内容量与近 30 日流量摘要</p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <BaseCard v-for="item in overviewItems" :key="item.key">
-        <div class="flex items-start justify-between gap-4">
-          <div>
-            <p class="text-xs text-mute">{{ item.title }}</p>
-            <div class="mt-2 text-h1 font-semibold text-text">{{ item.value }}</div>
-            <div class="mt-1 text-xs text-mute">{{ item.desc }}</div>
-          </div>
-          <el-tag :type="item.tagType">{{ item.tagText }}</el-tag>
-        </div>
-        <div class="mt-4 flex justify-end">
-          <el-button link type="primary" @click="item.onClick">立即查看</el-button>
+        <p class="text-xs text-mute">{{ item.title }}</p>
+        <div class="mt-2 text-h1 font-semibold text-text">{{ item.value }}</div>
+        <div class="mt-1 text-xs text-mute">{{ item.desc }}</div>
+        <div class="mt-3">
+          <el-button link type="primary" @click="item.onClick">{{ item.action }}</el-button>
         </div>
       </BaseCard>
     </div>
@@ -19,12 +19,7 @@
     <div class="grid grid-cols-1 gap-3 xl:grid-cols-3">
       <BaseCard class="xl:col-span-2">
         <template #header>
-          <div class="flex items-center justify-between gap-3">
-            <span>近 6 个月发布趋势</span>
-            <el-button link type="primary" @click="navigateTo('/admin/content/statistics')">
-              查看详情
-            </el-button>
-          </div>
+          <span>近 6 个月发布趋势</span>
         </template>
         <div ref="trendChartRef" class="h-72 w-full"></div>
       </BaseCard>
@@ -33,7 +28,7 @@
         <template #header>
           <span>快捷操作</span>
         </template>
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 gap-2">
           <el-button
             v-for="action in quickActions"
             :key="action.key"
@@ -49,13 +44,27 @@
     </div>
 
     <div class="grid grid-cols-1 gap-3 xl:grid-cols-3">
+      <BaseCard>
+        <template #header>
+          <div class="flex items-center justify-between gap-3">
+            <span>热门页面</span>
+            <el-button link type="primary" @click="navigateTo('/admin/site/logs')">访问明细</el-button>
+          </div>
+        </template>
+        <div v-if="stats.visitSummary.topPaths.length" class="top-paths">
+          <div v-for="item in stats.visitSummary.topPaths" :key="item.path" class="top-path-row">
+            <span class="path">{{ item.path }}</span>
+            <strong>{{ item.count }}</strong>
+          </div>
+        </div>
+        <el-empty v-else description="近 30 日暂无访问" :image-size="72" />
+      </BaseCard>
+
       <BaseCard class="xl:col-span-2">
         <template #header>
           <div class="flex items-center justify-between gap-3">
             <span>最近更新的文章</span>
-            <el-button link type="primary" @click="navigateTo('/admin/content/article')">
-              全部文章
-            </el-button>
+            <el-button link type="primary" @click="navigateTo('/admin/content/article')">全部文章</el-button>
           </div>
         </template>
         <el-table
@@ -80,61 +89,55 @@
           </template>
         </el-table>
       </BaseCard>
-
-      <BaseCard>
-        <template #header>
-          <div class="flex items-center justify-between gap-3">
-            <span>内容分布</span>
-            <el-button link type="primary" @click="navigateTo('/admin/content/statistics')">
-              更多图表
-            </el-button>
-          </div>
-        </template>
-        <el-tabs v-model="activeDistTab" @tab-change="onDistTabChange">
-          <el-tab-pane label="分类" name="category">
-            <div ref="categoryChartRef" class="h-64 w-full"></div>
-          </el-tab-pane>
-          <el-tab-pane label="标签" name="tag">
-            <div ref="tagChartRef" class="h-64 w-full"></div>
-          </el-tab-pane>
-        </el-tabs>
-      </BaseCard>
     </div>
+
+    <BaseCard>
+      <template #header>
+        <span>内容分布</span>
+      </template>
+      <el-tabs v-model="activeDistTab" @tab-change="onDistTabChange">
+        <el-tab-pane label="分类" name="category">
+          <div ref="categoryChartRef" class="h-64 w-full"></div>
+        </el-tab-pane>
+        <el-tab-pane label="标签" name="tag">
+          <div ref="tagChartRef" class="h-64 w-full"></div>
+        </el-tab-pane>
+      </el-tabs>
+    </BaseCard>
   </div>
 </template>
 
 <script setup lang="ts">
-definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
-
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { navigateTo } from '#app'
 import { useAdminStore } from '@/stores/admin.store'
 import { formatDate } from '@/utils/format'
 import adminService from '@/services/admin'
-import { toApiError } from '@/utils/http'
+import type { AdminDashboardResponse } from '@/types/response/admin'
+import { toApiError } from '@/utils/api-error'
 
-type DashboardTrendItem = { date: string; count: number }
-type DashboardStatItem = { name: string; value: number }
-type DashboardRecentArticle = { id: string | number; title: string; created_at: string }
-type DashboardData = {
-  totalArticles: number
-  totalCategories: number
-  totalTags: number
-  recentArticles: DashboardRecentArticle[]
-  publishTrend: DashboardTrendItem[]
-  categoryStats: DashboardStatItem[]
-  tagStats: DashboardStatItem[]
+definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
+
+const emptyVisitSummary: AdminDashboardResponse['visitSummary'] = {
+  totalVisits: 0,
+  uniqueVisitors: 0,
+  todayVisits: 0,
+  averageDurationMs: 0,
+  latestVisitedAt: null,
+  topPaths: [],
+  days: 30
 }
 
-const stats = ref<DashboardData>({
+const stats = ref<AdminDashboardResponse>({
   totalArticles: 0,
   totalCategories: 0,
   totalTags: 0,
   recentArticles: [],
   publishTrend: [],
   categoryStats: [],
-  tagStats: []
+  tagStats: [],
+  visitSummary: { ...emptyVisitSummary }
 })
 
 const trendChartRef = ref<HTMLElement>()
@@ -152,9 +155,7 @@ let tagChart: any = null
 
 const adminStore = useAdminStore()
 const themeKey = computed(() => adminStore.getTheme)
-
 const loading = ref(false)
-const lastUpdatedAt = ref<number | null>(null)
 const activeDistTab = ref<'category' | 'tag'>('category')
 
 function cssVar(name: string, fallback: string) {
@@ -247,7 +248,7 @@ async function initCategoryChart() {
         center: ['45%', '40%'],
         avoidLabelOverlap: false,
         itemStyle: {
-          borderRadius: 10,
+          borderRadius: 8,
           borderColor: cardBg,
           borderWidth: 2
         },
@@ -316,17 +317,20 @@ async function renderCharts() {
 async function fetchData() {
   loading.value = true
   try {
-    stats.value = (await adminService.getDashboard()) as DashboardData
-    lastUpdatedAt.value = Date.now()
+    const data = (await adminService.getDashboard()) as AdminDashboardResponse
+    stats.value = {
+      ...data,
+      visitSummary: data.visitSummary || { ...emptyVisitSummary }
+    }
     await renderCharts()
   } catch (error: unknown) {
-    ElMessage.error(toApiError(error).message || '获取仪表盘数据失败')
+    ElMessage.error(toApiError(error).message || '获取概览数据失败')
   } finally {
     loading.value = false
   }
 }
 
-function onRowClick(row: DashboardRecentArticle) {
+function onRowClick(row: AdminDashboardResponse['recentArticles'][number]) {
   navigateTo({
     path: '/admin/content/article/edit',
     query: { mode: 'update', id: row.id }
@@ -350,43 +354,39 @@ function handleResize() {
 const overviewItems = computed(() => [
   {
     key: 'articles',
-    title: '文章总数',
-    tagText: 'Total',
-    tagType: 'success' as const,
+    title: '文章',
     value: stats.value.totalArticles,
-    desc: '累计已收录的文章数量',
+    desc: `${stats.value.totalCategories} 个分类 · ${stats.value.totalTags} 个标签`,
+    action: '管理文章',
     onClick: () => navigateTo('/admin/content/article')
   },
   {
-    key: 'categories',
-    title: '分类总数',
-    tagText: 'Category',
-    tagType: 'warning' as const,
-    value: stats.value.totalCategories,
-    desc: '内容分类结构一目了然',
-    onClick: () => navigateTo('/admin/content/category')
+    key: 'pv',
+    title: '近 30 日访问',
+    value: stats.value.visitSummary.totalVisits,
+    desc: `今日 ${stats.value.visitSummary.todayVisits} 次`,
+    action: '查看访问',
+    onClick: () => navigateTo('/admin/site/logs')
   },
   {
-    key: 'tags',
-    title: '标签总数',
-    tagText: 'Tags',
-    tagType: 'info' as const,
-    value: stats.value.totalTags,
-    desc: '标签覆盖了不同主题与关键词',
-    onClick: () => navigateTo('/admin/content/statistics')
+    key: 'uv',
+    title: '近 30 日访客',
+    value: stats.value.visitSummary.uniqueVisitors,
+    desc: '同浏览器 Cookie 去重',
+    action: '访问明细',
+    onClick: () => navigateTo('/admin/site/logs')
   },
   {
-    key: 'recent',
+    key: 'trend',
     title: '近 6 月产出',
-    tagText: 'Trend',
-    tagType: 'primary' as const,
     value: stats.value.publishTrend.reduce((sum, item) => sum + item.count, 0),
-    desc: '最近半年新增文章总量',
-    onClick: () => navigateTo('/admin/content/statistics')
+    desc: '半年新增文章',
+    action: '写新文章',
+    onClick: () => navigateTo('/admin/content/article/edit')
   }
 ])
 
-const quickActions = computed(() => [
+const quickActions = [
   {
     key: 'create-article',
     label: '新建文章',
@@ -394,31 +394,24 @@ const quickActions = computed(() => [
     onClick: () => navigateTo('/admin/content/article/edit')
   },
   {
-    key: 'manage-article',
-    label: '文章管理',
-    onClick: () => navigateTo('/admin/content/article')
-  },
-  {
     key: 'manage-category',
     label: '分类管理',
+    type: undefined,
     onClick: () => navigateTo('/admin/content/category')
   },
   {
-    key: 'statistics',
-    label: '数据统计',
-    onClick: () => navigateTo('/admin/content/statistics')
+    key: 'site-content',
+    label: '站点内容',
+    type: undefined,
+    onClick: () => navigateTo('/admin/site/content')
   },
   {
-    key: 'site-info',
-    label: '网站信息',
-    onClick: () => navigateTo('/admin/site/info')
-  },
-  {
-    key: 'site-data',
-    label: '网站数据',
-    onClick: () => navigateTo('/admin/site/data')
+    key: 'settings',
+    label: '设置',
+    type: undefined,
+    onClick: () => navigateTo('/admin/site/settings')
   }
-])
+]
 
 watch(themeKey, async () => {
   if (typeof window === 'undefined') return
@@ -436,3 +429,48 @@ onBeforeUnmount(() => {
   disposeCharts()
 })
 </script>
+
+<style scoped lang="less">
+.page-intro {
+  margin-bottom: @space-base;
+}
+
+.page-title {
+  margin: 0;
+  font-size: @font-size-xl;
+  color: var(--text-color);
+}
+
+.page-desc {
+  margin: @space-2xs 0 0;
+  font-size: @font-size-sm;
+  color: var(--secondary-color);
+}
+
+.top-paths {
+  display: flex;
+  flex-direction: column;
+  gap: @space-md;
+}
+
+.top-path-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: @space-lg;
+
+  .path {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-color);
+    font-size: @font-size-sm;
+  }
+
+  strong {
+    flex-shrink: 0;
+    color: var(--primary-color);
+  }
+}
+</style>

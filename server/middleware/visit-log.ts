@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { defineEventHandler, getHeader, getRequestIP, getRequestURL } from 'h3'
+import { defineEventHandler, getCookie, getHeader, getRequestIP, getRequestURL, setCookie } from 'h3'
 import { getCollections, getDb } from '../utils/mongo'
 
 const EXCLUDED_PREFIXES = [
@@ -15,6 +15,8 @@ const EXCLUDED_PREFIXES = [
 ]
 
 const STATIC_FILE_RE = /\.[a-z0-9]+$/i
+const VISITOR_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const VISITOR_COOKIE_MAX_AGE = 60 * 60 * 24 * 365
 
 function parseDeviceType(userAgent: string) {
   const ua = userAgent.toLowerCase()
@@ -62,6 +64,31 @@ function shouldTrustProxy(event: any): boolean {
   return trustedIps.includes(peerIp)
 }
 
+function visitorCookieName() {
+  const prefix = (useRuntimeConfig().public.cookiePrefix as string) || 'plankbevelen_'
+  return `${prefix}vid`
+}
+
+function cookieSecure() {
+  return process.env.NODE_ENV === 'production' && process.env.COOKIE_SECURE !== '0'
+}
+
+function ensureVisitorId(event: any): string {
+  const name = visitorCookieName()
+  const existing = String(getCookie(event, name) || '')
+  if (VISITOR_ID_RE.test(existing)) return existing
+
+  const visitorId = randomUUID()
+  setCookie(event, name, visitorId, {
+    httpOnly: true,
+    secure: cookieSecure(),
+    sameSite: 'lax',
+    path: '/',
+    maxAge: VISITOR_COOKIE_MAX_AGE
+  })
+  return visitorId
+}
+
 export default defineEventHandler((event) => {
   const method = String(event.node.req.method || 'GET').toUpperCase()
   const url = getRequestURL(event)
@@ -76,6 +103,7 @@ export default defineEventHandler((event) => {
   const referer = String(getHeader(event, 'referer') || '')
   const acceptLanguage = String(getHeader(event, 'accept-language') || '')
   const ip = String(getRequestIP(event, { xForwardedFor: shouldTrustProxy(event) }) || 'unknown')
+  const visitorId = ensureVisitorId(event)
 
   event.node.res.once('finish', () => {
     const { visitLogs } = getCollections(getDb())
@@ -88,6 +116,7 @@ export default defineEventHandler((event) => {
         method,
         statusCode: Number(event.node.res.statusCode || 200),
         ip,
+        visitorId,
         userAgent,
         referer,
         acceptLanguage,

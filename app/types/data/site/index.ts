@@ -59,6 +59,7 @@ export type VisitLogItem = {
   method: string
   statusCode: number
   ip: string
+  visitorId?: string
   userAgent: string
   referer: string
   acceptLanguage: string

@@ -151,7 +151,7 @@ import { usePublicSettings } from '@/composables/usePublicSettings'
 import { SITE_URL, SITE_IMAGE } from '@/composables/useSeo'
 import friendLinkService from '@/services/friend-link'
 import type { FriendLink } from '@/types/data/friend-link'
-import { toApiError } from '@/utils/http'
+import { toApiError } from '@/utils/api-error'
 
 const EMPTY_AVATAR = '/ico/empty.ico'
 

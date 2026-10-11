@@ -15,4 +15,13 @@ export type AdminDashboardResponse = {
   categoryStats: Array<{ name: string; value: number }>
   tagStats: Array<{ name: string; value: number }>
   publishTrend: Array<{ date: string; count: number }>
+  visitSummary: {
+    totalVisits: number
+    uniqueVisitors: number
+    todayVisits: number
+    averageDurationMs: number
+    latestVisitedAt: string | Date | null
+    topPaths: Array<{ path: string; count: number }>
+    days: number
+  }
 }

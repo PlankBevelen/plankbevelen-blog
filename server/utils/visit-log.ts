@@ -28,6 +28,7 @@ export function buildVisitLogMatch(search: VisitLogSearch = {}): Filter<VisitLog
       { path: pattern },
       { fullPath: pattern },
       { ip: pattern },
+      { visitorId: pattern },
       { browser: pattern },
       { os: pattern },
       { referer: pattern }
@@ -57,7 +58,11 @@ export async function getVisitLogSummary(search: VisitLogSearch = {}, dbInstance
               $group: {
                 _id: null,
                 totalVisits: { $sum: 1 },
-                uniqueIps: { $addToSet: '$ip' },
+                uniqueVisitorKeys: {
+                  $addToSet: {
+                    $ifNull: ['$visitorId', { $concat: ['ip:', { $ifNull: ['$ip', 'unknown'] }] }]
+                  }
+                },
                 averageDurationMs: { $avg: '$durationMs' },
                 latestVisitedAt: { $max: '$visitedAt' },
                 todayVisits: {
@@ -110,7 +115,9 @@ export async function getVisitLogSummary(search: VisitLogSearch = {}, dbInstance
 
   return {
     totalVisits: Number(totals?.totalVisits || 0),
-    uniqueVisitors: Array.isArray(totals?.uniqueIps) ? totals.uniqueIps.filter(Boolean).length : 0,
+    uniqueVisitors: Array.isArray(totals?.uniqueVisitorKeys)
+      ? totals.uniqueVisitorKeys.filter(Boolean).length
+      : 0,
     averageDurationMs: Math.round(Number(totals?.averageDurationMs || 0)),
     todayVisits: Number(totals?.todayVisits || 0),
     latestVisitedAt: totals?.latestVisitedAt || null,

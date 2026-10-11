@@ -28,16 +28,14 @@ const isLoginPage = computed(() => route.path === '/admin/login')
 const isCollapsed = ref(false)
 
 const navTitleMap: Record<string, string> = {
-  '/admin': '控制台',
-  '/admin/content/article': '文章管理',
+  '/admin': '概览',
+  '/admin/content/article': '文章',
   '/admin/content/article/edit': '编辑文章',
-  '/admin/content/category': '分类管理',
-  '/admin/content/statistics': '统计分析',
+  '/admin/content/category': '分类',
   '/admin/site/content': '站点内容',
-  '/admin/site/info': '站点信息',
-  '/admin/site/data': '站点数据',
-  '/admin/site/logs': '访问日志',
-  '/admin/site/friend-links': '友链管理'
+  '/admin/site/logs': '访问',
+  '/admin/site/friend-links': '友链',
+  '/admin/site/settings': '设置'
 }
 
 const toggleCollapsed = () => {
@@ -53,7 +51,7 @@ const navTitle = computed(() => navTitleMap[route.path] || '管理后台')
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  background-color: var(--admin-bg-color, #f5f7fa);
+  background-color: var(--bg-color);
 }
 
 .admin-main {

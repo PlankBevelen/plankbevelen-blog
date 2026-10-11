@@ -108,7 +108,7 @@ import categoryService from '@/services/category'
 import tagService from '@/services/tag'
 import uploadService from '@/services/upload'
 import type { NewArticle } from '@/types/request/article'
-import { toApiError } from '@/utils/http'
+import { toApiError } from '@/utils/api-error'
 
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
