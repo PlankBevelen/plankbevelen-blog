@@ -1,21 +1,16 @@
 <template>
   <div class="admin-layout">
-    <template v-if="!isLoginPage">
-      <LayoutAdminSideBar :isCollapsed="isCollapsed" />
-      <div class="admin-main">
-        <LayoutAdminHeader
-          :collapsed="isCollapsed"
-          :navTitle="navTitle"
-          @toggle="toggleCollapsed"
-        />
-        <div class="admin-content">
-          <NuxtPage />
-        </div>
+    <LayoutAdminSideBar :isCollapsed="isCollapsed" />
+    <div class="admin-main">
+      <LayoutAdminHeader
+        :collapsed="isCollapsed"
+        :navTitle="navTitle"
+        @toggle="toggleCollapsed"
+      />
+      <div class="admin-content">
+        <NuxtPage />
       </div>
-    </template>
-    <template v-else>
-      <NuxtPage />
-    </template>
+    </div>
   </div>
 </template>
 
@@ -24,11 +19,9 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const isLoginPage = computed(() => route.path === '/admin/login')
 const isCollapsed = ref(false)
 
 const navTitleMap: Record<string, string> = {
-  '/admin': '概览',
   '/admin/content/article': '文章',
   '/admin/content/article/edit': '编辑文章',
   '/admin/content/category': '分类',
@@ -65,7 +58,7 @@ const navTitle = computed(() => navTitleMap[route.path] || '管理后台')
 .admin-content {
   flex: 1;
   overflow-y: auto;
-  padding: @space-3xl;
+  padding: @space-2xl @space-3xl;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
   background-color: var(--bg-color);

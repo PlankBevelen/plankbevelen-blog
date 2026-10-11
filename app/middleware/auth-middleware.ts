@@ -8,7 +8,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   if (to.path === '/admin/login') {
     if (adminStore.isAuthenticated) {
-      return navigateTo('/admin', { replace: true })
+      return navigateTo('/admin/content/article', { replace: true })
     }
     return
   }

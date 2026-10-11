@@ -1,79 +1,84 @@
 <template>
-  <div class="friend-links">
-    <div class="header">
-      <h2 class="title">友链管理</h2>
-    </div>
-
-    <el-card shadow="hover" class="self-card">
-      <template #header>
-        <div class="card-header-content">
-          <span>本站信息</span>
-          <el-button type="primary" link size="small" @click="openSelfEdit">编辑</el-button>
-        </div>
+  <div class="friend-links-page">
+    <AdminPageHeader title="友链" description="管理本站展示信息与友链申请审核。">
+      <template #actions>
+        <el-button type="primary" @click="handleEdit('add')">新增友链</el-button>
       </template>
-      <div class="self-info">
-        <img class="self-avatar" :src="selfInfo.avatar" alt="" loading="lazy" />
-        <div class="self-meta">
-          <div class="self-line"><strong>{{ selfInfo.name }}</strong> · <a :href="selfInfo.url" target="_blank" rel="noopener noreferrer">{{ selfInfo.url }}</a></div>
-          <div class="self-desc">{{ selfInfo.description }}</div>
-        </div>
-      </div>
-    </el-card>
+    </AdminPageHeader>
 
-    <el-card shadow="hover" class="friend-links-card">
+    <AdminPanel class="self-panel">
+      <div class="self-info">
+        <div class="avatar-cell">
+          <img v-if="selfInfo.avatar" :src="selfInfo.avatar" alt="" loading="lazy" />
+          <span v-else class="avatar-fallback">{{ (selfInfo.name || '?').charAt(0).toUpperCase() }}</span>
+        </div>
+        <div class="self-meta">
+          <div class="self-line">
+            <strong>{{ selfInfo.name || '未设置本站名称' }}</strong>
+            <template v-if="selfInfo.url">
+              ·
+              <a :href="selfInfo.url" target="_blank" rel="noopener noreferrer">{{ selfInfo.url }}</a>
+            </template>
+          </div>
+          <div class="self-desc">{{ selfInfo.description || '暂无简介' }}</div>
+        </div>
+        <el-button type="primary" link @click="openSelfEdit">编辑本站信息</el-button>
+      </div>
+    </AdminPanel>
+
+    <BaseDataTable
+      :data="list"
+      :loading="loading"
+      row-key="id"
+      empty-text="暂无友链"
+      hide-pagination
+    >
       <template #header>
-        <div class="card-header-content">
+        <BaseQueryBar>
           <el-radio-group v-model="statusFilter" @change="getList">
             <el-radio-button value="">全部</el-radio-button>
             <el-radio-button value="pending">待审</el-radio-button>
             <el-radio-button value="approved">已通过</el-radio-button>
             <el-radio-button value="rejected">已拒绝</el-radio-button>
           </el-radio-group>
-          <div class="actions">
-            <el-button type="primary" icon="Plus" @click="handleEdit('add')">新增友链</el-button>
-          </div>
-        </div>
+          <template #actions>
+            <el-button @click="getList">刷新</el-button>
+          </template>
+        </BaseQueryBar>
       </template>
 
-      <el-table
-        :data="list"
-        style="width: 100%"
-        v-loading="loading"
-        :header-cell-style="{ background: 'var(--bg-color)', color: 'var(--text-color)' }"
-      >
-        <el-table-column label="图标" width="70">
-          <template #default="scope">
-            <div class="avatar-cell">
-              <img v-if="scope.row.avatar" :src="scope.row.avatar" alt="" loading="lazy" @error="scope.row.avatar = ''" />
-              <span v-else class="avatar-fallback">{{ (scope.row.name || '?').charAt(0).toUpperCase() }}</span>
-            </div>
+      <el-table-column label="图标" width="70">
+        <template #default="{ row }">
+          <div class="avatar-cell">
+            <img v-if="row.avatar" :src="row.avatar" alt="" loading="lazy" @error="row.avatar = ''" />
+            <span v-else class="avatar-fallback">{{ (row.name || '?').charAt(0).toUpperCase() }}</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="name" label="站点名称" min-width="140" />
+      <el-table-column prop="url" label="站点地址" min-width="200" show-overflow-tooltip />
+      <el-table-column label="状态" width="100">
+        <template #default="{ row }">
+          <el-tag :type="statusTagType(row.status)" effect="plain" size="small">
+            {{ statusText(row.status) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="description" label="简介" min-width="200" show-overflow-tooltip />
+      <el-table-column label="操作" width="220" fixed="right">
+        <template #default="{ row }">
+          <template v-if="row.status === 'pending'">
+            <el-button type="success" link size="small" @click="changeStatus(row, 'approved')">通过</el-button>
+            <el-button type="warning" link size="small" @click="changeStatus(row, 'rejected')">拒绝</el-button>
           </template>
-        </el-table-column>
-        <el-table-column prop="name" label="站点名称" min-width="140" />
-        <el-table-column prop="url" label="站点地址" min-width="200" show-overflow-tooltip />
-        <el-table-column label="状态" width="100">
-          <template #default="scope">
-            <el-tag :type="statusTagType(scope.row.status)" effect="plain" round>
-              {{ statusText(scope.row.status) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="description" label="简介" min-width="200" show-overflow-tooltip />
-        <el-table-column label="操作" width="240" fixed="right">
-          <template #default="scope">
-            <template v-if="scope.row.status === 'pending'">
-              <el-button type="success" link size="small" @click="changeStatus(scope.row, 'approved')">通过</el-button>
-              <el-button type="warning" link size="small" @click="changeStatus(scope.row, 'rejected')">拒绝</el-button>
-            </template>
-            <el-button type="primary" link size="small" @click="handleEdit('update', scope.row)">编辑</el-button>
-            <el-button type="danger" link size="small" @click="handleDelete(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
+          <el-button type="primary" link size="small" @click="handleEdit('update', row)">编辑</el-button>
+          <el-button type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
+        </template>
+      </el-table-column>
+    </BaseDataTable>
 
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="520px" destroy-on-close>
-      <el-form :model="form" :rules="rules" ref="formRef" label-position="top">
+      <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
         <el-form-item label="站点名称" prop="name">
           <el-input v-model="form.name" maxlength="50" show-word-limit />
         </el-form-item>
@@ -96,7 +101,7 @@
     </el-dialog>
 
     <el-dialog v-model="selfDialogVisible" title="编辑本站信息" width="520px" destroy-on-close>
-      <el-form :model="selfForm" :rules="selfRules" ref="selfFormRef" label-position="top">
+      <el-form ref="selfFormRef" :model="selfForm" :rules="selfRules" label-position="top">
         <el-form-item label="站点名称" prop="name">
           <el-input v-model="selfForm.name" maxlength="50" show-word-limit />
         </el-form-item>
@@ -244,7 +249,7 @@ const changeStatus = async (row: FriendLink, status: FriendLinkStatus) => {
       url: row.url,
       description: row.description,
       avatar: row.avatar,
-      status,
+      status
     })
     ElMessage.success(status === 'approved' ? '已通过' : '已拒绝')
     await getList()
@@ -273,97 +278,48 @@ onMounted(() => {
 </script>
 
 <style lang="less" scoped>
-.friend-links {
-  height: 100%;
+.self-panel {
+  margin-bottom: @space-2xl;
+}
+
+.self-info {
   display: flex;
+  align-items: center;
+  gap: @space-2xl;
+}
+
+.self-meta {
+  display: flex;
+  flex: 1;
   flex-direction: column;
+  gap: @space-2xs;
+  min-width: 0;
+}
 
-  .header {
-    margin-bottom: @space-4xl;
-    .title {
-      font-size: @font-size-2xl;
-      font-weight: 600;
-      color: var(--text-color);
-      margin: 0;
-    }
-  }
+.self-line {
+  font-size: @font-size-sm;
+  color: var(--text-color);
 
-  .self-card {
-    margin-bottom: @space-3xl;
-  }
-
-  .self-info {
-    display: flex;
-    align-items: center;
-    gap: @space-2xl;
-
-    .self-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: @base-border-radius;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
-
-    .self-meta {
-      display: flex;
-      flex-direction: column;
-      gap: @space-2xs;
-      min-width: 0;
-
-      .self-line {
-        font-size: @font-size-sm;
-        color: var(--text-color);
-
-        a {
-          color: var(--primary-color);
-          text-decoration: none;
-        }
-      }
-
-      .self-desc {
-        font-size: @font-size-xs;
-        color: var(--tertiary-color);
-      }
-    }
-  }
-
-  .friend-links-card {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-
-    :deep(.el-card__body) {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      padding: 0;
-    }
-  }
-
-  .card-header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .actions {
-      display: flex;
-      gap: @space-2xl;
-      align-items: center;
-    }
+  a {
+    color: var(--primary-color);
+    text-decoration: none;
   }
 }
 
+.self-desc {
+  font-size: @font-size-xs;
+  color: var(--tertiary-color);
+}
+
 .avatar-cell {
-  width: 40px;
-  height: 40px;
-  border-radius: @base-border-radius;
-  overflow: hidden;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: @base-border-radius;
   background-color: var(--mute-bg-color);
 
   img {
@@ -371,12 +327,12 @@ onMounted(() => {
     height: 100%;
     object-fit: cover;
   }
+}
 
-  .avatar-fallback {
-    font-size: @font-size-md;
-    font-weight: 600;
-    color: var(--primary-color);
-  }
+.avatar-fallback {
+  font-size: @font-size-md;
+  font-weight: 600;
+  color: var(--primary-color);
 }
 
 .dialog-footer {

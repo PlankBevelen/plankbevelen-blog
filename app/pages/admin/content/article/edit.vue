@@ -1,19 +1,15 @@
 <template>
-  <div class="article-edit space-y-6">
+  <div class="article-edit">
     <header class="edit-toolbar">
-      <h1 class="edit-title">{{ pageTitle }}</h1>
-      <div class="edit-actions">
-        <el-button @click="navigateTo('/admin/content/article')">返回列表</el-button>
-        <el-button type="primary" :loading="saving" @click="onSubmit">保存文章</el-button>
+      <div class="edit-toolbar__left">
+        <el-button @click="navigateTo('/admin/content/article')">返回</el-button>
+        <h1 class="edit-title">{{ pageTitle }}</h1>
       </div>
+      <el-button type="primary" :loading="saving" @click="onSubmit">保存文章</el-button>
     </header>
 
     <div v-loading="initializing" class="editor-layout">
-      <BaseCard class="meta-panel">
-        <template #header>
-          <span>文章设置</span>
-        </template>
-
+      <AdminPanel title="文章设置" class="meta-panel">
         <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
           <el-form-item label="文章标题" prop="title">
             <el-input v-model="form.title" placeholder="请输入文章标题" clearable />
@@ -56,34 +52,29 @@
           </el-form-item>
         </el-form>
 
-        <div class="meta-cards">
+        <div class="meta-strip">
           <div class="meta-item">
-            <span>字数估算</span>
+            <span>字数</span>
             <strong>{{ wordCount }}</strong>
           </div>
           <div class="meta-item">
-            <span>阅读时间</span>
-            <strong>{{ readingTime }} 分钟</strong>
+            <span>阅读</span>
+            <strong>{{ readingTime }} 分</strong>
           </div>
           <div class="meta-item">
-            <span>标签数量</span>
+            <span>标签</span>
             <strong>{{ form.tags.length }}</strong>
           </div>
-          <div class="meta-item">
-            <span>当前模式</span>
-            <strong>{{ mode === 'add' ? '新建' : '编辑' }}</strong>
-          </div>
         </div>
-      </BaseCard>
+      </AdminPanel>
 
-      <BaseCard class="editor-panel">
+      <AdminPanel class="editor-panel">
         <template #header>
-          <div class="flex items-center justify-between gap-3">
-            <span>Markdown 编辑器</span>
-            <span class="editor-tip">支持图片上传，保存时会自动同步标签统计</span>
-          </div>
+          <span>正文</span>
         </template>
-
+        <template #extra>
+          <span class="editor-tip">支持图片上传</span>
+        </template>
         <MdEditor
           v-model="form.content"
           class="md-editor"
@@ -91,7 +82,7 @@
           :toolbars-exclude="['github']"
           @onUploadImg="onUploadImg"
         />
-      </BaseCard>
+      </AdminPanel>
     </div>
   </div>
 </template>
@@ -224,8 +215,8 @@ const onUploadImg = async (files: File[], callback: (urls: string[]) => void) =>
 const syncTags = async () => {
   const currentTags = Array.isArray(form.value.tags) ? form.value.tags : []
   const previousTags = originalTags.value
-  const add = currentTags.filter(tag => !previousTags.includes(tag))
-  const remove = previousTags.filter(tag => !currentTags.includes(tag))
+  const add = currentTags.filter((tag) => !previousTags.includes(tag))
+  const remove = previousTags.filter((tag) => !currentTags.includes(tag))
 
   if (add.length || remove.length) {
     await tagService.syncTags(add, remove)
@@ -266,58 +257,69 @@ onMounted(() => {
 
 <style scoped lang="less">
 .edit-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: @z-dropdown;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: @space-2xl;
+  margin: -@space-2xl -@space-3xl @space-2xl;
+  padding: @space-lg @space-3xl;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--header-color, var(--card-color));
+}
+
+.edit-toolbar__left {
+  display: flex;
+  align-items: center;
+  gap: @space-lg;
+  min-width: 0;
 }
 
 .edit-title {
   margin: 0;
-  font-size: 22px;
-  color: var(--text-color);
+  font-size: @font-size-lg;
   font-weight: 600;
-}
-
-.edit-actions {
-  display: flex;
-  gap: @space-lg;
+  color: var(--text-color);
 }
 
 .editor-layout {
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
-  gap: @space-4xl;
-  min-height: calc(100vh - 200px);
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: @space-2xl;
+  min-height: calc(100vh - 180px);
 }
 
 .meta-panel {
   height: fit-content;
 }
 
-.meta-cards {
+.meta-strip {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: @space-lg;
-  margin-top: @space-3xl;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: @space-lg;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: @small-border-radius;
+  background: var(--border-color);
 }
 
 .meta-item {
-  padding: @space-xl;
-  border-radius: 18px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-color, #f7f9fc);
+  padding: @space-lg;
+  background: var(--bg-color);
 
   span {
     display: block;
     font-size: @font-size-xs;
-    color: var(--tertiary-color);
+    color: var(--mute-color);
   }
 
   strong {
     display: block;
-    margin-top: @space-base;
-    font-size: @font-size-lg;
+    margin-top: @space-2xs;
+    font-size: @font-size-md;
     color: var(--text-color);
   }
 }
@@ -325,27 +327,29 @@ onMounted(() => {
 .editor-panel {
   min-width: 0;
 
-  :deep(.card-content) {
+  :deep(.admin-panel__body) {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    padding: 0;
   }
 }
 
 .editor-tip {
   font-size: @font-size-xs;
   color: var(--tertiary-color);
+  font-weight: 400;
 }
 
 .md-editor {
-  height: 72vh !important;
-  min-height: 560px;
+  height: calc(100vh - 200px) !important;
+  min-height: 520px;
+  border: none !important;
 }
 
 @media (max-width: @screen-admin-narrow) {
   .edit-toolbar {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-wrap: wrap;
   }
 
   .editor-layout {
@@ -354,6 +358,7 @@ onMounted(() => {
 
   .md-editor {
     min-height: 420px;
+    height: 60vh !important;
   }
 }
 </style>

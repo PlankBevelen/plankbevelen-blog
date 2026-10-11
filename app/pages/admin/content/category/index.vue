@@ -1,62 +1,63 @@
 <template>
-  <div class="category">
-    <div class="header">
-        <h2 class="title">分类管理</h2>
-    </div>
-
-    <el-card shadow="hover" class="category-card">
-      <template #header>
-          <div class="card-header-content">
-              <div class="search-area">
-                  <el-input 
-                      v-model="searchText" 
-                      placeholder="搜索分类名称" 
-                      clearable 
-                      prefix-icon="Search"
-                      class="search-input"
-                  />
-              </div>
-              <div class="actions">
-                  <el-button type="primary" icon="Plus" @click="handleEdit('add')">新增分类</el-button>
-              </div>
-          </div>
+  <div class="category-page">
+    <AdminPageHeader title="分类" description="维护文章分类，供发布时选用。">
+      <template #actions>
+        <el-button type="primary" @click="handleEdit('add')">新增分类</el-button>
       </template>
-      <div class="category-content">
-          <el-table :data="filteredCategoryList" style="width: 100%" :header-cell-style="{ background: 'var(--bg-color)', color: 'var(--text-color)' }">
-              <el-table-column prop="name" label="分类名称">
-                  <template #default="scope">
-                      <span style="font-weight: 500;">{{ scope.row.name }}</span>
-                  </template>
-              </el-table-column>
-              <el-table-column prop="count" label="文章数" width="120" sortable>
-                  <template #default="scope">
-                      <el-tag type="info" effect="plain" round>{{ scope.row.count || 0 }}</el-tag>
-                  </template>
-              </el-table-column>
-              <el-table-column prop="createdAt" label="创建时间" width="180" sortable></el-table-column>
-              <el-table-column prop="updatedAt" label="更新时间" width="180" sortable></el-table-column>
-              <el-table-column label="操作" width="180" fixed="right">
-                  <template #default="scope">
-                      <el-button type="primary" link size="small" @click="handleEdit('update', scope.row.id)">编辑</el-button>
-                      <el-button type="danger" link size="small" @click="handleDelete(scope.row.id)">删除</el-button>
-                  </template>
-              </el-table-column>
-          </el-table>
-      </div>
-    </el-card>
+    </AdminPageHeader>
+
+    <BaseDataTable
+      :data="filteredCategoryList"
+      :loading="loading"
+      row-key="id"
+      empty-text="暂无分类"
+      hide-pagination
+    >
+      <template #header>
+        <BaseQueryBar>
+          <el-input
+            v-model="searchText"
+            placeholder="搜索分类名称"
+            clearable
+            class="search-input"
+          />
+        </BaseQueryBar>
+      </template>
+
+      <el-table-column prop="name" label="分类名称" min-width="180">
+        <template #default="{ row }">
+          <span class="name-cell">{{ row.name }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="count" label="文章数" width="100" sortable>
+        <template #default="{ row }">
+          {{ row.count || 0 }}
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="updatedAt" label="更新时间" width="180" sortable />
+
+      <el-table-column label="操作" width="140" fixed="right">
+        <template #default="{ row }">
+          <el-button type="primary" link size="small" @click="handleEdit('update', row.id)">编辑</el-button>
+          <el-button type="danger" link size="small" @click="handleDelete(row.id)">删除</el-button>
+        </template>
+      </el-table-column>
+    </BaseDataTable>
 
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="480px" destroy-on-close>
-        <el-form :model="form" :rules="rules" ref="formRef" label-position="top">
-            <el-form-item label="分类名称" prop="name">
-                <el-input v-model="form.name" placeholder="请输入分类名称" />
-            </el-form-item>
-        </el-form>
-        <template #footer>
-            <div class="dialog-footer">
-                <el-button @click="dialogVisible = false">取消</el-button>
-                <el-button type="primary" @click="onSubmit">确定</el-button>
-            </div>
-        </template>
+      <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
+        <el-form-item label="分类名称" prop="name">
+          <el-input v-model="form.name" placeholder="请输入分类名称" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="onSubmit">确定</el-button>
+        </div>
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -73,6 +74,7 @@ import type { FormInstance } from 'element-plus'
 
 const searchText = ref('')
 const categoryList = ref<Category[]>([])
+const loading = ref(false)
 const dialogVisible = ref(false)
 const mode = ref<'add' | 'update'>('add')
 const currentId = ref<string | null>(null)
@@ -82,140 +84,95 @@ const rules = { name: [{ required: true, message: '请输入分类名称', trigg
 
 const dialogTitle = computed(() => (mode.value === 'add' ? '新增分类' : '编辑分类'))
 const filteredCategoryList = computed(() => {
-    const text = (searchText.value || '').trim()
-    const mapped = categoryList.value.map((c) => ({
-      ...c,
-      createdAt: formatDateTime(c.createTime || ''),
-      updatedAt: formatDateTime(c.updateTime || ''),
-    }))
-    if (!text) return mapped
-    return mapped.filter((c) => String(c.name).includes(text))
+  const text = (searchText.value || '').trim()
+  const mapped = categoryList.value.map((c) => ({
+    ...c,
+    createdAt: formatDateTime(c.createTime || ''),
+    updatedAt: formatDateTime(c.updateTime || '')
+  }))
+  if (!text) return mapped
+  return mapped.filter((c) => String(c.name).includes(text))
 })
 
 const getCategoryList = async () => {
-    try {
-        categoryList.value = (await categoryService.getCategories()) || []
-    } catch (error: unknown) {
-        ElMessage.error(toApiError(error).message || '分类查询错误')
-    }
+  loading.value = true
+  try {
+    categoryList.value = (await categoryService.getCategories()) || []
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '分类查询错误')
+  } finally {
+    loading.value = false
+  }
 }
 
-const openDialog = () => { dialogVisible.value = true }
-const closeDialog = () => { dialogVisible.value = false }
+const openDialog = () => {
+  dialogVisible.value = true
+}
+const closeDialog = () => {
+  dialogVisible.value = false
+}
 
 const handleEdit = (m: 'add' | 'update', id?: string) => {
-    mode.value = m
-    if (m === 'add') {
-        currentId.value = null
-        form.value = { name: '' }
-    } else {
-        const item = categoryList.value.find((i) => i.id === id)
-        currentId.value = item?.id || null
-        form.value = { name: item?.name || '' }
-    }
-    openDialog()
+  mode.value = m
+  if (m === 'add') {
+    currentId.value = null
+    form.value = { name: '' }
+  } else {
+    const item = categoryList.value.find((i) => i.id === id)
+    currentId.value = item?.id || null
+    form.value = { name: item?.name || '' }
+  }
+  openDialog()
 }
 
 const handleDelete = async (id: string) => {
-    try {
-        await ElMessageBox.confirm('确认删除该分类吗？', '提示', { type: 'warning' })
-        await categoryService.deleteCategory(id)
-        ElMessage.success('删除成功')
-        await getCategoryList()
-    } catch (error: unknown) {
-        if (error === 'cancel' || error === 'close') return
-        ElMessage.error(toApiError(error).message || '删除失败')
-    }
+  try {
+    await ElMessageBox.confirm('确认删除该分类吗？', '提示', { type: 'warning' })
+    await categoryService.deleteCategory(id)
+    ElMessage.success('删除成功')
+    await getCategoryList()
+  } catch (error: unknown) {
+    if (error === 'cancel' || error === 'close') return
+    ElMessage.error(toApiError(error).message || '删除失败')
+  }
 }
 
 const onSubmit = async () => {
-    const valid = await formRef.value?.validate().catch(() => false)
-    if (!valid) return
-    try {
-        if (mode.value === 'add') {
-            await categoryService.createCategory(form.value.name)
-            ElMessage.success('新增成功')
-        } else if (currentId.value) {
-            await categoryService.updateCategory(currentId.value, form.value.name)
-            ElMessage.success('编辑成功')
-        }
-        closeDialog()
-        await getCategoryList()
-    } catch (error: unknown) {
-        ElMessage.error(toApiError(error).message || '保存失败')
+  const valid = await formRef.value?.validate().catch(() => false)
+  if (!valid) return
+  try {
+    if (mode.value === 'add') {
+      await categoryService.createCategory(form.value.name)
+      ElMessage.success('新增成功')
+    } else if (currentId.value) {
+      await categoryService.updateCategory(currentId.value, form.value.name)
+      ElMessage.success('编辑成功')
     }
+    closeDialog()
+    await getCategoryList()
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '保存失败')
+  }
 }
 
-onMounted(() => { 
-  getCategoryList() 
+onMounted(() => {
+  getCategoryList()
 })
 </script>
 
 <style lang="less" scoped>
-.category {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-
-    .header {
-        margin-bottom: @space-4xl;
-        .title {
-            font-size: @font-size-2xl;
-            font-weight: 600;
-            color: var(--text-color);
-            margin: 0;
-        }
-    }
-    
-    .category-card {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        
-        :deep(.el-card__body) {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            padding: 0;
-        }
-    }
-
-    .card-header-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        .search-area {
-            .search-input {
-                width: 300px;
-            }
-        }
-        
-        .actions {
-            display: flex;
-            gap: @space-2xl;
-            align-items: center;
-        }
-    }
-
-    .category-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-
-        :deep(.el-table) {
-            flex: 1;
-
-            th.el-table__cell {
-                background-color: var(--bg-color-soft);
-                font-weight: 600;
-                color: var(--text-color-primary);
-            }
-        }
-    }
+.search-input {
+  width: 260px;
 }
-.dialog-footer { display: flex; justify-content: flex-end; gap: 12px; }
+
+.name-cell {
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: @space-lg;
+}
 </style>

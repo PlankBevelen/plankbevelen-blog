@@ -1,28 +1,22 @@
 <template>
-  <div class="space-y-6">
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
-      <BaseCard v-for="card in summaryCards" :key="card.key">
-        <p class="text-xs text-mute">{{ card.label }}</p>
-        <div class="mt-2 text-h1 font-semibold text-text">{{ card.value }}</div>
-        <div class="mt-1 text-xs text-mute">{{ card.desc }}</div>
-      </BaseCard>
-      <BaseCard>
-        <p class="text-xs text-mute">最后更新</p>
-        <div class="!mt-1 text-sm font-semibold text-text">{{ updatedAtText }}</div>
-        <div class="!mt-1 flex gap-3">
-          <el-button :loading="loading" @click="fetchContent">重新加载</el-button>
-          <el-button type="primary" :loading="saving" @click="onSave">保存内容</el-button>
-        </div>
-      </BaseCard>
-    </div>
+  <div class="content-page">
+    <AdminPageHeader title="站点内容" description="维护关于页、时间线与项目展示。">
+      <template #actions>
+        <el-button :loading="loading" @click="fetchContent">重新加载</el-button>
+        <el-button type="primary" :loading="saving" @click="onSave">保存</el-button>
+      </template>
+    </AdminPageHeader>
+
+    <AdminStatStrip :items="summaryItems" />
 
     <LayoutTwoColumn v-loading="loading" type="rightbigger">
       <template #left>
-        <BaseCard>
-          <div class="flex flex-col gap-1 text-sm">
+        <AdminPanel title="分区">
+          <div class="section-nav">
             <button
               v-for="section in sections"
               :key="section.key"
+              type="button"
               class="section-nav-item"
               :class="{ active: activeSection === section.key }"
               @click="switchSection(section.key)"
@@ -31,14 +25,14 @@
               <span class="nav-count">{{ section.count }}</span>
             </button>
           </div>
-        </BaseCard>
+        </AdminPanel>
 
-        <BaseCard v-if="activeSection === 'timeline'">
+        <AdminPanel v-if="activeSection === 'timeline'" class="list-panel">
           <template #header>
-            <div class="card-list-header">
-              <span>时间线列表</span>
-              <el-button link type="primary" @click="addTimelineItem">+ 新增</el-button>
-            </div>
+            <span>时间线列表</span>
+          </template>
+          <template #extra>
+            <el-button link type="primary" @click="addTimelineItem">新增</el-button>
           </template>
           <div v-if="form.timeline.length" class="card-list-items">
             <button
@@ -53,14 +47,14 @@
             </button>
           </div>
           <el-empty v-else description="暂无时间线" :image-size="60" />
-        </BaseCard>
+        </AdminPanel>
 
-        <BaseCard v-if="activeSection === 'projects'">
+        <AdminPanel v-if="activeSection === 'projects'" class="list-panel">
           <template #header>
-            <div class="card-list-header">
-              <span>项目列表</span>
-              <el-button link type="primary" @click="addProject">+ 新增</el-button>
-            </div>
+            <span>项目列表</span>
+          </template>
+          <template #extra>
+            <el-button link type="primary" @click="addProject">新增</el-button>
           </template>
           <div v-if="form.projects.length" class="card-list-items">
             <button
@@ -75,7 +69,7 @@
             </button>
           </div>
           <el-empty v-else description="暂无项目" :image-size="60" />
-        </BaseCard>
+        </AdminPanel>
       </template>
 
       <template #right>
@@ -84,7 +78,7 @@
             <h2 class="section-title">关于页面</h2>
             <p class="section-desc">编辑 /about 页面的介绍内容，支持 Markdown。</p>
           </div>
-          <BaseCard>
+          <AdminPanel>
             <div class="editor-grid">
               <div>
                 <p class="editor-label">中文</p>
@@ -95,7 +89,7 @@
                 <MdEditor v-model="form.pages.about.en" class="content-editor" />
               </div>
             </div>
-          </BaseCard>
+          </AdminPanel>
         </div>
 
         <div v-if="activeSection === 'timeline'">
@@ -117,7 +111,7 @@
                 <el-button type="danger" plain @click="selectedTimelineIndex !== null && removeTimeline(selectedTimelineIndex)">删除</el-button>
               </div>
             </div>
-            <BaseCard>
+            <AdminPanel>
               <el-form label-position="top">
                 <div class="inline-grid">
                   <el-form-item label="年份">
@@ -142,11 +136,11 @@
                   <el-input v-model="editingTimelineItem.desc.en" type="textarea" :rows="3" placeholder="Timeline description" />
                 </el-form-item>
               </el-form>
-            </BaseCard>
+            </AdminPanel>
           </template>
-          <BaseCard v-else>
+          <AdminPanel v-else>
             <el-empty description="请从左侧选择一条时间线" />
-          </BaseCard>
+          </AdminPanel>
         </div>
 
         <div v-if="activeSection === 'projects'">
@@ -168,7 +162,7 @@
                 <el-button type="danger" plain @click="selectedProjectIndex !== null && removeProject(selectedProjectIndex)">删除</el-button>
               </div>
             </div>
-            <BaseCard>
+            <AdminPanel>
               <el-form label-position="top">
                 <el-form-item label="标题">
                   <el-input v-model="editingProject.title" placeholder="plankbevelen" />
@@ -232,11 +226,11 @@
                   />
                 </el-form-item>
               </el-form>
-            </BaseCard>
+            </AdminPanel>
           </template>
-          <BaseCard v-else>
+          <AdminPanel v-else>
             <el-empty description="请从左侧选择一个项目" />
-          </BaseCard>
+          </AdminPanel>
         </div>
       </template>
     </LayoutTwoColumn>
@@ -252,6 +246,7 @@ import siteService from '@/services/site'
 import type { SiteContent, SiteLocalizedText, SiteProject, SiteTimelineItem } from '@/types/data/site'
 import { formatDateTime } from '@/utils/format'
 import { toApiError } from '@/utils/api-error'
+import type { StatStripItem } from '@/components/admin/StatStrip.vue'
 
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
@@ -365,9 +360,10 @@ const sections = computed(() => [
   { key: 'projects' as const, label: '项目', count: form.value.projects.length }
 ])
 
-const summaryCards = computed(() => [
-  { key: 'timeline', label: '时间线条目', value: form.value.timeline.length, desc: '前台时间线数量' },
-  { key: 'projects', label: '项目数量', value: form.value.projects.length, desc: '项目列表条目' }
+const summaryItems = computed<StatStripItem[]>(() => [
+  { key: 'timeline', label: '时间线', value: form.value.timeline.length, desc: '条目数' },
+  { key: 'projects', label: '项目', value: form.value.projects.length, desc: '条目数' },
+  { key: 'updated', label: '最后更新', value: updatedAtText.value, desc: '保存后刷新' }
 ])
 
 const editingTimelineItem = computed((): SiteTimelineItem => {
@@ -517,6 +513,18 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
+.content-page {
+  .list-panel {
+    margin-top: @space-2xl;
+  }
+}
+
+.section-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .section-nav-item {
   display: flex;
   align-items: center;
@@ -524,22 +532,24 @@ onMounted(() => {
   width: 100%;
   padding: @space-md @space-xl;
   border: none;
+  border-left: 2px solid transparent;
   border-radius: @small-border-radius;
   background: transparent;
   color: var(--secondary-color);
-  font-size: @base-font-size;
+  font-size: @font-size-sm;
   cursor: pointer;
-  transition: all @transition-fast;
+  transition: background-color @transition-fast, color @transition-fast;
   text-align: left;
 
   &:hover {
-    background: var(--el-fill-color-light);
+    background: var(--shallow-hover-bg-color);
     color: var(--text-color);
   }
 
   &.active {
-    background: var(--el-color-primary-light-9);
-    color: var(--el-color-primary);
+    border-left-color: var(--primary-color);
+    background: var(--shallow-active-bg-color);
+    color: var(--primary-color);
     font-weight: 600;
   }
 }
@@ -555,13 +565,6 @@ onMounted(() => {
 .section-nav-item.active .nav-count {
   background: var(--el-color-primary-light-7);
   color: var(--el-color-primary);
-}
-
-.card-list-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
 }
 
 .card-list-items {

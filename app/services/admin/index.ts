@@ -1,5 +1,5 @@
 import http from '~/utils/http'
-import type { AdminDashboardResponse, AdminSessionResponse } from '@/types/response/admin'
+import type { AdminSessionResponse } from '@/types/response/admin'
 
 class AdminService {
   login(
@@ -23,10 +23,6 @@ class AdminService {
 
   session() {
     return http.get<AdminSessionResponse>('/admin/session')
-  }
-
-  getDashboard() {
-    return http.get<AdminDashboardResponse>('/admin/dashboard')
   }
 }
 

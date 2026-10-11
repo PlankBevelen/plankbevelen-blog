@@ -1,5 +1,5 @@
 <template>
-  <component :is="tag" :class="['card', type, { animation }]">
+  <component :is="tag" :class="['card', type, { animation, flat }]">
     <div class="card-header" v-if="$slots.header">
       <slot name="header"></slot>
     </div>
@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
+defineProps({
   type: {
     type: String,
     default: "",
@@ -22,6 +22,11 @@ const props = defineProps({
   tag: {
     type: String,
     default: "div",
+  },
+  /** 后台扁平面板：无阴影、无 hover 上浮 */
+  flat: {
+    type: Boolean,
+    default: false,
   },
 });
 </script>
@@ -51,9 +56,14 @@ const props = defineProps({
     padding: @space-2xl @space-4xl;
     flex: 1;
   }
-  &:hover {
+
+  &:not(.flat):hover {
     transform: translateY(-3px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.125);
+  }
+
+  &.flat {
+    box-shadow: none;
   }
 
   &.animation {

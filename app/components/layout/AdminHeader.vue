@@ -8,9 +8,12 @@
 
       <div class="title-group">
         <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ path: '/admin' }">概览</el-breadcrumb-item>
-          <el-breadcrumb-item v-if="navTitle !== '概览'">
+          <el-breadcrumb-item :to="{ path: '/admin/content/article' }">后台</el-breadcrumb-item>
+          <el-breadcrumb-item v-if="navTitle !== '文章'">
             {{ navTitle }}
+          </el-breadcrumb-item>
+          <el-breadcrumb-item v-else>
+            文章
           </el-breadcrumb-item>
         </el-breadcrumb>
         <p class="header-date">{{ currentDateText }}</p>

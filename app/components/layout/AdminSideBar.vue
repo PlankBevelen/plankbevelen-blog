@@ -15,11 +15,6 @@
       :collapse-transition="false"
       :default-openeds="['2', '3']"
     >
-      <el-menu-item index="1" @click="navigateTo('/admin')">
-        <BaseIcon name="gauge" class="sidebar-icon" />
-        <template #title>概览</template>
-      </el-menu-item>
-
       <el-sub-menu index="2">
         <template #title>
           <BaseIcon name="files" class="sidebar-icon" />
@@ -80,14 +75,13 @@ const adminStore = useAdminStore()
 
 const activeIndex = computed(() => {
   const path = route.path
-  if (path === '/admin' || path === '/admin/') return '1'
   if (path.startsWith('/admin/content/article')) return '2-1'
   if (path.startsWith('/admin/content/category')) return '2-2'
   if (path.startsWith('/admin/site/content')) return '3-0'
   if (path.startsWith('/admin/site/friend-links')) return '3-4'
   if (path.startsWith('/admin/site/settings')) return '3-5'
   if (path.startsWith('/admin/site/logs')) return '3-3'
-  return '1'
+  return '2-1'
 })
 
 const onLogout = async () => {

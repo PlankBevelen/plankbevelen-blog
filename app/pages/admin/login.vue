@@ -1,9 +1,5 @@
 <template>
   <div class="login-page">
-    <ClientOnly>
-      <BaseParticles v-if="isDark" />
-    </ClientOnly>
-
     <header class="login-top">
       <NuxtLink to="/" class="login-top__home">返回博客</NuxtLink>
       <el-switch v-model="themeSwitch" inline-prompt>
@@ -16,8 +12,7 @@
       </el-switch>
     </header>
 
-    <BaseCard class="login-card" :animation="false">
-      <div class="login-card__grid" aria-hidden="true" />
+    <BaseCard class="login-card" flat>
       <div class="login-card__body">
         <header class="login-brand">
           <h1 class="login-brand__name">plankbevelen</h1>
@@ -114,7 +109,6 @@ const form = ref({
   remember: true,
 })
 
-const isDark = computed(() => adminStore.getTheme === 'dark')
 const themeSwitch = computed({
   get: () => adminStore.getTheme === 'dark',
   set: (v: boolean) => adminStore.setTheme(v ? 'dark' : 'light'),
@@ -147,7 +141,7 @@ const onSubmit = async () => {
 
     if (success) {
       ElMessage.success('登录成功')
-      await navigateTo('/admin', { replace: true })
+      await navigateTo('/admin/content/article', { replace: true })
       return
     }
 
@@ -220,17 +214,6 @@ onMounted(() => {
   :deep(.card-content) {
     padding: 0;
   }
-}
-
-.login-card__grid {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(to right, color-mix(in srgb, var(--primary-color) 12%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in srgb, var(--primary-color) 12%, transparent) 1px, transparent 1px);
-  background-size: 36px 36px;
-  opacity: 0.35;
 }
 
 .login-card__body {

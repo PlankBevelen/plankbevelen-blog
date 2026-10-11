@@ -1,32 +1,22 @@
 <template>
-  <div class="space-y-4">
-    <div class="page-intro">
-      <h2 class="page-title">访问</h2>
-      <p class="page-desc">
-        独立访客按同浏览器第一方 Cookie 去重；清缓存、无痕模式或换浏览器会算作新访客。IP 仅作辅助参考。
-      </p>
-    </div>
-
-    <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
-      <BaseCard v-for="card in summaryCards" :key="card.key">
-        <p class="text-xs text-mute">{{ card.label }}</p>
-        <div class="mt-2 text-h1 font-semibold text-text">{{ card.value }}</div>
-        <div class="mt-1 text-xs text-mute">{{ card.desc }}</div>
-      </BaseCard>
-    </div>
-
-    <BaseCard>
-      <template #header>
-        <span>热门页面</span>
+  <div class="logs-page">
+    <AdminPageHeader title="访问" description="独立访客按同浏览器第一方 Cookie 去重；清缓存、无痕或换浏览器会算作新访客。">
+      <template #actions>
+        <el-button :loading="loading" @click="fetchLogs">刷新</el-button>
       </template>
+    </AdminPageHeader>
+
+    <AdminStatStrip :items="summaryItems" />
+
+    <AdminPanel title="热门页面" class="top-paths-panel">
       <div v-if="summary.topPaths.length" class="top-paths">
         <div v-for="item in summary.topPaths" :key="item.path" class="top-path-row">
           <span>{{ item.path }}</span>
           <strong>{{ item.count }}</strong>
         </div>
       </div>
-      <el-empty v-else description="暂无访问路径数据" :image-size="72" />
-    </BaseCard>
+      <el-empty v-else description="暂无访问路径数据" :image-size="64" />
+    </AdminPanel>
 
     <BaseDataTable
       :data="rows"
@@ -35,19 +25,21 @@
       :page="pagination.page"
       :page-size="pagination.pageSize"
       row-key="requestId"
+      empty-text="暂无访问记录"
       @update:page="onPageChange"
       @update:pageSize="onPageSizeChange"
     >
       <template #header>
         <BaseQueryBar>
-          <div class="flex flex-wrap items-center gap-2">
+          <div class="filter-row">
             <el-input
               v-model="filters.keyword"
               placeholder="搜索路径或 IP"
               clearable
-              class="!w-[240px]"
+              class="filter-keyword"
+              @keyup.enter="onSearch"
             />
-            <el-select v-model="filters.days" class="!w-[140px]">
+            <el-select v-model="filters.days" class="filter-days">
               <el-option :value="1" label="近 1 天" />
               <el-option :value="7" label="近 7 天" />
               <el-option :value="30" label="近 30 天" />
@@ -56,9 +48,6 @@
             <el-button @click="onSearch">查询</el-button>
             <el-button @click="onReset">重置</el-button>
           </div>
-          <template #actions>
-            <el-button type="primary" @click="fetchLogs">刷新</el-button>
-          </template>
         </BaseQueryBar>
       </template>
 
@@ -108,6 +97,7 @@ import siteService from '@/services/site'
 import type { VisitLogItem, VisitLogSummary } from '@/types/data/site'
 import { formatDateTime } from '@/utils/format'
 import { toApiError } from '@/utils/api-error'
+import type { StatStripItem } from '@/components/admin/StatStrip.vue'
 
 definePageMeta({ middleware: 'auth-middleware', layout: 'admin' })
 
@@ -143,7 +133,7 @@ const summary = ref<VisitLogSummary>({
   deviceDistribution: []
 })
 
-const summaryCards = computed(() => [
+const summaryItems = computed<StatStripItem[]>(() => [
   {
     key: 'pv',
     label: '访问次数',
@@ -222,22 +212,14 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
-.page-intro {
-  margin-bottom: @space-base;
+.logs-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
-.page-title {
-  margin: 0;
-  font-size: @font-size-xl;
-  color: var(--text-color);
-}
-
-.page-desc {
-  margin: @space-2xs 0 0;
-  font-size: @font-size-sm;
-  color: var(--secondary-color);
-  max-width: 48rem;
-  line-height: 1.6;
+.top-paths-panel {
+  margin-bottom: @space-2xl;
 }
 
 .top-paths {
@@ -262,8 +244,24 @@ onMounted(() => {
   }
 
   strong {
+    flex-shrink: 0;
     color: var(--primary-color);
   }
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: @space-base;
+}
+
+.filter-keyword {
+  width: 240px;
+}
+
+.filter-days {
+  width: 140px;
 }
 
 .log-meta {
