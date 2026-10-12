@@ -184,6 +184,19 @@
       "url": "Please enter the site URL",
       "captcha": "Please complete the verification"
     }
+  },
+  "error": {
+    "notFound": {
+      "title": "Page not found",
+      "description": "Nothing is published at this address. The link may be wrong, or the page may have moved."
+    },
+    "failed": {
+      "title": "This page didn't load",
+      "description": "The request didn't finish. Try again in a moment, or go back home."
+    },
+    "home": "Back home",
+    "back": "Go back",
+    "articles": "Read articles"
   }
 }
 

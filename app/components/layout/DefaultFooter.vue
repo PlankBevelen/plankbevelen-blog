@@ -7,7 +7,7 @@
       <div class="footer-bottom">
         <p class="copy">© {{ year }} {{ $t('footer.copyright') }}</p>
         <div class="footer-links">
-          <NuxtLink :to="localePath('/privacy')" class="privacy-link">{{ $t('pages.privacy.title') }}</NuxtLink>
+          <NuxtLink :to="localePath('/privacy')" class="privacy-link" @click="leaveError">{{ $t('pages.privacy.title') }}</NuxtLink>
           <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer"> {{ $t('footer.beian') }} </a>
         </div>
       </div>
@@ -18,6 +18,13 @@
 <script setup lang="ts">
 const year = new Date().getFullYear()
 const localePath = useLocalePath()
+const nuxtError = useError()
+
+function leaveError(event: MouseEvent) {
+  if (!nuxtError.value) return
+  event.preventDefault()
+  clearError({ redirect: localePath('/privacy') })
+}
 </script>
 
 <style lang="less" scoped>

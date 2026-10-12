@@ -9,12 +9,12 @@
           fetchpriority="high"
           class="logo-img"
         /> -->
-        <span class="logo-text cursor-pointer hover:scale-105 transition-transform duration-300" @click="navigateTo('/')">{{ $t('site.name') }}</span>
+        <span class="logo-text cursor-pointer hover:scale-105 transition-transform duration-300" @click="goLogo">{{ $t('site.name') }}</span>
       </div>
       
       <ul class="nav-menu" v-if="!isMobile">
         <li v-for="item in navList" :key="item.path" class="nav-item">
-          <NuxtLink :to="localePath(item.path)" class="nav-link">{{ $t(item.key) }}</NuxtLink>
+          <NuxtLink :to="localePath(item.path)" class="nav-link" @click="leaveError($event, localePath(item.path))">{{ $t(item.key) }}</NuxtLink>
         </li>
       </ul>
       <button class="mobile-menu-btn" v-if="isMobile" type="button" :aria-expanded="mobileMenuOpen" aria-label="菜单" @click="toggleMobileMenu">
@@ -47,7 +47,7 @@
       <div class="mobile-menu-drawer" v-if="isMobile && mobileMenuOpen">
         <ul class="mobile-nav-list">
           <li v-for="item in navList" :key="item.path" class="mobile-nav-item" @click="closeMobileMenu">
-            <NuxtLink :to="localePath(item.path)" class="mobile-nav-link">{{ $t(item.key) }}</NuxtLink>
+            <NuxtLink :to="localePath(item.path)" class="mobile-nav-link" @click="leaveError($event, localePath(item.path))">{{ $t(item.key) }}</NuxtLink>
           </li>
         </ul>
         <div class="mobile-controls">
@@ -97,9 +97,30 @@ watch(i18nLocale, (v) => {
   admin.setLocale(v === 'en' ? 'en' : 'zh')
 })
 
+const nuxtError = useError()
+
+function leaveError(event: MouseEvent, path: string) {
+  if (!nuxtError.value) return
+  event.preventDefault()
+  clearError({ redirect: path })
+}
+
+function goLogo() {
+  if (nuxtError.value) {
+    clearError({ redirect: localePath('/') })
+    return
+  }
+  navigateTo('/')
+}
+
 const changeLocale = async (locale: 'en' | 'zh') => {
   const target = switchLocalePath(locale)
-  if (target) await navigateTo(target, { replace: true })
+  if (!target) return
+  if (nuxtError.value) {
+    clearError({ redirect: target })
+    return
+  }
+  await navigateTo(target, { replace: true })
 }
 
 const navList = [
