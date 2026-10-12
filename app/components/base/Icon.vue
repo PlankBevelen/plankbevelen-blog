@@ -1,48 +1,31 @@
 <script setup lang="ts">
-import type { Component } from 'vue'
-import {
-  Briefcase,
-  Calendar,
-  Clock,
-  ExternalLink,
-  Files,
-  LogOut,
-  MapPin,
-  Monitor,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Tag,
-} from '@lucide/vue'
 import githubSvg from '~/assets/icons/github.svg?raw'
 import gmailSvg from '~/assets/icons/gmail.svg?raw'
 import juejinSvg from '~/assets/icons/juejin.svg?raw'
 import wechatSvg from '~/assets/icons/wechat.svg?raw'
 
-const lucideIcons = {
-  briefcase: Briefcase,
-  calendar: Calendar,
-  clock: Clock,
-  'external-link': ExternalLink,
-  files: Files,
-  logout: LogOut,
-  'map-pin': MapPin,
-  monitor: Monitor,
-  'panel-left-close': PanelLeftClose,
-  'panel-left-open': PanelLeftOpen,
-  tag: Tag,
-} satisfies Record<string, Component>
-
 /** iconfont Symbol id（不含 icon- 前缀） */
 const iconfontIds = {
   add: 'add',
+  briefcase: 'briefcase',
+  calendar: 'calendar',
+  clock: 'clock',
   close: 'close',
   delete: 'delete',
   edit: 'edit',
+  'external-link': 'external-link',
+  files: 'files',
   languages: 'language',
+  logout: 'logout',
+  'map-pin': 'map-pin',
   menu: 'menu',
+  monitor: 'monitoring',
   moon: 'moon',
+  'panel-left-close': 'panel-left-close',
+  'panel-left-open': 'panel-left-open',
   search: 'search',
   sun: 'sun',
+  tag: 'tag',
 } as const
 
 const brandIcons = {
@@ -52,34 +35,26 @@ const brandIcons = {
   wechat: wechatSvg,
 } as const
 
-type LucideName = keyof typeof lucideIcons
 type IconfontName = keyof typeof iconfontIds
 type BrandName = keyof typeof brandIcons
-type IconName = LucideName | IconfontName | BrandName
+type IconName = IconfontName | BrandName
 
 const props = defineProps<{
   name: IconName
 }>()
 
 const kind = computed(() => {
-  if (props.name in lucideIcons) return 'lucide' as const
   if (props.name in iconfontIds) return 'iconfont' as const
   return 'brand' as const
 })
 
-const lucide = computed(() => lucideIcons[props.name as LucideName])
 const iconfontHref = computed(() => `#icon-${iconfontIds[props.name as IconfontName]}`)
 const brandHtml = computed(() => brandIcons[props.name as BrandName] || '')
 </script>
 
 <template>
   <span class="base-icon" aria-hidden="true">
-    <component
-      v-if="kind === 'lucide'"
-      :is="lucide"
-      :stroke-width="2"
-    />
-    <svg v-else-if="kind === 'iconfont'" class="base-icon__svg">
+    <svg v-if="kind === 'iconfont'" class="base-icon__svg">
       <use :href="iconfontHref" />
     </svg>
     <span
