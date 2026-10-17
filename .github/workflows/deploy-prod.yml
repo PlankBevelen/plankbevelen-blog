@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      rollback:
+        description: 回滚到上一版镜像
+        type: boolean
+        default: false
 
 concurrency:
   group: deploy-prod
@@ -25,10 +30,9 @@ jobs:
             set -euo pipefail
             cd /var/www/plankbevelen-blog
             git fetch origin main
-            git reset --hard
-            git clean -f -- pnpm-workspace.yaml
             git checkout -B main origin/main
-            pnpm install --no-frozen-lockfile --config.dangerouslyAllowAllBuilds=true
-            pnpm build
-            pm2 startOrReload ecosystem.prod.config.cjs --update-env
-            pm2 save
+            if [ "${{ inputs.rollback }}" = "true" ]; then
+              bash deploy/rollback.sh
+            else
+              bash deploy/release.sh
+            fi

@@ -95,18 +95,20 @@ app/        前台与后台页面、组件
 server/     API、鉴权、MongoDB
 i18n/       中英文文案
 public/     静态资源
+docker/     生产镜像与 Compose
+deploy/     发布脚本与 Nginx 站点配置
 .github/    推送到 main 后的生产部署
 ```
 
 ## 部署
 
-生产环境是 Nuxt SSR，由 PM2 按 `ecosystem.prod.config.cjs` 拉起，监听 `3000` 端口。
+生产环境是 Nuxt SSR，由 Docker 跑一个容器，只监听 `127.0.0.1:3000`。Nginx 和证书留在宿主机，反代到这个端口；上传文件仍在 `/var/www/uploads`。
 
-推送到 `main`，或在 GitHub Actions 里手动触发 **Deploy production**，会通过 SSH 在服务器上拉代码、安装依赖、构建并重载 PM2。工作流需要这些仓库 Secrets：
+推送到 `main`，或在 GitHub Actions 里手动触发 **Deploy production**，会通过 SSH 在服务器上拉代码、构建镜像并替换容器。勾选 `rollback` 时改用上一版镜像。工作流需要这些仓库 Secrets：
 
 - `SSH_HOST`
 - `SSH_PORT`
 - `SSH_USER`
 - `SSH_KEY`
 
-服务器上单独放置 `.env`，不要提交到仓库。当前部署目录是 `/var/www/plankbevelen-blog`。
+服务器上单独放置 `.env`，不要提交到仓库。当前部署目录是 `/var/www/plankbevelen-blog`。Actions 使用的 SSH 用户需要能构建镜像、重载 Nginx。
