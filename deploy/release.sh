@@ -13,6 +13,9 @@ SHA=$(git rev-parse --short HEAD)
 
 docker build -f docker/Dockerfile -t "plankbevelen-blog:${SHA}" .
 
+install -d -o www-data -g www-data -m 755 /var/cache/nginx/plankbevelen
+install -m 644 deploy/nginx/plankbevelen-http.conf /etc/nginx/conf.d/plankbevelen-http.conf
+install -D -m 644 deploy/nginx/snippets/security-headers.conf /etc/nginx/snippets/plankbevelen-security.conf
 install -m 644 deploy/nginx/plankbevelen-blog.conf /etc/nginx/sites-available/plankbevelen-blog.conf
 nginx -t
 systemctl reload nginx
