@@ -17,7 +17,6 @@ export const useAdminStore = defineStore('admin', {
   },
   actions: {
     async hydrateAuth() {
-      if (this.authenticated) return
       try {
         const session = await adminService.session()
         this.authenticated = !!session.authenticated

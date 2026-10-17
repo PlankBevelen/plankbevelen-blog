@@ -1,7 +1,6 @@
 export const useAuthentication = () => {
   const config = useRuntimeConfig()
 
-  const csrfKey = computed(() => config.public.cookiePrefix + 'csrf')
   const i18nKey = computed(() => config.public.cookiePrefix + 'i18n')
   const themeKey = computed(() => config.public.cookiePrefix + 'theme')
 
@@ -12,7 +11,9 @@ export const useAuthentication = () => {
 
   /** 读取 CSRF cookie（双提交用），JWT 由服务端 httpOnly cookie 持有，不再暴露明文 */
   const getCsrfToken = () => {
-    const c = useCookie<string | undefined>(csrfKey.value, cookieOptions)
+    const cached = useNuxtData<{ cookiePrefix?: string }>('public-settings')
+    const prefix = cached.data.value?.cookiePrefix || config.public.cookiePrefix
+    const c = useCookie<string | undefined>(`${prefix}csrf`, cookieOptions)
     return c.value || ''
   }
 

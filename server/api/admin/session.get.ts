@@ -1,10 +1,11 @@
 import { defineEventHandler, setResponseStatus } from 'h3'
 import jwt from 'jsonwebtoken'
-import { readAccessToken } from '../../utils/auth-cookies'
+import { readAccessToken } from '../../core/auth-cookies'
+import { getRuntimeSettings } from '../../core/runtime-settings'
 
-export default defineEventHandler((event) => {
-  const config = useRuntimeConfig()
-  const secret = config.authSecret as string
+export default defineEventHandler(async (event) => {
+  const settings = await getRuntimeSettings()
+  const secret = settings.authSecret
   if (!secret) {
     setResponseStatus(event, 500)
     return { status: 500, authenticated: false }

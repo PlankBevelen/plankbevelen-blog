@@ -12,6 +12,17 @@ function envelopeMessage(body: ApiEnvelope): string {
   return String(body.msg || body.message || `请求失败 (${body.status})`)
 }
 
+/** 服务端渲染时把浏览器带来的 Cookie 转给本机 API，否则会话检查永远看不到登录态 */
+function serverCookieHeader(): Record<string, string> {
+  if (!import.meta.server) return {}
+  try {
+    const cookie = useRequestHeaders(['cookie']).cookie
+    return cookie ? { cookie } : {}
+  } catch {
+    return {}
+  }
+}
+
 function assertBusinessOk(body: unknown): asserts body is ApiEnvelope {
   if (!isApiEnvelope(body)) {
     throw new ApiError(500, '响应格式无效', body)
@@ -57,6 +68,7 @@ class Http {
   ): Promise<T> {
     const method = (options.method || 'GET').toUpperCase() as HttpMethod
     const headers: Record<string, string> = {
+      ...serverCookieHeader(),
       ...(options.headers as Record<string, string> | undefined),
     }
 

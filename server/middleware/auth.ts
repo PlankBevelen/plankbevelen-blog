@@ -1,6 +1,7 @@
 import { defineEventHandler, getHeader, setResponseStatus } from 'h3'
 import jwt from 'jsonwebtoken'
-import { readAccessToken, readCsrfCookie } from '../utils/auth-cookies'
+import { readAccessToken, readCsrfCookie } from '../core/auth-cookies'
+import { getRuntimeSettings } from '../core/runtime-settings'
 import { safeEqualString } from '../utils/crypto-safe'
 
 const ADMIN_EXEMPT = [
@@ -35,7 +36,7 @@ function headerHost(value: string): string {
   }
 }
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const url = new URL(event.node.req.url || '/', 'http://localhost')
   const path = normalizePath(url.pathname)
   const method = (event.node.req.method || 'GET').toUpperCase()
@@ -50,8 +51,9 @@ export default defineEventHandler((event) => {
     return
   }
 
-  const config = useRuntimeConfig()
-  const secret = config.authSecret as string
+  // 先加载运行时配置，再读 Cookie。登录签名用的就是这套 authSecret 和 cookiePrefix。
+  const settings = await getRuntimeSettings()
+  const secret = settings.authSecret
   if (!secret) {
     setResponseStatus(event, 500)
     return { status: 500, msg: '服务器未配置认证密钥' }
