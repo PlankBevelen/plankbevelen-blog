@@ -84,8 +84,10 @@ const brandHtml = computed(() => brandIcons[props.name as BrandName] || '')
   display: block;
 }
 
-.base-icon__svg {
+.base-icon__svg,
+.base-icon__svg use {
   fill: currentColor;
+  color: inherit;
 }
 
 .base-icon__brand {
