@@ -1,8 +1,5 @@
 <template>
   <div class="error-shell">
-    <ClientOnly>
-      <BaseParticles v-if="isDark" />
-    </ClientOnly>
     <LayoutDefaultHeader />
     <main id="main">
       <div class="error-page">
@@ -30,7 +27,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { NuxtError } from '#app'
-import { useAdminStore } from '~/stores/admin.store'
 
 const props = defineProps({
   error: Object as () => NuxtError,
@@ -39,9 +35,7 @@ const props = defineProps({
 const { t } = useI18n()
 const route = useRoute()
 const localePath = useLocalePath()
-const admin = useAdminStore()
 
-const isDark = computed(() => admin.getTheme === 'dark')
 const statusCode = computed(() => props.error?.statusCode || 404)
 const isNotFound = computed(() => statusCode.value === 404)
 const title = computed(() => (isNotFound.value ? t('error.notFound.title') : t('error.failed.title')))
