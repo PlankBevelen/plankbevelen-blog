@@ -6,7 +6,8 @@
         <span class="hint">查看全部</span>
       </div>
     </template>
-    <div class="timeline">
+    <p v-if="!displayedTimeline.length" class="timeline-empty">暂无时间线</p>
+    <div v-else class="timeline">
       <div v-for="item in displayedTimeline" :key="item.year + item.title" class="timeline-item">
         <div class="dot"></div>
         <div class="timeline-content">
@@ -63,6 +64,11 @@ const goTimeline = () => {
 .hint {
   font-size: @font-size-xs;
   color: var(--primary-color);
+}
+
+.timeline-empty {
+  font-size: @font-size-sm;
+  color: var(--tertiary-color);
 }
 
 .timeline {

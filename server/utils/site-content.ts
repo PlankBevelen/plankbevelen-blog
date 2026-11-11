@@ -65,103 +65,7 @@ const DEFAULT_PAGE_CONTENT: SitePageContent = {
   }
 }
 
-const DEFAULT_TIMELINE: SiteTimelineItem[] = [
-  {
-    id: 'frontend-foundation',
-    year: '2022',
-    title: {
-      zh: '前端入门',
-      en: 'Frontend Foundation'
-    },
-    desc: {
-      zh: '系统学习 HTML、CSS、JavaScript 和 Vue，完成第一个可交付项目。',
-      en: 'Learned HTML, CSS, JavaScript, and Vue, then shipped the first small production project.'
-    },
-    sort: 1
-  },
-  {
-    id: 'full-stack-practice',
-    year: '2023',
-    title: {
-      zh: '全栈实践',
-      en: 'Full-Stack Practice'
-    },
-    desc: {
-      zh: '开始深入 Node.js 和 API 设计，尝试独立完成前后端闭环。',
-      en: 'Went deeper into Node.js and API design, building end-to-end features independently.'
-    },
-    sort: 2
-  },
-  {
-    id: 'engineering-upgrade',
-    year: '2024',
-    title: {
-      zh: '工程化升级',
-      en: 'Engineering Upgrade'
-    },
-    desc: {
-      zh: '把重心放在性能、组件架构和可维护性上，让项目更适合长期迭代。',
-      en: 'Focused on performance, component architecture, and long-term maintainability.'
-    },
-    sort: 3
-  },
-  {
-    id: 'ai-product-exploration',
-    year: '2025 - Present',
-    title: {
-      zh: 'AI 与产品探索',
-      en: 'AI + Product Exploration'
-    },
-    desc: {
-      zh: '围绕 AI Agent 与内容平台持续试验，希望提升协作体验与整体效率。',
-      en: 'Iterating on AI agent and content platform ideas to improve collaboration and UX.'
-    },
-    sort: 4
-  }
-]
-
-const DEFAULT_PROJECTS: SiteProjectItem[] = [
-  {
-    id: 'plankbevelen',
-    title: 'plankbevelen',
-    summary: '个人博客和内容管理平台',
-    description: '基于 Nuxt、MongoDB 和 Element Plus 的个人博客与内容管理站点。',
-    period: '2025 - Present',
-    status: 'In progress',
-    accentColor: '#0f766e',
-    tags: ['Nuxt', 'MongoDB', 'Element Plus', 'SSR'],
-    highlights: [
-      '支持后台内容管理',
-      '前后端数据统一存储',
-      '适合持续迭代的个人站点结构'
-    ],
-    links: {
-      repoUrl: '',
-      demoUrl: ''
-    },
-    sort: 1
-  },
-  {
-    id: 'motion-showcase',
-    title: 'Motion Showcase',
-    summary: '动画和交互实验集合',
-    description: '用于整理动画实验、交互组件和视觉探索的小型作品集。',
-    period: '2024 - 2025',
-    status: 'Archived',
-    accentColor: '#b45309',
-    tags: ['GSAP', 'Three.js', 'Interaction'],
-    highlights: [
-      '适合展示动效能力',
-      '为复杂交互提供实验场',
-      '可以持续补充新的案例'
-    ],
-    links: {
-      repoUrl: '',
-      demoUrl: ''
-    },
-    sort: 2
-  },
-]
+const EMPTY_LOCALIZED_TEXT: SiteLocalizedText = { zh: '', en: '' }
 
 const DEFAULT_SITE_CONTENT: SiteContentData = {
   about: {
@@ -169,8 +73,8 @@ const DEFAULT_SITE_CONTENT: SiteContentData = {
     en: '# About Me\n\nThis is the default about page content. You can edit it directly from the admin panel.'
   },
   pages: DEFAULT_PAGE_CONTENT,
-  timeline: DEFAULT_TIMELINE,
-  projects: DEFAULT_PROJECTS
+  timeline: [],
+  projects: []
 }
 
 async function readMarkdownFile(filename: string, fallback: string) {
@@ -245,14 +149,8 @@ function normalizeTimelineItem(item: any, index: number): SiteTimelineItem {
   return {
     id: cleanString(item?.id) || createTimelineId(index),
     year: cleanString(item?.year),
-    title: normalizeLocalizedText(item?.title, {
-      zh: DEFAULT_TIMELINE[index]?.title.zh || '',
-      en: DEFAULT_TIMELINE[index]?.title.en || ''
-    }),
-    desc: normalizeLocalizedText(item?.desc, {
-      zh: DEFAULT_TIMELINE[index]?.desc.zh || '',
-      en: DEFAULT_TIMELINE[index]?.desc.en || ''
-    }),
+    title: normalizeLocalizedText(item?.title, EMPTY_LOCALIZED_TEXT),
+    desc: normalizeLocalizedText(item?.desc, EMPTY_LOCALIZED_TEXT),
     sort: Number(item?.sort) > 0 ? Number(item.sort) : index + 1
   }
 }
