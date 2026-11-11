@@ -22,6 +22,10 @@ class ArticleService {
   deleteArticle(id: number | string) {
     return http.delete<null>(`/article/${id}`)
   }
+
+  pinArticle(id: number | string, pinned: boolean) {
+    return http.post<Pick<Article, 'id' | 'pinned' | 'pinnedAt'>>(`/article/${id}/pin`, { pinned })
+  }
 }
 
 export default new ArticleService()

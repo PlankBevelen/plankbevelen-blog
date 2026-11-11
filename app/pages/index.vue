@@ -18,6 +18,12 @@
           <WidgetAgent />
 
           <div class="home-cards">
+            <WidgetLatest
+              v-if="homeData.pinnedArticles.length"
+              class="home-pinned"
+              :articles="homeData.pinnedArticles"
+              :title="$t('home.pinnedArticles.title')"
+            />
             <WidgetLatest :articles="homeData.latestArticles" />
 
             <BaseCard class="home-card">
@@ -59,6 +65,7 @@ const { t } = useI18n()
 
 const emptyHome: HomeDataResponse = {
   latestArticles: [],
+  pinnedArticles: [],
   featuredProjects: [],
   categories: [],
   tags: [],
@@ -86,6 +93,7 @@ watch(
   (newData) => {
     if (!newData) return
     homeData.latestArticles = newData.latestArticles || []
+    homeData.pinnedArticles = newData.pinnedArticles || []
     homeData.featuredProjects = newData.featuredProjects || []
     homeData.categories = newData.categories || []
     homeData.tags = newData.tags || []
@@ -121,7 +129,6 @@ usePageSeo({
 })
 
 useHead({
-  titleTemplate: '',
   script: [
     {
       key: 'home-ld',
@@ -146,6 +153,10 @@ useHead({
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: @space-2xl;
+}
+
+.home-pinned {
+  grid-column: 1 / -1;
 }
 
 .simple-list {

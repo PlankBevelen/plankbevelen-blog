@@ -61,6 +61,9 @@
     "clearFilter": "取消 {name} 筛选"
   },
   "home": {
+    "pinnedArticles": {
+      "title": "置顶文章"
+    },
     "featuredProjects": {
       "title": "精选项目",
       "empty": "暂无项目"
@@ -84,6 +87,7 @@
         "description": "浏览 plankbevelen 的全部技术文章与编码教程",
         "keywords": "技术文章, 编程教程, web 开发, 前端开发, 后端开发"
       },
+      "pinned": "置顶",
       "search": {
         "placeholder": "搜索文章",
         "btn": "搜索"

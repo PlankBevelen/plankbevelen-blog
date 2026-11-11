@@ -53,6 +53,9 @@
     "empty": "No articles yet"
   },
   "home": {
+    "pinnedArticles": {
+      "title": "Pinned Articles"
+    },
     "featuredProjects": {
       "title": "Featured Projects",
       "empty": "No projects yet"
@@ -84,6 +87,7 @@
         "description": "Browse all tech articles and coding tutorials on plankbevelen's blog",
         "keywords": "plankbevelen, plank, bevelen, plankbevelen, programming articles, coding tutorials, web development guides, tech learning resources, plankbevelen articles"
       },
+      "pinned": "Pinned",
       "search": {
         "placeholder": "Search articles",
         "btn": "Search"

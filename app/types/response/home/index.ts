@@ -11,6 +11,7 @@ export type HomeStats = {
 
 export type HomeDataResponse = {
   latestArticles: Article[]
+  pinnedArticles: Article[]
   featuredProjects: SiteProject[]
   categories: Category[]
   tags: Tag[]

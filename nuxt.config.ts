@@ -2,7 +2,7 @@
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-09-15',
-  devtools: { enabled: true },
+  devtools: { enabled: process.env.NODE_ENV === 'development' },
   css: ['@/assets/css/tailwind.css', '@/assets/css/variables.less', '@/assets/css/theme.less', '@/assets/css/reset.less', '@/assets/css/element-plus.less', '@/assets/css/components.less', '@/assets/css/admin.less'],
   modules: ['@pinia/nuxt', '@nuxt/image', '@nuxtjs/seo', '@element-plus/nuxt', '@nuxtjs/i18n', '@nuxtjs/tailwindcss'],
   ssr: true,
@@ -15,11 +15,14 @@ export default defineNuxtConfig({
     defaultLocale: 'zh',
     langDir: 'locales',
     strategy: 'prefix_except_default',
+    // 关闭自动语言探测，避免每个 HTML 响应都带 i18n_redirected，否则 Cloudflare 不会缓存文档
+    detectBrowserLanguage: false,
   },
   // seo优化
   site: {
     url: 'https://plankbevelen.cn',
     name: 'plankbevelen 的个人博客',
+    separator: '—',
     description: 'plankbevelen的个人博客',
     defaultLocale: 'zh',
   },
@@ -43,7 +46,6 @@ export default defineNuxtConfig({
         lang: 'zh'
       },      
       title: 'plankbevelen',
-      titleTemplate: '%s | plankbevelen',
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         { rel: 'apple-touch-icon', href: '/img/logo.webp' }
@@ -123,6 +125,16 @@ export default defineNuxtConfig({
       xl: 1280,
       xxl: 1536
     }
+  },
+  routeRules: {
+    '/admin/**': { headers: { 'cache-control': 'private, no-store', 'cdn-cache-control': 'private, no-store' } },
+    '/api/**': { headers: { 'cache-control': 'private, no-store', 'cdn-cache-control': 'private, no-store' } },
+    '/**': {
+      headers: {
+        'cache-control': 'public, max-age=0, must-revalidate',
+        'cdn-cache-control': 'public, s-maxage=300, stale-while-revalidate=86400',
+      },
+    },
   },
   nitro: {
     prerender: {

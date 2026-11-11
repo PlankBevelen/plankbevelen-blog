@@ -95,6 +95,7 @@ app/        前台与后台页面、组件
 server/     API、鉴权、MongoDB
 i18n/       中英文文案
 public/     静态资源
+docs/       开发记录（docs/records）和首页截图
 docker/     生产镜像与 Compose
 deploy/     发布脚本与 Nginx 站点配置
 .github/    推送到 main 后的生产部署

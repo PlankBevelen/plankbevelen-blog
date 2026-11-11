@@ -11,13 +11,20 @@ type HomeArticle = {
   updateTime: Date | string
 }
 
-async function getLatestArticles(limit: number): Promise<HomeArticle[]> {
+async function getHomeArticles(limit: number, mode: 'latest' | 'pinned'): Promise<HomeArticle[]> {
   const db = getDb()
   const { articles } = getCollections(db)
+  const match: Record<string, unknown> = {
+    $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }]
+  }
+  if (mode === 'pinned') match.pinned = true
+  const sort = mode === 'pinned'
+    ? { pinnedAt: -1, id: -1 }
+    : { updatedAt: -1, createdAt: -1, id: -1 }
 
   const rows = await articles
     .aggregate([
-      { $match: { $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }] } },
+      { $match: match },
       {
         $lookup: {
           from: 'categories',
@@ -27,7 +34,7 @@ async function getLatestArticles(limit: number): Promise<HomeArticle[]> {
         }
       },
       { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
-      { $sort: { updatedAt: -1, createdAt: -1, id: -1 } },
+      { $sort: sort },
       { $limit: limit },
       {
         $project: {
@@ -58,8 +65,9 @@ export default defineEventHandler(async (event) => {
     const db = getDb()
     const { categories, tags, articles } = getCollections(db)
 
-    const [latestArticles, categoryRows, tagRows, articleCount, siteContent] = await Promise.all([
-      getLatestArticles(5),
+    const [latestArticles, pinnedArticles, categoryRows, tagRows, articleCount, siteContent] = await Promise.all([
+      getHomeArticles(5, 'latest'),
+      getHomeArticles(5, 'pinned'),
       categories.find({}, { projection: { _id: 0 } }).sort({ id: 1 }).toArray(),
       tags.find({}, { projection: { _id: 0, name: 1, count: 1 } }).sort({ count: -1, name: 1 }).toArray(),
       articles.countDocuments({ $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }] }),
@@ -77,6 +85,7 @@ export default defineEventHandler(async (event) => {
       msg: 'success',
       data: {
         latestArticles,
+        pinnedArticles,
         featuredProjects,
         categories: categoryRows || [],
         tags: tagRows || [],

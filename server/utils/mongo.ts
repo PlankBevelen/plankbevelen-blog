@@ -24,6 +24,8 @@ export type ArticleDoc = {
   content: string
   createdAt: Date
   updatedAt: Date
+  pinned?: boolean
+  pinnedAt?: Date | null
   deletedAt?: Date | null
 }
 
@@ -133,6 +135,7 @@ async function ensureIndexes(dbInstance: Db) {
     articles.createIndex({ id: 1 }, { unique: true, name: 'uniq_id' }),
     articles.createIndex({ deletedAt: 1, createdAt: -1, id: -1 }, { name: 'by_created' }),
     articles.createIndex({ deletedAt: 1, updatedAt: -1, createdAt: -1, id: -1 }, { name: 'by_updated' }),
+    articles.createIndex({ deletedAt: 1, pinned: 1, pinnedAt: -1, id: -1 }, { name: 'by_pinned' }),
     articles.createIndex({ categoryId: 1 }, { name: 'by_category' }),
     articles.createIndex({ title: 'text', tags: 'text' }, { name: 'text_title_tags' }),
     categories.createIndex({ id: 1 }, { unique: true, name: 'uniq_id' }),

@@ -66,6 +66,12 @@ useSeoMeta({
 // lang、canonical、hreflang、og:locale:alternate 响应式，跟随路由和语言变化
 useHead(() => ({
   htmlAttrs: { lang: locale.value },
+  titleTemplate: (title) => {
+    const name = 'plankbevelen'
+    const page = String(title || '').trim()
+    if (!page || page === name || page === 'plankbevelen 的个人博客') return name
+    return `${page} — ${name}`
+  },
   meta: [
     { property: 'og:locale:alternate', content: 'zh_CN' },
     { property: 'og:locale:alternate', content: 'en_US' },

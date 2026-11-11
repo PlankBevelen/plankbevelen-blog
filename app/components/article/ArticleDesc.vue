@@ -2,6 +2,7 @@
   <BaseCard class="article-desc" tag="article">
     <h2 class="title-wrapper">
       <NuxtLink :to="localePath('/article/' + article.id)" class="title">
+        <span v-if="article.pinned" class="pin-mark">{{ $t('pages.article.pinned') }}</span>
         {{ article.title }}
       </NuxtLink>
     </h2>
@@ -114,6 +115,18 @@ const AsyncMdPreview = defineAsyncComponent(() => {
     text-decoration: none;
     line-height: normal;
     display: block;
+    .pin-mark {
+      display: inline-block;
+      margin-right: @space-xs;
+      padding: 0 @space-2xs;
+      border: 1px solid var(--primary-color);
+      border-radius: @small-border-radius;
+      color: var(--primary-color);
+      font-size: @font-size-xs;
+      font-weight: 500;
+      line-height: 1.6;
+      vertical-align: 2px;
+    }
     &:hover {
       color: var(--primary-hover-color);
     }

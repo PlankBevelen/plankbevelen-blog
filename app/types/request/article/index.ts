@@ -4,6 +4,7 @@ export interface NewArticle {
   category: string
   content: string
   tempId?: string
+  pinned?: boolean
 }
 
 export type ArticleListQuery = {
