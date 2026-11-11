@@ -1,7 +1,7 @@
 <template>
   <BaseCard type="latest">
     <template #header>
-      {{ $t('latest.title') }}
+      {{ title || $t('latest.title') }}
     </template>
     <ul v-if="latestList.length" class="latestList">
       <li v-for="item in latestList" :key="item.id" class="latest-item">  
@@ -28,6 +28,10 @@ const props = defineProps({
   articles: {
     type: Array as () => Article[],
     default: () => []
+  },
+  title: {
+    type: String,
+    default: ''
   }
 })
 

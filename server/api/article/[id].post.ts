@@ -2,11 +2,12 @@ import { defineEventHandler, readBody, setResponseStatus } from 'h3'
 import { withTransaction, getCollections } from '../../utils/mongo'
 import { updateTagsCount, updateCategoryCount } from '../../utils/article-helpers'
 import { normalizeUploadsInContent } from '../../utils/content'
+import { resolvePinFields } from '../../utils/article-pin'
 
 export default defineEventHandler(async (event) => {
   try {
     const id = Number(event?.context?.params?.id)
-    const body = await readBody<{ title: string; category: string; tags: string[]; content: string }>(event)
+    const body = await readBody<{ title: string; category: string; tags: string[]; content: string; pinned?: boolean }>(event)
     const title = body?.title || ''
     const category = body?.category || ''
     let content = body?.content || ''
@@ -34,6 +35,7 @@ export default defineEventHandler(async (event) => {
       content = normalizeUploadsInContent(content)
       const nextTags = tagsArr.map(t => String(t).trim()).filter(Boolean)
       const now = new Date()
+      const pin = resolvePinFields(oldArticle.pinned, oldArticle.pinnedAt, body?.pinned, now)
 
       await articles.updateOne(
         { id },
@@ -43,7 +45,9 @@ export default defineEventHandler(async (event) => {
             tags: nextTags,
             categoryId,
             content,
-            updatedAt: now
+            updatedAt: now,
+            pinned: pin.pinned,
+            pinnedAt: pin.pinnedAt
           }
         },
         ctx.session ? { session: ctx.session } : undefined
@@ -59,7 +63,9 @@ export default defineEventHandler(async (event) => {
         category: String(categoryId),
         content,
         createTime: oldArticle.createdAt,
-        updateTime: now
+        updateTime: now,
+        pinned: pin.pinned,
+        pinnedAt: pin.pinnedAt
       }
     })
 

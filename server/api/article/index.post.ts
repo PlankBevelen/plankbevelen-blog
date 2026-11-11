@@ -6,10 +6,11 @@ import path from 'node:path'
 import { getUploadsBaseDir } from '../../utils/uploads'
 import { normalizeUploadsInContent } from '../../utils/content'
 import { assertSafeTempId, resolveTempDir } from '../../utils/temp-id'
+import { resolvePinFields } from '../../utils/article-pin'
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody<{ title: string; category: string; tags: string[]; content: string; tempId?: string }>(event)
+    const body = await readBody<{ title: string; category: string; tags: string[]; content: string; tempId?: string; pinned?: boolean }>(event)
     const title = body?.title || ''
     const category = body?.category || ''
     let content = body?.content || ''
@@ -76,6 +77,7 @@ export default defineEventHandler(async (event) => {
       await updateCategoryCount(null, categoryId, ctx)
 
       const now = new Date()
+      const pin = resolvePinFields(false, null, body?.pinned, now)
       await articles.insertOne(
         {
           id,
@@ -84,7 +86,9 @@ export default defineEventHandler(async (event) => {
           categoryId,
           content: finalContent,
           createdAt: now,
-          updatedAt: now
+          updatedAt: now,
+          pinned: pin.pinned,
+          pinnedAt: pin.pinnedAt
         },
         ctx.session ? { session: ctx.session } : undefined
       )
@@ -96,7 +100,9 @@ export default defineEventHandler(async (event) => {
         category: String(categoryId),
         content: finalContent,
         createTime: now,
-        updateTime: now
+        updateTime: now,
+        pinned: pin.pinned,
+        pinnedAt: pin.pinnedAt
       }
     })
 

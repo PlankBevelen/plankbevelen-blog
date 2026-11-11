@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <BaseCard type="agent" class="agent-card">
     <template #header>
       AI Agent
@@ -47,20 +47,20 @@
         </div>
 
         <div class="input-row">
-          <el-input
-            v-model="inputText"
-            type="textarea"
-            :rows="2"
-            resize="none"
-            maxlength="1000"
-            show-word-limit
-            :disabled="sending"
-            placeholder="输入你的问题，Ctrl + Enter 发送"
-            @keydown.ctrl.enter.prevent="onSend"
-          />
-          <el-button type="primary" :loading="sending" :disabled="!canSend" @click="onSend">
-            发送
-          </el-button>
+          <div class="composer">
+            <textarea
+              v-model="inputText"
+              rows="2"
+              maxlength="1000"
+              :disabled="sending"
+              placeholder="输入你的问题，Ctrl + Enter 发送"
+              @keydown.ctrl.enter.prevent="onSend"
+            ></textarea>
+            <span class="char-count">{{ inputText.length }} / 1000</span>
+          </div>
+          <button type="button" class="send-btn" :disabled="!canSend" @click="onSend">
+            {{ sending ? '发送中' : '发送' }}
+          </button>
         </div>
       </section>
     </div>
@@ -362,6 +362,42 @@ const onSend = async () => {
   align-items: flex-end;
   gap: @space-md;
   background: var(--card-color);
+}
+.composer {
+  position: relative;
+  flex: 1;
+  textarea {
+    width: 100%;
+    min-height: 58px;
+    resize: none;
+    border: 1px solid var(--border-color);
+    border-radius: @base-border-radius;
+    background: var(--card-color);
+    color: var(--text-color);
+    padding: @space-base @space-md 22px;
+    font: inherit;
+    line-height: 1.6;
+  }
+}
+.char-count {
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+  font-size: @font-size-xs;
+  color: var(--tertiary-color);
+}
+.send-btn {
+  height: 32px;
+  padding: 0 @space-lg;
+  border: none;
+  border-radius: @base-border-radius;
+  background: var(--primary-color);
+  color: #fff;
+  cursor: pointer;
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
 }
 
 @keyframes blink {

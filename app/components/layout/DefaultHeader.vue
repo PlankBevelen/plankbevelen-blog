@@ -22,17 +22,9 @@
       </button>
 
       <div class="controls" v-if="!isMobile">
-        <el-switch 
-          v-model="themeSwitch" 
-          inline-prompt 
-        >
-          <template #active-action>
-            <BaseIcon name="moon" class="switch-icon" />
-          </template>
-          <template #inactive-action>
-            <BaseIcon name="sun" class="switch-icon" />
-          </template>
-        </el-switch>
+        <button type="button" class="theme-toggle" :aria-label="themeSwitch ? '切换到浅色' : '切换到深色'" @click="admin.toggleTheme()">
+          <BaseIcon :name="themeSwitch ? 'moon' : 'sun'" class="switch-icon" />
+        </button>
         <span class="lang">
           <BaseIcon name="languages" />
           <div class="lang-choose">
@@ -53,17 +45,9 @@
         <div class="mobile-controls">
           <div class="control-item">
             <span>{{ $t('theme.' + (themeSwitch ? 'dark' : 'light')) }}</span>
-            <el-switch 
-              v-model="themeSwitch" 
-              inline-prompt 
-            >
-              <template #active-action>
-                <BaseIcon name="moon" class="switch-icon" />
-              </template>
-              <template #inactive-action>
-                <BaseIcon name="sun" class="switch-icon" />
-              </template>
-            </el-switch>
+            <button type="button" class="theme-toggle" :aria-label="themeSwitch ? '切换到浅色' : '切换到深色'" @click="admin.toggleTheme()">
+              <BaseIcon :name="themeSwitch ? 'moon' : 'sun'" class="switch-icon" />
+            </button>
           </div>
           <div class="control-item">
             <span>{{ $t('lang.' + currentLocale) }}</span>
@@ -360,6 +344,20 @@ onMounted(()=>{
       }
     }
   }
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-color);
+  cursor: pointer;
 }
 
 .slide-fade-enter-active,

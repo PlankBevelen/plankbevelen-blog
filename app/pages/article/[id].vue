@@ -12,7 +12,10 @@
         </template>
         <template #right>
           <BaseCard class="detailCard" tag="article">
-            <h1 class="title">{{ article?.title }}</h1>
+            <h1 class="title">
+              <span v-if="article?.pinned" class="pin-mark">{{ $t('pages.article.pinned') }}</span>
+              {{ article?.title }}
+            </h1>
             <div class="meta">
               <span class="meta-item category">{{ articleCategory }}</span>
               <span class="meta-item">{{ timeText }}</span>
@@ -163,6 +166,19 @@ useArticleSeo({
   color: var(--text-color);
   margin-bottom: @space-3xl;
   text-align: center;
+}
+
+.pin-mark {
+  display: inline-block;
+  margin-right: @space-xs;
+  padding: 0 @space-2xs;
+  border: 1px solid var(--primary-color);
+  border-radius: @small-border-radius;
+  color: var(--primary-color);
+  font-size: @font-size-xs;
+  font-weight: 500;
+  line-height: 1.6;
+  vertical-align: 4px;
 }
 // 容器不用 flex，交给行内流：片段像段落里的词一样逐个折行，
 // 不会因为宽度不够就让整项掉到下一行、上一行留大片空白

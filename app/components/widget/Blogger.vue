@@ -24,50 +24,31 @@
         :key="link.icon"
         type="button"
         class="inline-flex cursor-pointer text-text hover:text-[var(--active-color)]"
+        :aria-label="link.label"
         @click="handleClick(link.url)"
       >
         <BaseIcon :name="link.icon" />
       </button>
     </div>
-    <div class="mb-0">
-      <el-row :gutter="20">
-        <el-col :span="8">
-          <el-statistic
-            :value="articleCountOutput"
-            :value-style="{ fontSize: '20px', color: 'var(--text-color)' }"
-          >
-            <template #title>
-              <span class="text-secondary">{{ $t('blogger.stats.articles') }}</span>
-            </template>
-          </el-statistic>
-        </el-col>
-        <el-col :span="8">
-          <el-statistic
-            :value="followCountOutput"
-            :value-style="{ fontSize: '20px', color: 'var(--text-color)' }"
-          >
-            <template #title>
-              <span class="text-secondary">{{ $t('blogger.stats.categories') }}</span>
-            </template>
-          </el-statistic>
-        </el-col>
-        <el-col :span="8">
-          <el-statistic
-            :value="tagCountOutput"
-            :value-style="{ fontSize: '20px', color: 'var(--text-color)' }"
-          >
-            <template #title>
-              <span class="text-secondary">{{ $t('blogger.stats.tags') }}</span>
-            </template>
-          </el-statistic>
-        </el-col>
-      </el-row>
+    <div class="blogger-stats">
+      <div>
+        <div class="text-secondary">{{ $t('blogger.stats.articles') }}</div>
+        <div class="blogger-stat-value">{{ articleShown }}</div>
+      </div>
+      <div>
+        <div class="text-secondary">{{ $t('blogger.stats.categories') }}</div>
+        <div class="blogger-stat-value">{{ categoryShown }}</div>
+      </div>
+      <div>
+        <div class="text-secondary">{{ $t('blogger.stats.tags') }}</div>
+        <div class="blogger-stat-value">{{ tagShown }}</div>
+      </div>
     </div>
   </BaseCard>    
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useTransition } from '@vueuse/core'
 import articleService from '@/services/article'
 import categoryService from '@/services/category'
@@ -89,11 +70,14 @@ watch(() => props.tagCount, (v) => { tagCount.value = v || 0 }, { immediate: tru
 const articleCountOutput = useTransition(articleCount, { duration: 1000 })
 const followCountOutput = useTransition(followCount, { duration: 1000 })
 const tagCountOutput = useTransition(tagCount, { duration: 1000 })
+const articleShown = computed(() => Math.round(articleCountOutput.value))
+const categoryShown = computed(() => Math.round(followCountOutput.value))
+const tagShown = computed(() => Math.round(tagCountOutput.value))
 
 const links = [
-  { icon: 'github' as const, url: 'https://github.com/PlankBevelen' },
-  { icon: 'juejin' as const, url: 'https://juejin.cn/user/1057085717486684' },
-  { icon: 'gmail' as const, url: 'mailto:plankbevelen@gmail.com' },
+  { icon: 'github' as const, label: 'GitHub', url: 'https://github.com/PlankBevelen' },
+  { icon: 'juejin' as const, label: '掘金', url: 'https://juejin.cn/user/1057085717486684' },
+  { icon: 'gmail' as const, label: '邮箱', url: 'mailto:plankbevelen@gmail.com' },
 ]
 function handleClick(url: string) {
   if (url.startsWith('mailto')) {
@@ -133,3 +117,16 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.blogger-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  text-align: center;
+}
+.blogger-stat-value {
+  margin-top: 4px;
+  font-size: 20px;
+  color: var(--text-color);
+}
+</style>

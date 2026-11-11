@@ -1,0 +1,42 @@
+# 本地模拟生产：Nuxt 生产镜像 + 宿主机 Nginx 反代
+# 依赖：先启动 docker/docker-compose.dev.yml（mongo/redis）
+name: plankbevelen-blog-local
+
+services:
+  web:
+    container_name: plankbevelen-blog
+    image: plankbevelen-blog:local
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    env_file: ../.env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      NODE_ENV: production
+      NUXT_MONGO_URI: mongodb://host.docker.internal:27017
+      NUXT_MONGO_DB: plankbevelen-blog
+      REDIS_URL: redis://host.docker.internal:6379
+      TRUST_PROXY: "1"
+      COOKIE_SECURE: "1"
+      NUXT_BASE_URL: https://localhost
+      UPLOAD_DIR: /var/www/uploads
+    ports:
+      - "127.0.0.1:3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - "D:/program files/plankbevelen-blog/uploads:/var/www/uploads"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 40s

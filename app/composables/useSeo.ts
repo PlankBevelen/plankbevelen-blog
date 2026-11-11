@@ -2,7 +2,7 @@
  * SEO 统一管理
  * 
  * 分层职责：
- * - nuxt.config.ts  → 静态不变的 meta（charset / viewport / author / titleTemplate）
+ * - nuxt.config.ts  → 静态不变的 meta（charset / viewport / author / 标题模板）
  * - app.vue         → 全局兜底（og:image / twitter:card / canonical / lang）
  * - 各页面          → 只写 title + description，特殊页面补充 keywords / ld+json
  * - useSeo.ts       → 抽离公共逻辑，避免重复代码

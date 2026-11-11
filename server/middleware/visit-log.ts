@@ -16,8 +16,6 @@ const EXCLUDED_PREFIXES = [
 
 const STATIC_FILE_RE = /\.[a-z0-9]+$/i
 const VISITOR_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-const VISITOR_COOKIE_MAX_AGE = 60 * 60 * 24 * 365
-
 function parseDeviceType(userAgent: string) {
   const ua = userAgent.toLowerCase()
   if (!ua) return 'unknown'
@@ -69,24 +67,9 @@ function visitorCookieName() {
   return `${prefix}vid`
 }
 
-function cookieSecure() {
-  return process.env.NODE_ENV === 'production' && process.env.COOKIE_SECURE !== '0'
-}
-
-function ensureVisitorId(event: any): string {
-  const name = visitorCookieName()
-  const existing = String(getCookie(event, name) || '')
-  if (VISITOR_ID_RE.test(existing)) return existing
-
-  const visitorId = randomUUID()
-  setCookie(event, name, visitorId, {
-    httpOnly: true,
-    secure: cookieSecure(),
-    sameSite: 'lax',
-    path: '/',
-    maxAge: VISITOR_COOKIE_MAX_AGE
-  })
-  return visitorId
+function existingVisitorId(event: any): string {
+  const existing = String(getCookie(event, visitorCookieName()) || '')
+  return VISITOR_ID_RE.test(existing) ? existing : ''
 }
 
 export default defineEventHandler((event) => {
@@ -103,7 +86,12 @@ export default defineEventHandler((event) => {
   const referer = String(getHeader(event, 'referer') || '')
   const acceptLanguage = String(getHeader(event, 'accept-language') || '')
   const ip = String(getRequestIP(event, { xForwardedFor: shouldTrustProxy(event) }) || 'unknown')
-  const visitorId = ensureVisitorId(event)
+  const deviceType = parseDeviceType(userAgent)
+  // 真人访问改由 /api/visit 记日志并种下访客 Cookie，避免 HTML 响应带 Set-Cookie 而无法被边缘缓存。
+  // 爬虫不执行脚本，仍在这里记一条，且不写 Cookie。
+  if (deviceType !== 'bot') return
+
+  const visitorId = existingVisitorId(event) || randomUUID()
 
   event.node.res.once('finish', () => {
     const { visitLogs } = getCollections(getDb())
@@ -122,7 +110,7 @@ export default defineEventHandler((event) => {
         acceptLanguage,
         browser: parseBrowser(userAgent),
         os: parseOS(userAgent),
-        deviceType: parseDeviceType(userAgent),
+        deviceType,
         durationMs: Math.max(0, Date.now() - startedAt),
         visitedAt: new Date()
       })

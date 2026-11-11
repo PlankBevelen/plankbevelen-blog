@@ -15,6 +15,8 @@ export interface Article {
   longHtml?: string
   createTime: string
   updateTime: string
+  pinned?: boolean
+  pinnedAt?: string | null
   prev?: ArticleNavLink | null
   next?: ArticleNavLink | null
 }

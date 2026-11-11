@@ -24,6 +24,8 @@ export type ArticleDoc = {
   content: string
   createdAt: Date
   updatedAt: Date
+  pinned?: boolean
+  pinnedAt?: Date | null
   deletedAt?: Date | null
 }
 

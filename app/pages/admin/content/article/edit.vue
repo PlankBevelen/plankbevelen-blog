@@ -31,6 +31,11 @@
             </el-select>
           </el-form-item>
 
+          <el-form-item label="置顶">
+            <el-switch v-model="form.pinned" />
+            <p class="field-hint">置顶后排在文章列表和首页前面，站点地图优先级为 0.9。列表里单独切换置顶不会改更新时间。</p>
+          </el-form-item>
+
           <el-form-item label="文章标签" prop="tags">
             <el-select
               v-model="form.tags"
@@ -120,7 +125,8 @@ const form = ref<NewArticle>({
   category: '',
   tags: [],
   content: '',
-  tempId: ''
+  tempId: '',
+  pinned: false
 })
 
 const rules: FormRules = {
@@ -179,7 +185,8 @@ const fetchArticleDetail = async () => {
       title: data.title || '',
       category: data.category || '',
       tags: data.tags || [],
-      content: normalizeContentPath(data.content || '')
+      content: normalizeContentPath(data.content || ''),
+      pinned: data.pinned === true
     }
     originalTags.value = [...(data.tags || [])]
   } catch (error: unknown) {
@@ -293,6 +300,13 @@ onMounted(() => {
 
 .meta-panel {
   height: fit-content;
+}
+
+.field-hint {
+  margin: @space-xs 0 0;
+  font-size: @font-size-xs;
+  line-height: 1.5;
+  color: var(--mute-color);
 }
 
 .meta-strip {

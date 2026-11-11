@@ -1,4 +1,5 @@
 import { defineEventHandler, getQuery, setResponseStatus } from 'h3'
+import { pinnedRankStage, sortPinnedFirst } from '../../utils/article-pin'
 import { getDb, getCollections } from '../../utils/mongo'
 
 function sliceMdSafely(content: string, length: number): string {
@@ -78,10 +79,11 @@ export default defineEventHandler(async (event) => {
 
     const sortStage =
       sort === 'created'
-        ? { createdAt: -1, id: -1 }
-        : { updatedAt: -1, createdAt: -1, id: -1 }
+        ? sortPinnedFirst({ createdAt: -1, id: -1 })
+        : sortPinnedFirst({ updatedAt: -1, createdAt: -1, id: -1 })
 
     pipeline.push(
+      pinnedRankStage,
       { $sort: sortStage },
       {
         $facet: {
@@ -97,7 +99,8 @@ export default defineEventHandler(async (event) => {
                 category: { $ifNull: ['$category.name', ''] },
                 content: 1,
                 createTime: '$createdAt',
-                updateTime: '$updatedAt'
+                updateTime: '$updatedAt',
+                pinned: { $eq: ['$pinned', true] }
               }
             }
           ],
@@ -117,6 +120,7 @@ export default defineEventHandler(async (event) => {
       category: r.category,
       createTime: r.createTime,
       updateTime: r.updateTime,
+      pinned: r.pinned === true,
       shortContent: sliceMdSafely(r.content || '', 600),
       longContent: sliceMdSafely(r.content || '', 2000),
     }))

@@ -33,7 +33,10 @@
 
       <el-table-column prop="title" label="标题" min-width="220" show-overflow-tooltip>
         <template #default="{ row }">
-          <span class="title-cell">{{ row.title }}</span>
+          <span class="title-cell">
+            <el-tag v-if="row.pinned" size="small" effect="plain" class="pin-tag">置顶</el-tag>
+            {{ row.title }}
+          </span>
         </template>
       </el-table-column>
 
@@ -63,8 +66,11 @@
 
       <el-table-column prop="updateTime" label="更新时间" width="170" />
 
-      <el-table-column label="操作" width="140" fixed="right">
+      <el-table-column label="操作" width="210" fixed="right">
         <template #default="{ row }">
+          <el-button type="primary" link size="small" @click="handlePin(row)">
+            {{ row.pinned ? '取消置顶' : '置顶' }}
+          </el-button>
           <el-button type="primary" link size="small" @click="handleEdit('update', row.id)">编辑</el-button>
           <el-button type="danger" link size="small" @click="handleDelete(row.id)">删除</el-button>
         </template>
@@ -132,6 +138,16 @@ const onSearch = async () => {
   await getArticleList()
 }
 
+const handlePin = async (row: Article) => {
+  try {
+    await articleService.pinArticle(row.id, !row.pinned)
+    ElMessage.success(row.pinned ? '已取消置顶' : '已置顶')
+    await getArticleList()
+  } catch (error: unknown) {
+    ElMessage.error(toApiError(error).message || '置顶失败')
+  }
+}
+
 const handleDelete = async (id: string) => {
   try {
     await ElMessageBox.confirm('确认删除该文章吗？', '提示', { type: 'warning' })
@@ -158,6 +174,10 @@ const handleDelete = async (id: string) => {
 .title-cell {
   font-weight: 500;
   color: var(--text-color);
+}
+
+.pin-tag {
+  margin-right: 6px;
 }
 
 .tags-wrapper {

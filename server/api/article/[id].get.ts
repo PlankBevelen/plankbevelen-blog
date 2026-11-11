@@ -55,6 +55,8 @@ export default defineEventHandler(async (event) => {
       content,
       createTime: article.createdAt,
       updateTime: article.updatedAt,
+      pinned: article.pinned === true,
+      pinnedAt: article.pinnedAt ?? null,
       prev,
       next
     }

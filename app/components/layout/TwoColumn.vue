@@ -3,19 +3,9 @@
     <div class="content" :class="[type]">
       <!-- 左列 -->
       <div class="left">
-        <div v-if="showSkeleton">
-          <el-skeleton animated>
-            <template #template>
-              <el-skeleton-item
-                variant="image"
-                style="width: 100%; height: 140px"
-              />
-              <el-skeleton-item
-                variant="image"
-                style="width: 100%; height: 140px; margin-top: 20px"
-              />
-            </template>
-          </el-skeleton>
+        <div v-if="showSkeleton" class="col-skeleton" aria-hidden="true">
+          <span style="height: 140px"></span>
+          <span style="height: 140px"></span>
         </div>
         <div v-show="!showSkeleton" class="slot-wrapper">
           <slot name="left"></slot>
@@ -24,26 +14,13 @@
 
       <!-- 右列（文章详情页的主内容区） -->
       <div class="right">
-        <div v-if="showSkeleton">
-          <el-skeleton animated>
-            <template #template>
-              <el-skeleton-item
-                variant="h1"
-                style="width: 60%; margin: 0 auto 10px"
-              />
-              <el-skeleton-item
-                variant="text"
-                style="width: 40%; margin: 0 auto 20px"
-              />
-              <el-skeleton-item variant="text" />
-              <el-skeleton-item variant="text" />
-              <el-skeleton-item variant="text" style="width: 80%" />
-              <el-skeleton-item
-                variant="image"
-                style="width: 100%; height: 400px; margin-top: 20px"
-              />
-            </template>
-          </el-skeleton>
+        <div v-if="showSkeleton" class="col-skeleton" aria-hidden="true">
+          <span style="width: 60%; height: 28px; margin-inline: auto"></span>
+          <span style="width: 40%; height: 16px; margin-inline: auto"></span>
+          <span style="height: 16px"></span>
+          <span style="height: 16px"></span>
+          <span style="width: 80%; height: 16px"></span>
+          <span style="height: 400px"></span>
         </div>
         <div v-show="!showSkeleton" class="slot-wrapper">
           <slot name="right"></slot>
@@ -127,6 +104,23 @@ const { showSkeleton } = useMinSkeleton(toRef(props, 'loading'))
   display: flex;
   flex-direction: column;
   gap: @space-base;
+}
+.col-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  span {
+    display: block;
+    width: 100%;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--text-color) 8%, var(--card-color));
+    animation: skeleton-pulse 1.4s ease-in-out infinite;
+  }
+}
+@keyframes skeleton-pulse {
+  0%,
+  100% { opacity: 1; }
+  50% { opacity: 0.45; }
 }
 
 @media (max-width: @screen-lg) {
