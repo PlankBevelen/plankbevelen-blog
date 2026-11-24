@@ -1,6 +1,15 @@
 import { defineEventHandler, setResponseStatus } from 'h3'
 import { getDb } from '../../utils/mongo'
+import { renderMarkdown } from '../../utils/markdown'
 import { getSiteContent } from '../../utils/site-content'
+import type { SiteLocalizedText } from '../../utils/site-content'
+
+function renderLocalizedMarkdown(text: SiteLocalizedText): SiteLocalizedText {
+  return {
+    zh: renderMarkdown(text?.zh || ''),
+    en: renderMarkdown(text?.en || ''),
+  }
+}
 
 export default defineEventHandler(async (event) => {
   try {
@@ -13,6 +22,12 @@ export default defineEventHandler(async (event) => {
       msg: 'success',
       data: {
         ...content.data,
+        about: renderLocalizedMarkdown(content.data.about),
+        pages: {
+          about: renderLocalizedMarkdown(content.data.pages.about),
+          timeline: renderLocalizedMarkdown(content.data.pages.timeline),
+          project: renderLocalizedMarkdown(content.data.pages.project),
+        },
         updatedAt: content.updatedAt || null
       }
     }

@@ -29,18 +29,7 @@
                 >
               </template>
             </div>
-            <Suspense>
-              <template #default>
-                <AsyncMdPreview
-                  :modelValue="displayContent"
-                  :theme="currentTheme"
-                  :noKatex="true"
-                />
-              </template>
-              <template #fallback>
-                <el-skeleton :rows="10" animated />
-              </template>
-            </Suspense>
+            <div class="markdown-body" v-html="articleHtml"></div>
             <div class="prev-next">
               <div class="item prev" v-if="article?.prev">
                 <NuxtLink
@@ -69,33 +58,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent } from "vue";
+import { computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useAsyncData, navigateTo, createError } from "nuxt/app";
-// 按需加载 MdPreview 与样式，避免在首页主包中引入 md-editor
-import type { Component } from 'vue'
-const mdPreviewLoaders = globalThis as typeof globalThis & {
-  __md_preview_loader?: Promise<Component>
-}
-const AsyncMdPreview = defineAsyncComponent(() => {
-  if (!mdPreviewLoaders.__md_preview_loader) {
-    mdPreviewLoaders.__md_preview_loader = (async () => {
-      const mod = await import('md-editor-v3')
-      await import('md-editor-v3/lib/style.css')
-      return (mod.MdPreview || mod) as Component
-    })()
-  }
-  return mdPreviewLoaders.__md_preview_loader
-})
 import { formatDateTime } from "@/utils/format";
-import { useAdminStore } from "@/stores/admin.store";
-import articleService from "@/services/article";
+import { articleDataKey, prefetchArticle, readArticleCache } from "@/utils/article-payload";
 import { useArticleSeo } from "@/composables/useSeo";
 import { useSidebarData } from "@/composables/useSidebarData";
 
 const { t } = useI18n();
-const admin = useAdminStore();
-const currentTheme = computed(() => admin.getTheme);
 const route = useRoute();
 
 const id = computed(() => String(route.params.id || ""));
@@ -104,26 +75,36 @@ if (!id.value) {
 }
 
 const { data: detailData, pending } = await useAsyncData(
-  "article-detail",
+  () => articleDataKey(id.value),
   async () => {
     const rid = id.value;
     if (!rid) {
       throw createError({ statusCode: 400, statusMessage: "Bad Request", message: "参数错误" });
     }
-    try {
-      return await articleService.getArticle(rid);
-    } catch {
-      return null;
-    }
+    return await prefetchArticle(rid);
   },
-  { watch: [id] },
+  {
+    watch: [id],
+    getCachedData: (key) => readArticleCache(key),
+  },
 );
 
 const article = computed(() => detailData.value || null);
 const timeText = computed(() =>
   formatDateTime(article.value?.updateTime || article.value?.createTime || ""),
 );
-const displayContent = computed(() => String(article.value?.content || ""));
+const articleHtml = computed(() => String(article.value?.html || ""));
+
+if (import.meta.client) {
+  watch(article, (value) => {
+    const warmNeighbors = () => {
+      if (value?.prev?.id) void prefetchArticle(String(value.prev.id))
+      if (value?.next?.id) void prefetchArticle(String(value.next.id))
+    }
+    if (typeof requestIdleCallback === "function") requestIdleCallback(warmNeighbors)
+    else setTimeout(warmNeighbors, 200)
+  }, { immediate: true })
+}
 
 const { data: homeData } = await useSidebarData();
 

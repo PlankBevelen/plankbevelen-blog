@@ -1,9 +1,7 @@
 import sanitizeHtml from 'sanitize-html'
 
 /**
- * 兜底 HTML 消毒工具（纵深防御）。
- * 当前正文为 Markdown、由前端 md-editor 过滤渲染，无活跃的服务端 HTML 出站路径；
- * 若未来启用 shortHtml/longHtml 或 site-content 中含 HTML 的字段，统一经此消毒。
+ * 阅读页出站 HTML 的消毒。Markdown 先由 markdown-it 渲染，再经这里去掉脚本和未知标签。
  */
 export function sanitizeHtmlText(html: string): string {
   return sanitizeHtml(String(html || ''), {
