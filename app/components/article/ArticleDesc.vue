@@ -1,5 +1,5 @@
 <template>
-  <BaseCard class="article-desc" tag="article">
+    <BaseCard class="article-desc" tag="article" @pointerenter="warmArticle">
     <h2 class="title-wrapper">
       <NuxtLink :to="localePath('/article/' + article.id)" class="title">
         <span v-if="article.pinned" class="pin-mark">{{ $t('pages.article.pinned') }}</span>
@@ -21,19 +21,7 @@
     </div>
     <div class="content">
       <div class="md-wrapper" :class="{ 'is-collapsed': !isExpand }">
-        <Suspense>
-          <template #default>
-            <AsyncMdPreview
-              :modelValue="displayContent"
-              :theme="currentTheme"
-              :noKatex="true"
-              previewOnly
-            />
-          </template>
-          <template #fallback>
-            <div class="md-editor-preview" v-html="displayHtml"></div>
-          </template>
-        </Suspense>
+        <div class="markdown-body" v-html="displayHtml"></div>
       </div>
       <div class="ops">
         <el-button type="primary" link size="small" @click="isExpand = !isExpand">
@@ -48,52 +36,32 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, defineAsyncComponent } from 'vue'
+import { ref, computed } from 'vue'
 import type { Article } from '@/types/data/article'
 import { formatDateTime } from '@/utils/format'
-import { useAdminStore } from '@/stores/admin.store'
+import { prefetchArticle } from '@/utils/article-payload'
 
 const localePath = useLocalePath()
-const admin = useAdminStore()
-const currentTheme = computed(() => admin.getTheme)
+
+function warmArticle() {
+  const articleId = String(props.article?.id || '')
+  if (articleId) void prefetchArticle(articleId)
+}
 
 const props = defineProps({
   article: {
-    type: Object as () => Article & { shortContent?: string; longContent?: string; shortHtml?: string; longHtml?: string },
+    type: Object as () => Article,
     required: true,
   },
 })
 
 const isExpand = ref(false)
 
-const displayContent = computed(() =>
-  isExpand.value
-    ? (props.article.longContent || props.article.shortContent || '')
-    : (props.article.shortContent || '')
-)
-
-// 回退使用服务端渲染的 HTML（已在服务端 sanitize）
 const displayHtml = computed(() =>
   isExpand.value
-    ? (props.article.longHtml || '')
+    ? (props.article.longHtml || props.article.shortHtml || '')
     : (props.article.shortHtml || '')
 )
-
-// 异步加载 MdPreview 与样式，使用全局缓存避免重复加载
-import type { Component } from 'vue'
-const mdPreviewLoaders = globalThis as typeof globalThis & {
-  __md_preview_loader?: Promise<Component>
-}
-const AsyncMdPreview = defineAsyncComponent(() => {
-  if (!mdPreviewLoaders.__md_preview_loader) {
-    mdPreviewLoaders.__md_preview_loader = (async () => {
-      const mod = await import('md-editor-v3')
-      await import('md-editor-v3/lib/style.css')
-      return (mod.MdPreview || mod) as Component
-    })()
-  }
-  return mdPreviewLoaders.__md_preview_loader
-})
 </script>
 
 <style scoped lang="less">
@@ -159,8 +127,8 @@ const AsyncMdPreview = defineAsyncComponent(() => {
     flex-direction: column;
     gap: @space-base;
 
-    :deep(.md-editor-preview) {
-      font-size: @font-size-sm !important;
+    :deep(.markdown-body) {
+      font-size: @font-size-sm;
     }
   }
 }

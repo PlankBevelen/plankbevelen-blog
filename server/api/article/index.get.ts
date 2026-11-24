@@ -1,5 +1,6 @@
 import { defineEventHandler, getQuery, setResponseStatus } from 'h3'
 import { pinnedRankStage, sortPinnedFirst } from '../../utils/article-pin'
+import { renderMarkdown } from '../../utils/markdown'
 import { getDb, getCollections } from '../../utils/mongo'
 
 function sliceMdSafely(content: string, length: number): string {
@@ -113,17 +114,22 @@ export default defineEventHandler(async (event) => {
     const res0: any = aggRes?.[0] || { data: [], total: [] }
     const total = Number(res0?.total?.[0]?.value || 0)
 
-    const data = (res0?.data || []).map((r: any) => ({
-      id: String(r.id),
-      title: r.title,
-      tags: Array.isArray(r.tags) ? r.tags : [],
-      category: r.category,
-      createTime: r.createTime,
-      updateTime: r.updateTime,
-      pinned: r.pinned === true,
-      shortContent: sliceMdSafely(r.content || '', 600),
-      longContent: sliceMdSafely(r.content || '', 2000),
-    }))
+    const data = (res0?.data || []).map((r: any) => {
+      const shortMarkdown = sliceMdSafely(r.content || '', 600)
+      const longMarkdown = sliceMdSafely(r.content || '', 2000)
+      const shortHtml = renderMarkdown(shortMarkdown)
+      return {
+        id: String(r.id),
+        title: r.title,
+        tags: Array.isArray(r.tags) ? r.tags : [],
+        category: r.category,
+        createTime: r.createTime,
+        updateTime: r.updateTime,
+        pinned: r.pinned === true,
+        shortHtml,
+        longHtml: longMarkdown === shortMarkdown ? shortHtml : renderMarkdown(longMarkdown),
+      }
+    })
 
     setResponseStatus(event, 200)
     return { status: 200, msg: '查询成功', data, total, page: pageNum, limit: pageSize }

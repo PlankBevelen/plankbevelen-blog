@@ -3,45 +3,18 @@
     <div class="header">
       <h1 class="title">{{ props.title }}</h1>
     </div>
-    <Suspense v-if="props.content">
-      <template #default>
-        <AsyncMdPreview :modelValue="props.content" :theme="currentTheme" previewOnly />
-      </template>
-      <template #fallback>
-        <el-skeleton :rows="4" animated />
-      </template>
-    </Suspense>
+    <div v-if="props.content" class="markdown-body" v-html="props.content"></div>
     <el-empty v-else :description="props.emptyText" />
   </BaseCard>
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, type Component } from 'vue'
-import { useAdminStore } from '@/stores/admin.store'
-
 const props = withDefaults(defineProps<{
   title: string
   content: string
   emptyText?: string
 }>(), {
   emptyText: '暂无页面内容'
-})
-
-const admin = useAdminStore()
-const currentTheme = computed(() => admin.getTheme)
-
-const mdPreviewLoaders = globalThis as typeof globalThis & {
-  __md_preview_loader?: Promise<Component>
-}
-const AsyncMdPreview = defineAsyncComponent(() => {
-  if (!mdPreviewLoaders.__md_preview_loader) {
-    mdPreviewLoaders.__md_preview_loader = (async () => {
-      const mod = await import('md-editor-v3')
-      await import('md-editor-v3/lib/style.css')
-      return (mod.MdPreview || mod) as Component
-    })()
-  }
-  return mdPreviewLoaders.__md_preview_loader
 })
 </script>
 

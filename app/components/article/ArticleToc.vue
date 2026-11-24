@@ -36,7 +36,7 @@ const tocItems = computed<TocItem[]>(() => {
 })
 
 function onJump(item: TocItem) {
-  const container = document.querySelector('.md-editor-preview') as HTMLElement | null
+  const container = document.querySelector('.markdown-body') as HTMLElement | null
   if (!container) return
   const hs = Array.from(container.querySelectorAll('h1,h2,h3,h4,h5,h6')) as HTMLElement[]
   const t = hs.find(h => (h.textContent || '').trim() === item.title)

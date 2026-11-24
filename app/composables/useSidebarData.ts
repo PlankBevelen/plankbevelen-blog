@@ -8,5 +8,10 @@ export function useSidebarData() {
     } catch {
       return null
     }
+  }, {
+    getCachedData(key) {
+      const cached = useNuxtApp().payload.data[key]
+      return cached === undefined ? undefined : cached
+    },
   })
 }

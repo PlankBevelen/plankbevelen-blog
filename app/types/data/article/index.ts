@@ -9,6 +9,7 @@ export interface Article {
   tags: string[]
   category: string
   content?: string
+  html?: string
   shortContent?: string
   longContent?: string
   shortHtml?: string

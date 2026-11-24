@@ -1,6 +1,7 @@
 import { defineEventHandler, setResponseStatus } from 'h3'
 import { getDb, getCollections } from '../../utils/mongo'
 import { normalizeUploadsInContent } from '../../utils/content'
+import { renderMarkdown } from '../../utils/markdown'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -53,6 +54,7 @@ export default defineEventHandler(async (event) => {
       tags: Array.isArray(article.tags) ? article.tags : [],
       category: String(article.categoryId),
       content,
+      html: renderMarkdown(content),
       createTime: article.createdAt,
       updateTime: article.updatedAt,
       pinned: article.pinned === true,
