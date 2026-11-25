@@ -34,7 +34,6 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import type { Article } from '@/types/data/article'
 import articleService from '@/services/article'
-import { prefetchArticle } from '@/utils/article-payload'
 import ArticleDesc from './ArticleDesc.vue'
 
 const props = defineProps({
@@ -74,7 +73,6 @@ const loadData = async () => {
     const res = await articleService.getArticles(page.value, limit.value, props.q || undefined)
     articleList.value = res.data || []
     total.value = Number(res.total || 0)
-    for (const item of articleList.value) void prefetchArticle(String(item.id || ''))
   } finally {
     loading.value = false
   }

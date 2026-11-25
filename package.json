@@ -12,7 +12,9 @@
     "postinstall": "nuxt prepare",
     "serve": "vite",
     "start": "node --max-old-space-size=768 .output/server/index.mjs",
-    "security:test": "node scripts/security/run.mjs"
+    "test": "vitest run",
+    "security:test": "vitest run",
+    "articles:render": "npx tsx server/scripts/renderArticles.ts"
   },
   "dependencies": {
     "@intlify/utils": "^1.0.1",
@@ -64,6 +66,7 @@
     "rollup-plugin-visualizer": "^7.0.1",
     "tailwindcss": "^3.4.19",
     "typescript": "^5.9.3",
+    "vitest": "^5.1.1",
     "vue-tsc": "^3.3.12"
   }
 }

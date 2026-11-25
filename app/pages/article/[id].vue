@@ -8,7 +8,7 @@
             :categoryCount="stats?.categories || 0"
             :tagCount="stats?.tags || 0"
           />
-          <ArticleToc :content="article?.content || ''" />
+          <ArticleToc :items="article?.toc || []" />
         </template>
         <template #right>
           <BaseCard class="detailCard" tag="article">
@@ -109,18 +109,13 @@ if (import.meta.client) {
 const { data: homeData } = await useSidebarData();
 
 const stats = computed(() => homeData.value?.stats || null);
-const categories = computed(() => homeData.value?.categories || []);
-const articleCategory = computed(() => {
-  const cid = String(article.value?.category || "");
-  const c = (categories.value || []).find((x: any) => String(x.id) === cid);
-  return c ? c.name : "";
-});
+const articleCategory = computed(() => article.value?.category || "");
 
-// SEO：文章详情页使用专属 composable，处理动态数据 + ld+json + canonical 覆盖
 useArticleSeo({
   id,
   title: computed(() => article.value?.title),
-  content: computed(() => article.value?.content),
+  excerpt: computed(() => article.value?.excerpt),
+  cover: computed(() => article.value?.cover),
   tags: computed(() => article.value?.tags || []),
   createTime: computed(() => article.value?.createTime),
   updateTime: computed(() => article.value?.updateTime),

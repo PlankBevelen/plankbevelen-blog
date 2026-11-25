@@ -1,5 +1,6 @@
 import { getCookie, setCookie, deleteCookie } from 'h3'
 import type { H3Event } from 'h3'
+import { resolveSessionMaxAge } from './session'
 import { getRuntimeSettingsSync, resolveCookieSecure } from './runtime-settings'
 
 /**
@@ -24,9 +25,7 @@ export function csrfCookieName(): string {
 
 export function sessionMaxAgeSeconds(remember: boolean): number {
   const settings = getRuntimeSettingsSync()
-  const raw = remember ? settings.sessionExpirationSeconds : settings.sessionKeepAliveSeconds
-  const seconds = Number(raw)
-  return Number.isFinite(seconds) && seconds > 0 ? seconds : 60 * 60 * 24 * 7
+  return resolveSessionMaxAge(remember, settings.sessionExpirationSeconds, settings.sessionKeepAliveSeconds)
 }
 
 export function setAuthCookies(event: H3Event, token: string, csrf: string, remember: boolean): void {

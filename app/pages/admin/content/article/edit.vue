@@ -183,7 +183,7 @@ const fetchArticleDetail = async () => {
     const data = await articleService.getArticle(id)
     form.value = {
       title: data.title || '',
-      category: data.category || '',
+      category: data.categoryId || '',
       tags: data.tags || [],
       content: normalizeContentPath(data.content || ''),
       pinned: data.pinned === true

@@ -20,22 +20,15 @@
 
 import { computed } from 'vue'
 
+import type { ArticleTocItem } from '@/types/data/article'
+
 const props = defineProps({
-  content: { type: String, default: '' }
+  items: { type: Array as () => ArticleTocItem[], default: () => [] }
 })
 
-type TocItem = { level: number; title: string }
-const tocItems = computed<TocItem[]>(() => {
-  const lines = (props.content || '').split('\n')
-  const items: TocItem[] = []
-  for (const line of lines) {
-    const m = line.match(/^(#{1,6})\s+(.+)/)
-    if (m?.[1] && m?.[2]) items.push({ level: m[1].length, title: m[2].trim() })
-  }
-  return items.slice(0, 100)
-})
+const tocItems = computed(() => (props.items || []).slice(0, 100))
 
-function onJump(item: TocItem) {
+function onJump(item: ArticleTocItem) {
   const container = document.querySelector('.markdown-body') as HTMLElement | null
   if (!container) return
   const hs = Array.from(container.querySelectorAll('h1,h2,h3,h4,h5,h6')) as HTMLElement[]

@@ -108,3 +108,19 @@ export async function updateCategoryCount(
     )
   }
 }
+
+export async function findCategoryName(
+  categoryId: number,
+  ctx: { db: Db; session?: ClientSession }
+): Promise<string> {
+  if (!categoryId) return ''
+  const { categories } = getCollections(ctx.db)
+  const row = await categories.findOne(
+    { id: categoryId },
+    {
+      projection: { _id: 0, name: 1 },
+      ...(ctx.session ? { session: ctx.session } : {}),
+    }
+  )
+  return row?.name ? String(row.name) : ''
+}

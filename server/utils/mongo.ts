@@ -22,6 +22,12 @@ export type ArticleDoc = {
   tags: string[]
   categoryId: number
   content: string
+  html?: string
+  previewHtml?: string
+  excerpt?: string
+  cover?: string | null
+  toc?: { level: number; title: string }[]
+  rendererVersion?: number
   createdAt: Date
   updatedAt: Date
   pinned?: boolean

@@ -1,6 +1,8 @@
 import { defineEventHandler, readBody, setResponseStatus } from 'h3'
 import { withTransaction, getCollections } from '../../utils/mongo'
-import { updateTagsCount, updateCategoryCount } from '../../utils/article-helpers'
+import { updateTagsCount, updateCategoryCount, findCategoryName } from '../../utils/article-helpers'
+import { compileArticle } from '../../modules/article/reading'
+import { toArticleListItem } from '../../modules/article/payload'
 import { normalizeUploadsInContent } from '../../utils/content'
 import { resolvePinFields } from '../../utils/article-pin'
 
@@ -33,9 +35,11 @@ export default defineEventHandler(async (event) => {
       if (!oldArticle) throw new Error('Article not found')
 
       content = normalizeUploadsInContent(content)
+      const reading = compileArticle(content)
       const nextTags = tagsArr.map(t => String(t).trim()).filter(Boolean)
       const now = new Date()
       const pin = resolvePinFields(oldArticle.pinned, oldArticle.pinnedAt, body?.pinned, now)
+      const category = await findCategoryName(categoryId, ctx)
 
       await articles.updateOne(
         { id },
@@ -45,6 +49,7 @@ export default defineEventHandler(async (event) => {
             tags: nextTags,
             categoryId,
             content,
+            ...reading,
             updatedAt: now,
             pinned: pin.pinned,
             pinnedAt: pin.pinnedAt
@@ -57,15 +62,19 @@ export default defineEventHandler(async (event) => {
       await updateCategoryCount(oldArticle.categoryId, categoryId, ctx)
 
       return {
-        id: String(id),
-        title,
-        tags: nextTags,
-        category: String(categoryId),
-        content,
-        createTime: oldArticle.createdAt,
-        updateTime: now,
-        pinned: pin.pinned,
-        pinnedAt: pin.pinnedAt
+        ...toArticleListItem({
+          id,
+          title,
+          tags: nextTags,
+          category,
+          excerpt: reading.excerpt,
+          previewHtml: reading.previewHtml,
+          cover: reading.cover,
+          createTime: oldArticle.createdAt,
+          updateTime: now,
+          pinned: pin.pinned,
+        }),
+        pinnedAt: pin.pinnedAt,
       }
     })
 

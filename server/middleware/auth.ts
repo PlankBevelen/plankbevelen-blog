@@ -1,53 +1,15 @@
 import { defineEventHandler, getHeader, setResponseStatus } from 'h3'
 import jwt from 'jsonwebtoken'
 import { readAccessToken, readCsrfCookie } from '../core/auth-cookies'
+import { isCrossSiteWrite, isGuardedRoute } from '../core/request-guard'
 import { getRuntimeSettings } from '../core/runtime-settings'
 import { safeEqualString } from '../utils/crypto-safe'
 
-const ADMIN_EXEMPT = [
-  '/api/admin/login',
-  '/api/admin/captcha',
-  '/api/admin/session',
-  '/api/admin/logout',
-]
-
-const PROTECTED_MUTATION_PREFIXES = [
-  '/api/article',
-  '/api/category',
-  '/api/tag/sync',
-  '/api/upload',
-]
-
-function normalizePath(raw: string): string {
-  let path = raw || '/'
-  try {
-    path = decodeURIComponent(path)
-  } catch {
-    // 解码失败保留原样
-  }
-  return path.replace(/\/{2,}/g, '/')
-}
-
-function headerHost(value: string): string {
-  try {
-    return new URL(value).host
-  } catch {
-    return ''
-  }
-}
-
 export default defineEventHandler(async (event) => {
   const url = new URL(event.node.req.url || '/', 'http://localhost')
-  const path = normalizePath(url.pathname)
   const method = (event.node.req.method || 'GET').toUpperCase()
 
-  const isAdminAPI = path.startsWith('/api/admin')
-  const isExempt = ADMIN_EXEMPT.some((p) => path === p)
-  const isProtectedMutation =
-    (method !== 'GET' && method !== 'HEAD') &&
-    PROTECTED_MUTATION_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`))
-
-  if (!((isAdminAPI && !isExempt) || isProtectedMutation)) {
+  if (!isGuardedRoute(url.pathname, method)) {
     return
   }
 
@@ -64,8 +26,7 @@ export default defineEventHandler(async (event) => {
     const host = getHeader(event, 'host') || ''
     const origin = getHeader(event, 'origin') || ''
     const referer = getHeader(event, 'referer') || ''
-    const sourceHost = headerHost(origin) || headerHost(referer)
-    if (!sourceHost || sourceHost !== host) {
+    if (isCrossSiteWrite(host, origin, referer)) {
       setResponseStatus(event, 403)
       return { status: 403, msg: '跨站请求被拒绝' }
     }

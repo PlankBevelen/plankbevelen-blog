@@ -1,6 +1,8 @@
 import { defineEventHandler, readBody, setResponseStatus } from 'h3'
 import { withTransaction, getCollections, getNextSequence } from '../../utils/mongo'
-import { updateTagsCount, updateCategoryCount } from '../../utils/article-helpers'
+import { updateTagsCount, updateCategoryCount, findCategoryName } from '../../utils/article-helpers'
+import { compileArticle } from '../../modules/article/reading'
+import { toArticleListItem } from '../../modules/article/payload'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { getUploadsBaseDir } from '../../utils/uploads'
@@ -71,20 +73,23 @@ export default defineEventHandler(async (event) => {
       }
 
       finalContent = normalizeUploadsInContent(finalContent)
-      
-      // 更新标签和分类计数
-      await updateTagsCount(null, tagsArr, ctx)
+      const reading = compileArticle(finalContent)
+      const tags = tagsArr.map(t => String(t).trim()).filter(Boolean)
+
+      await updateTagsCount(null, tags, ctx)
       await updateCategoryCount(null, categoryId, ctx)
 
       const now = new Date()
       const pin = resolvePinFields(false, null, body?.pinned, now)
+      const category = await findCategoryName(categoryId, ctx)
       await articles.insertOne(
         {
           id,
           title,
-          tags: tagsArr.map(t => String(t).trim()).filter(Boolean),
+          tags,
           categoryId,
           content: finalContent,
+          ...reading,
           createdAt: now,
           updatedAt: now,
           pinned: pin.pinned,
@@ -94,15 +99,19 @@ export default defineEventHandler(async (event) => {
       )
 
       return {
-        id: String(id),
-        title,
-        tags: tagsArr.map(t => String(t).trim()).filter(Boolean),
-        category: String(categoryId),
-        content: finalContent,
-        createTime: now,
-        updateTime: now,
-        pinned: pin.pinned,
-        pinnedAt: pin.pinnedAt
+        ...toArticleListItem({
+          id,
+          title,
+          tags,
+          category,
+          excerpt: reading.excerpt,
+          previewHtml: reading.previewHtml,
+          cover: reading.cover,
+          createTime: now,
+          updateTime: now,
+          pinned: pin.pinned,
+        }),
+        pinnedAt: pin.pinnedAt,
       }
     })
 

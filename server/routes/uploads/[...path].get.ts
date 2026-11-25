@@ -1,31 +1,14 @@
 import { defineEventHandler, sendStream, createError, setHeader } from 'h3'
 import { promises as fs, createReadStream } from 'node:fs'
-import path from 'node:path'
-import { getUploadsBaseDir } from '../../utils/uploads'
+import { getUploadsBaseDir, resolveUploadPath, uploadMimeType } from '../../utils/uploads'
 
-const MIME_TYPES: Record<string, string> = {
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.webp': 'image/webp',
-}
-
-export default defineEventHandler(async (event) => {  
-  let filePathParam = event.context.params?.path || ''
-  
-  if (!filePathParam) {
-    throw createError({ statusCode: 404, statusMessage: 'File not found' })
+export default defineEventHandler(async (event) => {
+  const filePathParam = String(event.context.params?.path || '')
+  const decision = resolveUploadPath(getUploadsBaseDir(), filePathParam)
+  if (!decision.ok) {
+    throw createError({ statusCode: decision.statusCode, statusMessage: decision.statusMessage })
   }
-
-  const cleanPath = path.normalize(String(filePathParam)).replace(/^(\.\.[\/\\])+/, '')
-  const uploadDir = getUploadsBaseDir()
-  const fullPath = path.resolve(uploadDir, cleanPath)
-
-  const rel = path.relative(uploadDir, fullPath)
-  if (rel.startsWith('..') || path.isAbsolute(rel)) {
-    throw createError({ statusCode: 403, statusMessage: 'Access denied' })
-  }
+  const fullPath = decision.fullPath
 
   try {
     await fs.access(fullPath)
@@ -35,8 +18,7 @@ export default defineEventHandler(async (event) => {
        throw createError({ statusCode: 404, statusMessage: 'Not a file' })
     }
 
-    const ext = path.extname(fullPath).toLowerCase()
-    const mimeType = MIME_TYPES[ext]
+    const mimeType = uploadMimeType(fullPath)
     if (!mimeType) {
       // 白名单外的类型（含存量 svg/mp4）直接拒绝，防止脚本/非预期内容回放
       throw createError({ statusCode: 403, statusMessage: 'Forbidden file type' })
@@ -48,6 +30,7 @@ export default defineEventHandler(async (event) => {
 
     return sendStream(event, createReadStream(fullPath))
   } catch (error: any) {
+    if (error.statusCode) throw error
     if (error.code === 'ENOENT') {
       throw createError({ statusCode: 404, statusMessage: 'File not found' })
     }

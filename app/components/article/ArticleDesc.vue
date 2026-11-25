@@ -1,5 +1,5 @@
 <template>
-    <BaseCard class="article-desc" tag="article" @pointerenter="warmArticle">
+  <BaseCard class="article-desc" tag="article" @pointerenter="warmArticle">
     <h2 class="title-wrapper">
       <NuxtLink :to="localePath('/article/' + article.id)" class="title">
         <span v-if="article.pinned" class="pin-mark">{{ $t('pages.article.pinned') }}</span>
@@ -20,15 +20,13 @@
       </template>
     </div>
     <div class="content">
-      <div class="md-wrapper" :class="{ 'is-collapsed': !isExpand }">
-        <div class="markdown-body" v-html="displayHtml"></div>
+      <div v-if="article.previewHtml" class="md-wrapper">
+        <div class="markdown-body" v-html="article.previewHtml"></div>
       </div>
+      <p v-else-if="article.excerpt" class="excerpt">{{ article.excerpt }}</p>
       <div class="ops">
-        <el-button type="primary" link size="small" @click="isExpand = !isExpand">
-          {{ isExpand ? '收起' : '展开更多' }}
-        </el-button>
         <NuxtLink :to="localePath('/article/' + article.id)">
-          <el-button type="primary" link size="small">阅读全文</el-button>
+          <el-button type="primary" link size="small">{{ $t('pages.article.read') }}</el-button>
         </NuxtLink>
       </div>
     </div>
@@ -36,17 +34,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
 import type { Article } from '@/types/data/article'
 import { formatDateTime } from '@/utils/format'
 import { prefetchArticle } from '@/utils/article-payload'
 
 const localePath = useLocalePath()
-
-function warmArticle() {
-  const articleId = String(props.article?.id || '')
-  if (articleId) void prefetchArticle(articleId)
-}
 
 const props = defineProps({
   article: {
@@ -55,13 +47,10 @@ const props = defineProps({
   },
 })
 
-const isExpand = ref(false)
-
-const displayHtml = computed(() =>
-  isExpand.value
-    ? (props.article.longHtml || props.article.shortHtml || '')
-    : (props.article.shortHtml || '')
-)
+function warmArticle() {
+  const articleId = String(props.article?.id || '')
+  if (articleId) void prefetchArticle(articleId)
+}
 </script>
 
 <style scoped lang="less">
@@ -100,7 +89,6 @@ const displayHtml = computed(() =>
     }
   }
 
-  // 容器不用 flex，交给行内流：片段像段落里的词一样逐个折行
   .meta {
     color: var(--tertiary-color);
     font-size: @font-size-xs;
@@ -116,7 +104,6 @@ const displayHtml = computed(() =>
       margin-right: @space-base;
     }
 
-    // 标签图标是后面这串标签的引导符，贴近第一个标签
     .meta-tag-icon {
       margin-right: @space-2xs;
     }
@@ -136,14 +123,8 @@ const displayHtml = computed(() =>
 .md-wrapper {
   position: relative;
   overflow: hidden;
-  // 展开态自然高度
-}
-
-// 折叠态限制最大高度，超出渐隐
-.md-wrapper.is-collapsed {
   max-height: 260px;
 
-  // 底部渐隐遮罩，提示用户有更多内容
   &::after {
     content: '';
     position: absolute;
@@ -154,6 +135,13 @@ const displayHtml = computed(() =>
     background: linear-gradient(to bottom, transparent, var(--card-color));
     pointer-events: none;
   }
+}
+
+.excerpt {
+  margin: 0;
+  font-size: @font-size-sm;
+  line-height: 1.75;
+  color: var(--secondary-color);
 }
 
 .ops {

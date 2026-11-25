@@ -86,7 +86,7 @@ pnpm dev
 | `pnpm build` | 生产构建 |
 | `pnpm preview` | 本地预览生产构建 |
 | `pnpm start` | 运行 `.output/server/index.mjs` |
-| `pnpm security:test` | 安全自测。先用 `SECURITY_TEST_HOOK=1 pnpm dev` 启动，再执行本命令 |
+| `pnpm test` | 单元测试。不需要启动服务，也不连接数据库 |
 
 ## 目录
 

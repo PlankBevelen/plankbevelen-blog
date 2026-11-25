@@ -17,32 +17,6 @@ export const SITE_DESCRIPTION =
 export const SITE_LOCALE = 'zh'
 
 /**
- * 提取文章纯文本摘要（去除 Markdown 符号）
- */
-export function extractSummary(content: string, length = 160): string {
-  return content.slice(0, length * 2).replace(/[#*`>\-_\[\]!]/g, '').trim().slice(0, length)
-}
-
-/**
- * 从 Markdown 正文中提取首张图片 URL（优先上传路径 /uploads/*），作为文章专属 og:image / twitter:image
- * 找不到时返回 null，调用方统一回退全局 SITE_IMAGE。
- */
-export function extractFirstImage(content: string): string | null {
-  if (!content) return null
-  const mdMatch = String(content).match(/!\[[^\]]*\]\((https?:\/\/[^)]+|\/uploads\/[^)]+)\)/)
-  if (mdMatch && mdMatch[1]) {
-    const raw = mdMatch[1].trim()
-    return raw.startsWith('/') ? `${SITE_URL}${raw}` : raw
-  }
-  const htmlMatch = String(content).match(/<img[^>]+src=["'](https?:\/\/[^"']+|\/uploads\/[^"']+)["']/i)
-  if (htmlMatch && htmlMatch[1]) {
-    const raw = htmlMatch[1].trim()
-    return raw.startsWith('/') ? `${SITE_URL}${raw}` : raw
-  }
-  return null
-}
-
-/**
  * 普通页面 SEO —— 用于 about / article列表 / project 等静态页面
  * 只需传 title 和 description，canonical 由 app.vue 统一处理
  */
@@ -63,25 +37,31 @@ export function usePageSeo(options: {
 /**
  * 文章详情页 SEO —— 动态数据，支持响应式
  */
+function absoluteCover(cover: string | null | undefined): string {
+  if (!cover) return SITE_IMAGE
+  return cover.startsWith('/') ? `${SITE_URL}${cover}` : cover
+}
+
 export function useArticleSeo(options: {
   id: Ref<string>
   title: Ref<string | undefined>
-  content: Ref<string | undefined>
+  excerpt: Ref<string | null | undefined>
+  cover: Ref<string | null | undefined>
   tags: Ref<string[]>
   createTime: Ref<string | undefined>
   updateTime: Ref<string | undefined>
 }) {
   const { t } = useI18n()
-  const { id, title, content, tags, createTime, updateTime } = options
+  const { id, title, excerpt, cover, tags, createTime, updateTime } = options
 
   const articleUrl = computed(() => `${SITE_URL}/article/${id.value}`)
   const description = computed(() =>
-    content.value ? extractSummary(content.value) : t('pages.article.articleDetail.meta.description')
+    excerpt.value || t('pages.article.articleDetail.meta.description')
   )
   const keywords = computed(() =>
     [...(tags.value || []), SITE_AUTHOR, 'plank', 'bevelen'].join(',')
   )
-  const articleImage = computed(() => extractFirstImage(content.value || '') || SITE_IMAGE)
+  const articleImage = computed(() => absoluteCover(cover.value))
 
   useSeoMeta({
     title: () => title.value || t('pages.article.articleDetail.fallback'),

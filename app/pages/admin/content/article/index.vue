@@ -72,7 +72,7 @@
             {{ row.pinned ? '取消置顶' : '置顶' }}
           </el-button>
           <el-button type="primary" link size="small" @click="handleEdit('update', row.id)">编辑</el-button>
-          <el-button type="danger" link size="small" @click="handleDelete(row.id)">删除</el-button>
+          <el-button type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </BaseDataTable>
@@ -148,14 +148,12 @@ const handlePin = async (row: Article) => {
   }
 }
 
-const handleDelete = async (id: string) => {
+const handleDelete = async (row: Article) => {
   try {
     await ElMessageBox.confirm('确认删除该文章吗？', '提示', { type: 'warning' })
-    const detail = await articleService.getArticle(id)
-    const removeTags: string[] = detail?.tags || []
-    await articleService.deleteArticle(id)
-    if (removeTags.length) {
-      await tagService.syncTags([], removeTags)
+    await articleService.deleteArticle(row.id)
+    if (row.tags?.length) {
+      await tagService.syncTags([], row.tags)
     }
     ElMessage.success('删除成功')
     await getArticleList()
